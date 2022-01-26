@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/adminoid/matrix/issues"
   },
-  "homepage": "https://github.com/adminoid/matrix#readme"
+  "homepage": "https://github.com/adminoid/matrix#readme",
+  "devDependencies": {
+    "hardhat": "^2.8.3"
+  }
 }
