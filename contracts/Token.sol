@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// https://testnet.bscscan.com/address/0x1C41cA973794d830F4335F689F82C5ee5CdfF0F9
+
 // Solidity files have to start with this pragma.
 // It will be used by the Solidity compiler to validate its version.
 pragma solidity ^0.7.0;
@@ -11,6 +13,7 @@ contract Token {
     // The `public` modifier makes a variable readable from outside the contract.
     string public name = "My Hardhat Token";
     string public symbol = "MHT";
+    string public deployMessage;
 
     // The fixed amount of tokens stored in an unsigned integer type variable.
     uint256 public totalSupply = 1000000;
@@ -26,11 +29,12 @@ contract Token {
      *
      * The `constructor` is executed only once when the contract is created.
      */
-    constructor() {
+    constructor(string memory message) {
         // The totalSupply is assigned to transaction sender, which is the account
         // that is deploying the contract.
         balances[msg.sender] = totalSupply;
         owner = msg.sender;
+        deployMessage = message;
     }
 
     /**
