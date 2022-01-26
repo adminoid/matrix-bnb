@@ -2,3 +2,4 @@ node_modules/
 private/
 cache/
 artifacts/
+hardhat.config.js
