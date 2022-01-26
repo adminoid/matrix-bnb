@@ -1,0 +1,19 @@
+{
+  "name": "matrix",
+  "version": "1.0.0",
+  "description": "Matrix project on Solidity for BSC",
+  "main": "index.js",
+  "scripts": {
+    "test": "testruncmd"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adminoid/matrix.git"
+  },
+  "author": "Petr Zenin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adminoid/matrix/issues"
+  },
+  "homepage": "https://github.com/adminoid/matrix#readme"
+}
