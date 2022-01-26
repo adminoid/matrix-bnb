@@ -4,11 +4,11 @@
   "description": "Matrix project on Solidity for BSC",
   "main": "index.js",
   "scripts": {
-    "test": "testruncmd"
+    "test": "npx hardhat test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adminoid/matrix.git"
+    "url": "https://github.com/adminoid/matrix.git"
   },
   "author": "Petr Zenin",
   "license": "MIT",
@@ -22,6 +22,7 @@
     "chai": "^4.3.5",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.3",
-    "hardhat": "^2.8.3"
+    "hardhat": "^2.8.3",
+    "mocha": "^9.2.0"
   }
 }

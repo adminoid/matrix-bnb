@@ -13,3 +13,13 @@ using:
 - USDT contract address: [0x337610d27c682e347c9cd60bd4b3b107c9d34ddd](https://testnet.bscscan.com/token/0x337610d27c682e347c9cd60bd4b3b107c9d34ddd)
   
 Getting testnet tokens: <https://testnet.binance.org/faucet-smart>  
+
+# hardhat stuff
+run localhost:  
+`npx hardhat node`  
+
+run tests:  
+`npx hardhat test`  
+
+deploy (to testnet):  
+`npx hardhat run --network testnet scripts/deploy.js`  
