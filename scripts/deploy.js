@@ -1,9 +1,11 @@
+const { ethers } = require('hardhat')
+
 async function main() {
   // We get the contract to deploy
-  const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy("Hello, Hardhat!");
+  const Token = await ethers.getContractFactory("Matrix")
+  const token = await Token.deploy("Matrix deployed")
 
-  console.log("Greeter deployed to:", token.address);
+  console.log("Greeter deployed to: ", token.address)
 }
 
 main()
