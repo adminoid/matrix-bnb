@@ -10,10 +10,16 @@ const MockUSDT = require('../artifacts/contracts/mocks/mockUSDT.sol/MockUSDT.jso
 describe("Deposit/withdraw BUSD and USDT with Matrix", async _ => {
   it('deposit USDT', async function () {
     const [walletUSDT, walletMatrix] = await ethers.getSigners()
-    const tokenUSDT = await deployContract(walletUSDT, MockUSDT);
-    const tokenMatrix = await deployContract(walletMatrix, MXToken);
-    tokenUSDT.transfer(walletMatrix.address, 70)
-    const test = await tokenMatrix.balanceOf(walletMatrix.address)
-    console.log(test)
+    const tokenUSDT = await deployContract(walletUSDT, MockUSDT)
+    const tokenMatrix = await deployContract(walletMatrix, MXToken)
+
+    let amount = ethers.utils.parseEther(String(150))
+
+    await tokenUSDT.connect(walletUSDT).transfer(walletMatrix.address, amount)
+    let newBalance = await tokenUSDT.balanceOf(walletMatrix.address)
+    expect(newBalance).to.equal(amount)
+
+    let matrixBalance = await tokenMatrix.balanceOf(walletMatrix.address)
+    console.log(matrixBalance)
   })
 })

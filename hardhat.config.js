@@ -1,8 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
 require('@nomiclabs/hardhat-ethers');
-const { mnemonic } = require('./secrets.json');
-const { task } = require("hardhat/config");
-const { ethers } = require('hardhat')
+const { mnemonic } = require('./secret.json');
+// const { task } = require("hardhat/config");
+// const { ethers } = require('hardhat')
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
