@@ -3,34 +3,31 @@ const { ethers, waffle } = require('hardhat')
 const { deployContract } = waffle
 
 // contracts
-const MXJson = require('../artifacts/contracts/Matrix.sol/Matrix.json')
+const Matrix = require('../artifacts/contracts/Matrix.sol/Matrix.json')
 const MockUSDT = require('../artifacts/contracts/mocks/mockUSDT.sol/MockUSDT.json')
-const MockBUSD = require('../artifacts/contracts/mocks/mockBUSD.sol/MockBUSD.json')
+// const MockBUSD = require('../artifacts/contracts/mocks/mockBUSD.sol/MockBUSD.json')
 
-describe('Matrix.sol', _ => {
-  it('Deposit/withdraw BUSD and USDT with Matrix.sol', async () => {
-    const [walletUSDT, walletBUSD, walletCosts, walletMatrix] = await ethers.getSigners()
+describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
+  it('Deposit USDT', async () => {
+    const [deployerUSDT, deployerMatrix, commonWallet, walletUser] = await ethers.getSigners()
 
-    const tokenUSDT = await deployContract(walletUSDT, MockUSDT)
-    const tokenBUSD = await deployContract(walletBUSD, MockBUSD)
-    const tokenMatrix = await deployContract(walletMatrix, MXJson, [
+    const tokenUSDT = await deployContract(deployerUSDT, MockUSDT)
+    const tokenMatrix = await deployContract(deployerMatrix, Matrix, [
       tokenUSDT.address,
-      tokenBUSD.address,
-      walletCosts.address,
+      commonWallet.address,
     ])
 
-    let amount = ethers.utils.parseEther(String(11))
+    await tokenUSDT.connect(deployerUSDT).transfer(walletUser.address, 11)
+    let balance = await tokenUSDT.balanceOf(walletUser.address)
+    expect(balance).to.equal(11) // ok
 
-    await tokenUSDT.connect(walletUSDT).transfer(walletMatrix.address, amount)
-    let balance = await tokenUSDT.balanceOf(walletMatrix.address)
-    expect(balance).to.equal(amount)
+    await tokenUSDT.connect(walletUser).approve(tokenMatrix.address, 9);
+    await tokenMatrix.connect(walletUser).depositUSDT(9)
 
-    let amount2 = ethers.utils.parseEther(String(9))
-    await tokenMatrix.connect(walletMatrix).depositUSDT(amount2)
-    // let matrixBalance = await tokenMatrix.balanceOf(walletMatrix.address)
-    // expect(matrixBalance).to.equal(amount)
+    let usdtBalance = await tokenUSDT.balanceOf(walletUser.address)
+    expect(usdtBalance).to.equal(2)
 
-    // let matrixBalance = await tokenMatrix.balanceOf(walletMatrix.address)
-    // console.log(matrixBalance)
+    let mxBalance = await tokenUSDT.balanceOf(commonWallet.address)
+    expect(mxBalance).to.equal(9)
   }).timeout(20000)
 })
