@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Matrix is ERC20 {
 
-    using SafeMath for uint;
+    using SafeMath for uint256;
     address USDTAddress;
     address BUSDAddress;
     address BoxAddress;
@@ -22,9 +22,9 @@ contract Matrix is ERC20 {
         address _USDTAddress,
         address _BUSDAddress,
         address _costsAddress
-    ) ERC20("Matrix", "MUSD") {
+    ) ERC20("Matrix", "MAT") {
         USDTAddress = _USDTAddress;
-        USDTAddress = _BUSDAddress;
+        BUSDAddress = _BUSDAddress;
         BoxAddress = msg.sender;
         CostsAddress = _costsAddress;
     }
