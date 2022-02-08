@@ -7,9 +7,9 @@ const Matrix = require('../artifacts/contracts/Matrix.sol/Matrix.json')
 const MockUSDT = require('../artifacts/contracts/mocks/mockUSDT.sol/MockUSDT.json')
 const MockBUSD = require('../artifacts/contracts/mocks/mockBUSD.sol/MockBUSD.json')
 
-// BUSD: https://testnet.bscscan.com/token/0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee
 // USDT: https://testnet.bscscan.com/token/0x337610d27c682E347C9cD60BD4b3b107C9d34dDd
-// BUSD and USDT all have 18 decimals
+// BUSD: https://testnet.bscscan.com/token/0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee
+// USDT and BUSD all have 18 decimals
 
 const prepare = async () => {
   const [
