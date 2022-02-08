@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 contract Matrix is ERC20 {
     address USDTAddress;
@@ -24,11 +24,9 @@ contract Matrix is ERC20 {
         _mint(msg.sender, _amount);
     }
 
-
     function withdrawUSDT(uint _amount) payable public {
-        console.log("%s: %s", "msg.sender", msg.sender);
         USDTToken.approve(address(this), _amount);
-        USDTToken.transferFrom(address(this), msg.sender, _amount); // truth
+        USDTToken.transferFrom(address(this), msg.sender, _amount);
         _burn(msg.sender, _amount);
     }
 
@@ -37,8 +35,9 @@ contract Matrix is ERC20 {
         _mint(msg.sender, _amount);
     }
 
-//    function withdrawBUSD(uint _amount) payable public {
-//        BUSDToken.transferFrom(msg.sender, tokenMatrix, _amount);
-//        _mint(msg.sender, _amount);
-//    }
+    function withdrawBUSD(uint _amount) payable public {
+        BUSDToken.approve(address(this), _amount);
+        BUSDToken.transferFrom(address(this), msg.sender, _amount);
+        _burn(msg.sender, _amount);
+    }
 }

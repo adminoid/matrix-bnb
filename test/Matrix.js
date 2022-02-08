@@ -37,9 +37,7 @@ const prepare = async () => {
 }
 
 describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
-
   it('Deposit and withdraw USDT', async () => {
-
     const {
       deployerUSDT,
       userWallet,
@@ -49,57 +47,65 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // update user balance in USDT
     await tokenUSDT.connect(deployerUSDT).transfer(userWallet.address, 11)
-    let balance = await tokenUSDT.balanceOf(userWallet.address)
+
+    const balance = await tokenUSDT.balanceOf(userWallet.address)
     expect(balance).to.equal(11) // ok
 
     // deposit USDT
     await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 9)
     await tokenMatrix.connect(userWallet).depositUSDT(9)
-    let usdtBalance = await tokenUSDT.balanceOf(userWallet.address)
+
+    const usdtBalance = await tokenUSDT.balanceOf(userWallet.address)
     expect(usdtBalance).to.equal(2)
-    let mxTokenBalance = await tokenUSDT.balanceOf(tokenMatrix.address)
+    const mxTokenBalance = await tokenUSDT.balanceOf(tokenMatrix.address)
     expect(mxTokenBalance).to.equal(9)
-    let mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
+    const mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
     expect(mxUserBalance).to.equal(9)
 
     // withdraw USDT
-    console.log('tokenMatrix:', tokenMatrix.address)
-    console.log('userWallet:', userWallet.address)
-    console.log('tokenMatrix:', tokenMatrix.address)
-
     await tokenMatrix.connect(userWallet).withdrawUSDT(6)
 
-    let usdtBalance1 = await tokenUSDT.balanceOf(userWallet.address)
+    const usdtBalance1 = await tokenUSDT.balanceOf(userWallet.address)
     expect(usdtBalance1).to.equal(8)
-    let mxTokenBalance1 = await tokenUSDT.balanceOf(tokenMatrix.address)
+    const mxTokenBalance1 = await tokenUSDT.balanceOf(tokenMatrix.address)
     expect(mxTokenBalance1).to.equal(3)
-    let mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
+    const mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
     expect(mxUserBalance1).to.equal(3)
-
   }).timeout(20000)
 
-  // it('Deposit and withdraw BUSD', async () => {
-  //   const {
-  //     deployerBUSD,
-  //     userWallet,
-  //     tokenBUSD,
-  //     tokenMatrix,
-  //   } = await prepare()
-  //
-  //   await tokenBUSD.connect(deployerBUSD).transfer(userWallet.address, 11)
-  //   let balance = await tokenBUSD.balanceOf(userWallet.address)
-  //   expect(balance).to.equal(11) // ok
-  //
-  //   await tokenBUSD.connect(userWallet).approve(tokenMatrix.address, 9)
-  //   await tokenMatrix.connect(userWallet).depositBUSD(9)
-  //
-  //   let busdBalance = await tokenBUSD.balanceOf(userWallet.address)
-  //   expect(busdBalance).to.equal(2)
-  //
-  //   let mxTokenBalance = await tokenBUSD.balanceOf(tokenMatrix.address)
-  //   expect(mxTokenBalance).to.equal(9)
-  //
-  //   let mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
-  //   expect(mxUserBalance).to.equal(9)
-  // }).timeout(20000)
+  it('Deposit and withdraw BUSD', async () => {
+    const {
+      deployerBUSD,
+      userWallet,
+      tokenBUSD,
+      tokenMatrix,
+    } = await prepare()
+
+    // update user balance in USDT
+    await tokenBUSD.connect(deployerBUSD).transfer(userWallet.address, 11)
+
+    const balance = await tokenBUSD.balanceOf(userWallet.address)
+    expect(balance).to.equal(11) // ok
+
+    // deposit USDT
+    await tokenBUSD.connect(userWallet).approve(tokenMatrix.address, 9)
+    await tokenMatrix.connect(userWallet).depositBUSD(9)
+
+    const busdBalance = await tokenBUSD.balanceOf(userWallet.address)
+    expect(busdBalance).to.equal(2)
+    const mxTokenBalance = await tokenBUSD.balanceOf(tokenMatrix.address)
+    expect(mxTokenBalance).to.equal(9)
+    const mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
+    expect(mxUserBalance).to.equal(9)
+
+    // withdraw USDT
+    await tokenMatrix.connect(userWallet).withdrawBUSD(6)
+
+    const busdBalance1 = await tokenBUSD.balanceOf(userWallet.address)
+    expect(busdBalance1).to.equal(8)
+    const mxTokenBalance1 = await tokenBUSD.balanceOf(tokenMatrix.address)
+    expect(mxTokenBalance1).to.equal(3)
+    const mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
+    expect(mxUserBalance1).to.equal(3)
+  }).timeout(20000)
 })
