@@ -81,13 +81,13 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
       tokenMatrix,
     } = await prepare()
 
-    // update user balance in USDT
+    // update user balance in BUSD
     await tokenBUSD.connect(deployerBUSD).transfer(userWallet.address, 11)
 
     const balance = await tokenBUSD.balanceOf(userWallet.address)
     expect(balance).to.equal(11) // ok
 
-    // deposit USDT
+    // deposit BUSD
     await tokenBUSD.connect(userWallet).approve(tokenMatrix.address, 9)
     await tokenMatrix.connect(userWallet).depositBUSD(9)
 
@@ -98,7 +98,7 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
     const mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
     expect(mxUserBalance).to.equal(9)
 
-    // withdraw USDT
+    // withdraw BUSD
     await tokenMatrix.connect(userWallet).withdrawBUSD(6)
 
     const busdBalance1 = await tokenBUSD.balanceOf(userWallet.address)
