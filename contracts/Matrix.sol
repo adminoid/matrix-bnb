@@ -30,9 +30,12 @@ contract Matrix is ERC20 {
         _mint(msg.sender, _amount);
     }
 
+
     function withdrawUSDT(uint _amount) payable public {
-        USDTToken.approve(BoxAddress, _amount);
-        USDTToken.transferFrom(BoxAddress, msg.sender, _amount);
+        console.log("%s: %s", "msg.sender", msg.sender);
+//        USDTToken.approve(BoxAddress, _amount);
+        MXToken.approve(USDTAddress, _amount);
+        USDTToken.transferFrom(BoxAddress, msg.sender, _amount); // truth
         _burn(msg.sender, _amount);
     }
 

@@ -66,12 +66,10 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
     let mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
     expect(mxUserBalance).to.equal(9)
 
-    // const owner = userWallet
     // withdraw USDT
-
-    console.log(tokenMatrix.address)
-    console.log(boxWallet.address)
-    console.log(userWallet.address)
+    console.log('boxWallet:', boxWallet.address)
+    console.log('userWallet:', userWallet.address)
+    console.log('tokenMatrix:', tokenMatrix.address)
 
     // await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 6)
     await tokenMatrix.connect(userWallet.address).withdrawUSDT(6)
