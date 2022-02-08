@@ -17,13 +17,11 @@ const prepare = async () => {
     deployerBUSD,
     deployerMatrix,
     userWallet,
-    boxWallet,
   ] = await ethers.getSigners()
 
   const tokenUSDT = await deployContract(deployerUSDT, MockUSDT)
   const tokenBUSD = await deployContract(deployerBUSD, MockBUSD)
   const tokenMatrix = await deployContract(deployerMatrix, Matrix, [
-    boxWallet.address,
     tokenUSDT.address,
     tokenBUSD.address,
   ])
@@ -32,7 +30,6 @@ const prepare = async () => {
     deployerUSDT,
     deployerBUSD,
     userWallet,
-    boxWallet,
     tokenUSDT,
     tokenBUSD,
     tokenMatrix,
@@ -46,7 +43,6 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
     const {
       deployerUSDT,
       userWallet,
-      boxWallet,
       tokenUSDT,
       tokenMatrix,
     } = await prepare()
@@ -61,25 +57,24 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
     await tokenMatrix.connect(userWallet).depositUSDT(9)
     let usdtBalance = await tokenUSDT.balanceOf(userWallet.address)
     expect(usdtBalance).to.equal(2)
-    let mxTokenBalance = await tokenUSDT.balanceOf(boxWallet.address)
+    let mxTokenBalance = await tokenUSDT.balanceOf(tokenMatrix.address)
     expect(mxTokenBalance).to.equal(9)
     let mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
     expect(mxUserBalance).to.equal(9)
 
     // withdraw USDT
-    console.log('boxWallet:', boxWallet.address)
+    console.log('tokenMatrix:', tokenMatrix.address)
     console.log('userWallet:', userWallet.address)
     console.log('tokenMatrix:', tokenMatrix.address)
 
-    // await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 6)
-    await tokenMatrix.connect(userWallet.address).withdrawUSDT(6)
+    await tokenMatrix.connect(userWallet).withdrawUSDT(6)
 
-    // let usdtBalance1 = await tokenUSDT.balanceOf(userWallet.address)
-    // expect(usdtBalance1).to.equal(10)
-    // let mxTokenBalance1 = await tokenUSDT.balanceOf(deployerMatrix.address)
-    // expect(mxTokenBalance1).to.equal(1)
-    // let mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
-    // expect(mxUserBalance1).to.equal(1)
+    let usdtBalance1 = await tokenUSDT.balanceOf(userWallet.address)
+    expect(usdtBalance1).to.equal(8)
+    let mxTokenBalance1 = await tokenUSDT.balanceOf(tokenMatrix.address)
+    expect(mxTokenBalance1).to.equal(3)
+    let mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
+    expect(mxUserBalance1).to.equal(3)
 
   }).timeout(20000)
 
