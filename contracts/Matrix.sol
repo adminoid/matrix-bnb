@@ -15,12 +15,14 @@ contract Matrix is ERC20 {
     IERC20 public MXToken;
 
     constructor(address _BoxAddress, address _USDTAddress, address _BUSDAddress) ERC20("Matrix", "XUSD") {
+//        BoxAddress = address(this);
         BoxAddress = _BoxAddress;
         USDTAddress = _USDTAddress;
         BUSDAddress = _BUSDAddress;
         MXToken = ERC20(address(this));
         USDTToken = ERC20(USDTAddress);
         BUSDToken = ERC20(BUSDAddress);
+//        console.log(BoxAddress);
     }
 
     function depositUSDT(uint _amount) payable public {
@@ -28,8 +30,19 @@ contract Matrix is ERC20 {
         _mint(msg.sender, _amount);
     }
 
+    function withdrawUSDT(uint _amount) payable public {
+        USDTToken.approve(BoxAddress, _amount);
+        USDTToken.transferFrom(BoxAddress, msg.sender, _amount);
+        _burn(msg.sender, _amount);
+    }
+
     function depositBUSD(uint _amount) payable public {
         BUSDToken.transferFrom(msg.sender, BoxAddress, _amount);
         _mint(msg.sender, _amount);
     }
+
+//    function withdrawBUSD(uint _amount) payable public {
+//        BUSDToken.transferFrom(msg.sender, BoxAddress, _amount);
+//        _mint(msg.sender, _amount);
+//    }
 }
