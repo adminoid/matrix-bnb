@@ -61,7 +61,9 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // deposit USDT
     await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 9)
-    await tokenMatrix.connect(userWallet).depositUSDT(9)
+    await expect(tokenMatrix.connect(userWallet).depositUSDT(9))
+      .to.emit(tokenMatrix, "Deposited")
+      .withArgs(userWallet.address, 9, 'USDT')
 
     expect(await getBalance(tokenUSDT, userWallet)).to.equal(2)
     expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(9)
@@ -69,7 +71,9 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
     expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(9)
 
     // withdraw USDT
-    await tokenMatrix.connect(userWallet).withdrawUSDT(6)
+    await expect(tokenMatrix.connect(userWallet).withdrawUSDT(6))
+      .to.emit(tokenMatrix, "Withdrawn")
+      .withArgs(userWallet.address, 6, 'USDT')
 
     expect(await getBalance(tokenUSDT, userWallet)).to.equal(8)
     expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(3)
@@ -94,14 +98,20 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // deposit BUSD
     await tokenBUSD.connect(userWallet).approve(tokenMatrix.address, 9)
-    await tokenMatrix.connect(userWallet).depositBUSD(9)
+    // await tokenMatrix.connect(userWallet).depositBUSD(9)
+
+    await expect(tokenMatrix.connect(userWallet).depositBUSD(9))
+      .to.emit(tokenMatrix, "Deposited")
+      .withArgs(userWallet.address, 9, 'BUSD')
 
     expect(await getBalance(tokenBUSD, userWallet)).to.equal(2)
     expect(await getBalance(tokenBUSD, tokenMatrix)).to.equal(9)
     expect(await getBalance(tokenMatrix, userWallet)).to.equal(9)
 
     // withdraw BUSD
-    await tokenMatrix.connect(userWallet).withdrawBUSD(6)
+    await expect(tokenMatrix.connect(userWallet).withdrawBUSD(6))
+      .to.emit(tokenMatrix, "Withdrawn")
+      .withArgs(userWallet.address, 6, 'BUSD')
 
     expect(await getBalance(tokenBUSD, userWallet)).to.equal(8)
     expect(await getBalance(tokenBUSD, tokenMatrix)).to.equal(3)

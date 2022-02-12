@@ -23,6 +23,9 @@ contract Matrix is ERC20, Ownable {
 
     mapping (address => Deposit) Deposits;
 
+    event Deposited(address sender, uint256 amount, string currency);
+    event Withdrawn(address sender, uint256 amount, string currency);
+
     constructor(address _USDTAddress, address _BUSDAddress) ERC20("Matrix", "XUSD") {
         USDTAddress = _USDTAddress;
         BUSDAddress = _BUSDAddress;
@@ -34,6 +37,7 @@ contract Matrix is ERC20, Ownable {
         USDTToken.transferFrom(msg.sender, address(this), _amount);
         Deposits[msg.sender].USDT += _amount;
         _mint(msg.sender, _amount);
+        emit Deposited(msg.sender, _amount, "USDT");
     }
 
     function withdrawUSDT(uint _amount) payable public {
@@ -42,6 +46,7 @@ contract Matrix is ERC20, Ownable {
         USDTToken.transferFrom(address(this), msg.sender, _amount);
         Deposits[msg.sender].USDT -= _amount;
         _burn(msg.sender, _amount);
+        emit Withdrawn(msg.sender, _amount, "USDT");
     }
 
     function getUSDTDeposit() view public returns(uint256) {
@@ -52,6 +57,7 @@ contract Matrix is ERC20, Ownable {
         BUSDToken.transferFrom(msg.sender, address(this), _amount);
         Deposits[msg.sender].BUSD += _amount;
         _mint(msg.sender, _amount);
+        emit Deposited(msg.sender, _amount, "BUSD");
     }
 
     function withdrawBUSD(uint _amount) payable public {
@@ -60,6 +66,7 @@ contract Matrix is ERC20, Ownable {
         BUSDToken.transferFrom(address(this), msg.sender, _amount);
         Deposits[msg.sender].BUSD -= _amount;
         _burn(msg.sender, _amount);
+        emit Withdrawn(msg.sender, _amount, "BUSD");
     }
 
     function getBUSDDeposit() view public returns(uint256) {
