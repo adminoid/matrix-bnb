@@ -8,8 +8,6 @@ import "hardhat/console.sol";
 
 // todo: add Events for deposit and withdrawing
 // todo: add required or
-// todo: ? fix amount for deposit and withdraw
-// todo: add mapping for saving user payments in BUSD/USDT
 
 contract Matrix is ERC20, Ownable {
     address USDTAddress;
@@ -39,6 +37,7 @@ contract Matrix is ERC20, Ownable {
     }
 
     function withdrawUSDT(uint _amount) payable public {
+        require(Deposits[msg.sender].USDT >= _amount, "deposited less than you want withdraw USDT");
         USDTToken.approve(address(this), _amount);
         USDTToken.transferFrom(address(this), msg.sender, _amount);
         Deposits[msg.sender].USDT -= _amount;
@@ -56,6 +55,7 @@ contract Matrix is ERC20, Ownable {
     }
 
     function withdrawBUSD(uint _amount) payable public {
+        require(Deposits[msg.sender].BUSD >= _amount, "deposited less than you want withdraw BUSD");
         BUSDToken.approve(address(this), _amount);
         BUSDToken.transferFrom(address(this), msg.sender, _amount);
         Deposits[msg.sender].BUSD -= _amount;
