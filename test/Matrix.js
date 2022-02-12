@@ -26,9 +26,12 @@ const prepare = async () => {
     tokenBUSD.address,
   ])
 
+  // update user balance in USDT
+  await tokenUSDT.connect(deployerUSDT).transfer(userWallet.address, 11)
+  // update user balance in BUSD
+  await tokenBUSD.connect(deployerBUSD).transfer(userWallet.address, 11)
+
   return {
-    deployerUSDT,
-    deployerBUSD,
     userWallet,
     tokenUSDT,
     tokenBUSD,
@@ -36,76 +39,58 @@ const prepare = async () => {
   }
 }
 
+async function getBalance(token, account) {
+  return await token.balanceOf(account.address)
+}
+
 describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
   it('Deposit and withdraw USDT', async () => {
     const {
-      deployerUSDT,
       userWallet,
       tokenUSDT,
       tokenMatrix,
     } = await prepare()
 
-    // update user balance in USDT
-    await tokenUSDT.connect(deployerUSDT).transfer(userWallet.address, 11)
-
-    const balance = await tokenUSDT.balanceOf(userWallet.address)
-    expect(balance).to.equal(11) // ok
-
     // deposit USDT
     await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 9)
     await tokenMatrix.connect(userWallet).depositUSDT(9)
 
-    const usdtBalance = await tokenUSDT.balanceOf(userWallet.address)
-    expect(usdtBalance).to.equal(2)
-    const mxTokenBalance = await tokenUSDT.balanceOf(tokenMatrix.address)
-    expect(mxTokenBalance).to.equal(9)
-    const mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
-    expect(mxUserBalance).to.equal(9)
+    expect(await getBalance(tokenUSDT, userWallet)).to.equal(2)
+    expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(9)
+    expect(await getBalance(tokenMatrix, userWallet)).to.equal(9)
+    expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(9)
 
     // withdraw USDT
     await tokenMatrix.connect(userWallet).withdrawUSDT(6)
 
-    const usdtBalance1 = await tokenUSDT.balanceOf(userWallet.address)
-    expect(usdtBalance1).to.equal(8)
-    const mxTokenBalance1 = await tokenUSDT.balanceOf(tokenMatrix.address)
-    expect(mxTokenBalance1).to.equal(3)
-    const mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
-    expect(mxUserBalance1).to.equal(3)
+    expect(await getBalance(tokenUSDT, userWallet)).to.equal(8)
+    expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(3)
+    expect(await getBalance(tokenMatrix, userWallet)).to.equal(3)
+
+    expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(3)
+
   }).timeout(20000)
 
   it('Deposit and withdraw BUSD', async () => {
     const {
-      deployerBUSD,
       userWallet,
       tokenBUSD,
       tokenMatrix,
     } = await prepare()
 
-    // update user balance in BUSD
-    await tokenBUSD.connect(deployerBUSD).transfer(userWallet.address, 11)
-
-    const balance = await tokenBUSD.balanceOf(userWallet.address)
-    expect(balance).to.equal(11) // ok
-
     // deposit BUSD
     await tokenBUSD.connect(userWallet).approve(tokenMatrix.address, 9)
     await tokenMatrix.connect(userWallet).depositBUSD(9)
 
-    const busdBalance = await tokenBUSD.balanceOf(userWallet.address)
-    expect(busdBalance).to.equal(2)
-    const mxTokenBalance = await tokenBUSD.balanceOf(tokenMatrix.address)
-    expect(mxTokenBalance).to.equal(9)
-    const mxUserBalance = await tokenMatrix.balanceOf(userWallet.address)
-    expect(mxUserBalance).to.equal(9)
+    expect(await getBalance(tokenBUSD, userWallet)).to.equal(2)
+    expect(await getBalance(tokenBUSD, tokenMatrix)).to.equal(9)
+    expect(await getBalance(tokenMatrix, userWallet)).to.equal(9)
 
     // withdraw BUSD
     await tokenMatrix.connect(userWallet).withdrawBUSD(6)
 
-    const busdBalance1 = await tokenBUSD.balanceOf(userWallet.address)
-    expect(busdBalance1).to.equal(8)
-    const mxTokenBalance1 = await tokenBUSD.balanceOf(tokenMatrix.address)
-    expect(mxTokenBalance1).to.equal(3)
-    const mxUserBalance1 = await tokenMatrix.balanceOf(userWallet.address)
-    expect(mxUserBalance1).to.equal(3)
+    expect(await getBalance(tokenBUSD, userWallet)).to.equal(8)
+    expect(await getBalance(tokenBUSD, tokenMatrix)).to.equal(3)
+    expect(await getBalance(tokenMatrix, userWallet)).to.equal(3)
   }).timeout(20000)
 })
