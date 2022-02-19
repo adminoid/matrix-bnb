@@ -15,9 +15,11 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+    console.error(error)
+    process.exit(1)
+  })
 
 // running script:
 // npx hardhat run --network testnet scripts/deploy.js
+
+// Matrix deployed to: 0x403437EC55dA5d2aE6f7dE4e0E97BFb8f5CD548B

@@ -4,6 +4,7 @@
   "description": "Matrix project on Solidity for BSC",
   "main": "index.js",
   "scripts": {
+    "start": "export SET NODE_OPTIONS=--openssl-legacy-provider && npx hardhat node",
     "test": "npx hardhat test"
   },
   "repository": {
