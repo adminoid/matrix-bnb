@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "export SET NODE_OPTIONS=--openssl-legacy-provider && npx hardhat node",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run --network testnet scripts/deploy.js"
   },
   "repository": {
     "type": "git",
