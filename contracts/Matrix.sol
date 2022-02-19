@@ -34,46 +34,42 @@ contract Matrix is ERC20 {
     }
 
     function depositUSDT(uint256 _amount) payable public {
-        uint256 amount = _amount.mul(ether);
-        USDTToken.transferFrom(msg.sender, address(this), amount);
-        Deposits[msg.sender].USDT = Deposits[msg.sender].USDT.add(amount);
-        _mint(msg.sender, amount);
-        emit Deposited(msg.sender, amount, "USDT");
+        USDTToken.transferFrom(msg.sender, address(this), _amount);
+        Deposits[msg.sender].USDT = Deposits[msg.sender].USDT.add(_amount);
+        _mint(msg.sender, _amount);
+        emit Deposited(msg.sender, _amount, "USDT");
     }
 
     function withdrawUSDT(uint256 _amount) payable public {
-        uint256 amount = _amount.mul(ether);
-        require(Deposits[msg.sender].USDT >= amount, "deposited less than you want withdraw USDT");
-        USDTToken.approve(address(this), amount);
-        USDTToken.transferFrom(address(this), msg.sender, amount);
-        Deposits[msg.sender].USDT = Deposits[msg.sender].USDT.sub(amount);
-        _burn(msg.sender, amount);
-        emit Withdrawn(msg.sender, amount, "USDT");
+        require(Deposits[msg.sender].USDT >= _amount, "deposited less than you want withdraw USDT");
+        USDTToken.approve(address(this), _amount);
+        USDTToken.transferFrom(address(this), msg.sender, _amount);
+        Deposits[msg.sender].USDT = Deposits[msg.sender].USDT.sub(_amount);
+        _burn(msg.sender, _amount);
+        emit Withdrawn(msg.sender, _amount, "USDT");
     }
 
     function getUSDTDeposit() view public returns(uint256) {
-        return Deposits[msg.sender].USDT.div(ether);
+        return Deposits[msg.sender].USDT;
     }
 
     function depositBUSD(uint256 _amount) payable public {
-        uint256 amount = _amount.mul(ether);
-        BUSDToken.transferFrom(msg.sender, address(this), amount);
-        Deposits[msg.sender].BUSD = Deposits[msg.sender].BUSD.add(amount);
-        _mint(msg.sender, amount);
-        emit Deposited(msg.sender, amount, "BUSD");
+        BUSDToken.transferFrom(msg.sender, address(this), _amount);
+        Deposits[msg.sender].BUSD = Deposits[msg.sender].BUSD.add(_amount);
+        _mint(msg.sender, _amount);
+        emit Deposited(msg.sender, _amount, "BUSD");
     }
 
     function withdrawBUSD(uint _amount) payable public {
-        uint256 amount = _amount.mul(ether);
-        require(Deposits[msg.sender].BUSD >= amount, "deposited less than you want withdraw BUSD");
-        BUSDToken.approve(address(this), amount);
-        BUSDToken.transferFrom(address(this), msg.sender, amount);
-        Deposits[msg.sender].BUSD = Deposits[msg.sender].BUSD.sub(amount);
-        _burn(msg.sender, amount);
-        emit Withdrawn(msg.sender, amount, "BUSD");
+        require(Deposits[msg.sender].BUSD >= _amount, "deposited less than you want withdraw BUSD");
+        BUSDToken.approve(address(this), _amount);
+        BUSDToken.transferFrom(address(this), msg.sender, _amount);
+        Deposits[msg.sender].BUSD = Deposits[msg.sender].BUSD.sub(_amount);
+        _burn(msg.sender, _amount);
+        emit Withdrawn(msg.sender, _amount, "BUSD");
     }
 
     function getBUSDDeposit() view public returns(uint256) {
-        return Deposits[msg.sender].BUSD.div(ether);
+        return Deposits[msg.sender].BUSD;
     }
 }
