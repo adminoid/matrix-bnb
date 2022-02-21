@@ -41,7 +41,7 @@ contract Matrix is ERC20 {
     }
 
     function withdrawUSDT(uint256 _amount) payable public {
-        require(Deposits[msg.sender].USDT >= _amount, "deposited less than you want withdraw USDT");
+        require(Deposits[msg.sender].USDT >= _amount, "USDT deposited less than you want to withdraw");
         USDTToken.approve(address(this), _amount);
         USDTToken.transferFrom(address(this), msg.sender, _amount);
         Deposits[msg.sender].USDT = Deposits[msg.sender].USDT.sub(_amount);
@@ -61,7 +61,7 @@ contract Matrix is ERC20 {
     }
 
     function withdrawBUSD(uint _amount) payable public {
-        require(Deposits[msg.sender].BUSD >= _amount, "deposited less than you want withdraw BUSD");
+        require(Deposits[msg.sender].BUSD >= _amount, "BUSD deposited less than you want to withdraw");
         BUSDToken.approve(address(this), _amount);
         BUSDToken.transferFrom(address(this), msg.sender, _amount);
         Deposits[msg.sender].BUSD = Deposits[msg.sender].BUSD.sub(_amount);
