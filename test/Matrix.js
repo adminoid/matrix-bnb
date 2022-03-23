@@ -11,29 +11,14 @@ const MockBUSD = require('../artifacts/contracts/mocks/mockBUSD.sol/MockBUSD.jso
 // BUSD: https://testnet.bscscan.com/token/0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee
 // USDT and BUSD all have 18 decimals
 
-// const provider = ethers.getDefaultProvider()
-
-const randomSigners = (amount) => {
-  const signers = []
-  for (let i = 0; i < amount; i++) {
-    signers.push(ethers.Wallet.createRandom().connect(ethers.provider))
-  }
-  return signers
-}
-
 const prepare = async () => {
-
-  console.log(ethers.provider)
-  console.log(ethers.getDefaultProvider())
-
   const [
     deployerUSDT,
     deployerBUSD,
     deployerMatrix,
     userWallet,
     userWalletEmpty,
-  ] = randomSigners(33)
-  // ] = await ethers.getSigners()
+  ] = await ethers.getSigners()
 
   const tokenUSDT = await deployContract(deployerUSDT, MockUSDT)
   const tokenBUSD = await deployContract(deployerBUSD, MockBUSD)
@@ -69,36 +54,34 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
       userWalletEmpty,
     } = await prepare()
 
-    console.log(tokenMatrix)
-
     // deposit from empty balance
     await tokenUSDT.connect(userWalletEmpty).approve(tokenMatrix.address, 9)
     await expect(tokenMatrix.connect(userWalletEmpty)
-      .depositUSDT(9)).to.be.reverted
+      .depositUSDT(9)).to.be.reverted;
 
-    // // deposit USDT
-    // await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 9)
-    // await expect(tokenMatrix.connect(userWallet).depositUSDT(9))
-    //   .to.emit(tokenMatrix, "Deposited")
-    //   .withArgs(userWallet.address, 9, 'USDT')
-    //
-    // expect(await getBalance(tokenUSDT, userWallet)).to.equal(2)
-    // expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(9)
-    // expect(await getBalance(tokenMatrix, userWallet)).to.equal(9)
-    // expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(9)
-    //
-    // // withdraw USDT
-    // await expect(tokenMatrix.connect(userWallet).withdrawUSDT(6))
-    //   .to.emit(tokenMatrix, "Withdrawn")
-    //   .withArgs(userWallet.address, 6, 'USDT')
-    //
-    // expect(await getBalance(tokenUSDT, userWallet)).to.equal(8)
-    // expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(3)
-    // expect(await getBalance(tokenMatrix, userWallet)).to.equal(3)
-    //
-    // expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(3)
+    // deposit USDT
+    await tokenUSDT.connect(userWallet).approve(tokenMatrix.address, 9)
+    await expect(tokenMatrix.connect(userWallet).depositUSDT(9))
+      .to.emit(tokenMatrix, "Deposited")
+      .withArgs(userWallet.address, 9, 'USDT')
 
-  }).timeout(50000)
+    expect(await getBalance(tokenUSDT, userWallet)).to.equal(2)
+    expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(9)
+    expect(await getBalance(tokenMatrix, userWallet)).to.equal(9)
+    expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(9)
+
+    // withdraw USDT
+    await expect(tokenMatrix.connect(userWallet).withdrawUSDT(6))
+      .to.emit(tokenMatrix, "Withdrawn")
+      .withArgs(userWallet.address, 6, 'USDT')
+
+    expect(await getBalance(tokenUSDT, userWallet)).to.equal(8)
+    expect(await getBalance(tokenUSDT, tokenMatrix)).to.equal(3)
+    expect(await getBalance(tokenMatrix, userWallet)).to.equal(3)
+
+    expect(await tokenMatrix.connect(userWallet).getUSDTDeposit()).to.equal(3)
+
+  }).timeout(5000)
 
   it('Deposit and withdraw BUSD', async () => {
     const {
@@ -115,7 +98,6 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // deposit BUSD
     await tokenBUSD.connect(userWallet).approve(tokenMatrix.address, 9)
-    // await tokenMatrix.connect(userWallet).depositBUSD(9)
 
     await expect(tokenMatrix.connect(userWallet).depositBUSD(9))
       .to.emit(tokenMatrix, "Deposited")
@@ -150,7 +132,7 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // withdraw more than deposited BUSD
     await expect(tokenMatrix.connect(userWallet).withdrawBUSD(2))
-      .to.be.revertedWith('deposited less than you want withdraw BUSD');
+      .to.be.revertedWith('BUSD deposited less than you want to withdraw');
   }).timeout(5000)
 
   it('Deposit BUSD then withdraw USDT and vice versa', async () => {
@@ -168,6 +150,6 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // withdraw more than deposited BUSD
     await expect(tokenMatrix.connect(userWallet).withdrawUSDT(2))
-      .to.be.revertedWith('deposited less than you want withdraw USDT');
+      .to.be.revertedWith('USDT deposited less than you want to withdraw');
   }).timeout(5000)
 })
