@@ -133,7 +133,7 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // withdraw more than deposited BUSD
     await expect(tokenMatrix.connect(userWallet).withdrawBUSD(2))
-      .to.be.revertedWith('deposited less than you want withdraw BUSD');
+      .to.be.revertedWith('BUSD deposited less than you want to withdraw');
   }).timeout(5000)
 
   it('Deposit BUSD then withdraw USDT and vice versa', async () => {
@@ -151,6 +151,6 @@ describe('Deposit/withdraw BUSD and USDT with Matrix.sol', _ => {
 
     // withdraw more than deposited BUSD
     await expect(tokenMatrix.connect(userWallet).withdrawUSDT(2))
-      .to.be.revertedWith('deposited less than you want withdraw USDT');
+      .to.be.revertedWith('USDT deposited less than you want to withdraw');
   }).timeout(5000)
 })
