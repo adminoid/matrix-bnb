@@ -24,9 +24,14 @@ module.exports = {
   defaultNetwork: "localhost",
   networks: {
     localhost: {
-      url: "http://127.0.0.1:8545"
+      url: "http://127.0.0.1:8545",
     },
-    hardhat: {},
+    hardhat: {
+      accounts: {
+        // count: 200,
+        count: 10,
+      },
+    },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,

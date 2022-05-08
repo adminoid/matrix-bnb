@@ -23,3 +23,4 @@ main()
 // npx hardhat run --network testnet scripts/deploy.js
 
 // Matrix deployed to: 0x403437EC55dA5d2aE6f7dE4e0E97BFb8f5CD548B
+// latest contract: https://testnet.bscscan.com/token/0x2636fdea1d061bc13c2fa51cef2366bf291aa6a5

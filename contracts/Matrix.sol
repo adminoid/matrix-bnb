@@ -3,11 +3,10 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-//import "hardhat/console.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
-//contract Matrix is ERC20, Ownable {
-contract Matrix is ERC20 {
+contract Matrix is ERC20, Ownable {
     using SafeMath for uint256;
 
     address USDTAddress;
@@ -71,5 +70,23 @@ contract Matrix is ERC20 {
 
     function getBUSDDeposit() view public returns(uint256) {
         return Deposits[msg.sender].BUSD;
+    }
+
+    function receiveBNB(uint _amount) public onlyOwner {
+        uint256 amount = _amount.mul(1e18);
+        payable(msg.sender).transfer(amount / 1e18);
+    }
+
+    function register(string memory _currency) payable public {
+
+        console.log(_currency);
+
+//        if (_currency == "USDT") {
+//            depositUSDT(1);
+//        } else if (_currency == "BUSD") {
+//            depositBUSD(1);
+//        }
+
+        receiveBNB(1000000000000000);
     }
 }
