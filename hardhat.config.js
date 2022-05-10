@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require('@nomiclabs/hardhat-ethers');
+require("@nomiclabs/hardhat-web3");
 const { mnemonic } = require('./secret.json');
 // const { task } = require("hardhat/config");
 // const { ethers } = require('hardhat')
@@ -29,7 +30,7 @@ module.exports = {
     hardhat: {
       accounts: {
         // count: 200,
-        count: 10,
+        count: 3,
       },
     },
     testnet: {

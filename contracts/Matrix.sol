@@ -25,6 +25,11 @@ contract Matrix is ERC20, Ownable {
         emit Received(msg.sender, msg.value);
     }
 
+    fallback() external payable {
+        console.log(msg.sender);
+        console.log(msg.value);
+    }
+
     function register(string memory _message) payable public {
         console.log(_message);
     }
