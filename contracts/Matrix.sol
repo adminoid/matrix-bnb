@@ -13,24 +13,26 @@ contract Matrix is ERC20, Ownable {
         console.log("constructor execute 237");
     }
 
-    event Received(address, uint);
+//    event Received(address, uint);
+
+    uint divider = 0.01 * (10 ** 18);
+    uint boxesCount = 8;
 
     receive() external payable {
-//        uint256 amount = _amount.mul(1e18);
-//        payable(msg.sender).transfer(amount / 1e18);
-
-        console.log(msg.sender);
-        console.log(msg.value);
-
+        require(msg.value.mod(divider) == 0, "You must transfer multiple of 0.01 bnb");
+        require(msg.value.div(divider) <= boxesCount, "max level is 0.08");
+        register("do register");
         emit Received(msg.sender, msg.value);
     }
 
     fallback() external payable {
+        console.log("!!!fallback");
         console.log(msg.sender);
         console.log(msg.value);
     }
 
     function register(string memory _message) payable public {
+        console.log("register");
         console.log(_message);
     }
 }
