@@ -1,28 +1,32 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-contract Matrix is ERC20, Ownable {
+contract Matrix is Ownable {
     using SafeMath for uint256;
 
-    constructor() ERC20("Matrix", "XUSD") {
+    constructor() {
         console.log("constructor execute 237");
+        console.log(Box.length);
     }
 
 //    event Received(address, uint);
 
-    uint divider = 0.01 * (10 ** 18);
-    uint boxesCount = 8;
+    uint256 divider = 0.01 * (10 ** 18); // first number is bnb amount
+    uint256 boxesCount = 8;
+
+//    uint256 Box = new address[](boxesCount);
+//    address[][boxesCount] Box;
 
     receive() external payable {
         require(msg.value.mod(divider) == 0, "You must transfer multiple of 0.01 bnb");
-        require(msg.value.div(divider) <= boxesCount, "max level is 0.08");
-        register("do register");
-        emit Received(msg.sender, msg.value);
+        uint256 level = msg.value.div(divider);
+        require(level <= boxesCount, "max level is 0.08");
+        register(msg.sender, level);
+//        emit Received(msg.sender, msg.value);
     }
 
     fallback() external payable {
@@ -31,8 +35,9 @@ contract Matrix is ERC20, Ownable {
         console.log(msg.value);
     }
 
-    function register(string memory _message) payable public {
+    function register(address wallet, uint256 level) payable public {
         console.log("register");
-        console.log(_message);
+        console.log(wallet);
+        console.log(level);
     }
 }

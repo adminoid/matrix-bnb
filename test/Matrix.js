@@ -50,4 +50,14 @@ describe('testing register method (by just transferring bnb', () => {
       })).to.be.revertedWith('You must transfer multiple of 0.01 bnb')
     })
   })
+
+  describe('register user and check it\'s properties', () => {
+    it('check registered', async () => {
+      await p.userWallet.sendTransaction({
+        to: p.tokenMatrix.address,
+        value: ethers.utils.parseEther('0.01'),
+      })
+      await expect(true).equal(true)
+    }).timeout(5000)
+  })
 })
