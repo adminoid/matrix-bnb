@@ -4,6 +4,7 @@ const { deployContract } = waffle
 
 // contracts
 const Matrix = require('../artifacts/contracts/Matrix.sol/Matrix.json')
+const MatrixFirst = require('../artifacts/contracts/MatrixFirst.sol/MatrixFirst.json')
 
 const prepare = async () => {
   const [
@@ -20,12 +21,19 @@ const prepare = async () => {
     userWallet.address,
     web3.utils.toHex(wei),
   ])
+  // getting contract instance through main contract
+  const FirstLevelContractAddress = await tokenMatrix.getLevelContract(1)
+  const FirstLevelContractTemplate = await ethers.getContractFactory('MatrixFirst')
+  const FirstLevelContract = await FirstLevelContractTemplate.attach(
+    FirstLevelContractAddress
+  )
 
   return {
     matrixWallet,
     tokenMatrix,
     userWallet,
     userWalletEmpty,
+    FirstLevelContract,
   }
 }
 
@@ -40,7 +48,7 @@ describe('testing register method (by just transferring bnb', () => {
       await expect(p.userWallet.sendTransaction({
         to: p.tokenMatrix.address,
         value: ethers.utils.parseEther('0.1'),
-      })).to.be.revertedWith('max level is 0.08')
+      })).to.be.revertedWith('max level is 8 (0.08 bnb)')
     })
 
     it('require error for not multiply of level multiplier', async () => {
@@ -57,6 +65,11 @@ describe('testing register method (by just transferring bnb', () => {
         to: p.tokenMatrix.address,
         value: ethers.utils.parseEther('0.01'),
       })
+
+      const balance = await p.FirstLevelContract.connect(p.userWallet).getBalance(p.userWallet.address)
+
+      console.log(balance)
+
       await expect(true).equal(true)
     }).timeout(5000)
   })

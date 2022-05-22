@@ -4,40 +4,46 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
+import "./MatrixFirst.sol";
 
 contract Matrix is Ownable {
     using SafeMath for uint256;
 
+    MatrixFirst MF;
+
     constructor() {
-        console.log("constructor execute 237");
-        console.log(Box.length);
+        console.log("Matrix constructor");
+        MF = new MatrixFirst(msg.sender);
     }
 
-//    event Received(address, uint);
+    event Registered(address, uint);
 
     uint256 divider = 0.01 * (10 ** 18); // first number is bnb amount
-    uint256 boxesCount = 8;
 
-//    uint256 Box = new address[](boxesCount);
-//    address[][boxesCount] Box;
+    uint maxLevel = 8;
 
     receive() external payable {
         require(msg.value.mod(divider) == 0, "You must transfer multiple of 0.01 bnb");
         uint256 level = msg.value.div(divider);
-        require(level <= boxesCount, "max level is 0.08");
-        register(msg.sender, level);
-//        emit Received(msg.sender, msg.value);
+        require(level <= maxLevel, "max level is 8 (0.08 bnb)");
+        if (level == 1) {
+            MF.register(msg.sender);
+        }
+        emit Registered(msg.sender, level);
     }
 
+    function getLevelContract(uint level) external view returns(MatrixFirst) {
+//        if (level == 1) {
+//            return MF;
+//        }
+        console.log(level);
+        return MF;
+    }
+
+    // todo: delete later, that for experiment
     fallback() external payable {
         console.log("!!!fallback");
-        console.log(msg.sender);
         console.log(msg.value);
-    }
-
-    function register(address wallet, uint256 level) payable public {
-        console.log("register");
-        console.log(wallet);
-        console.log(level);
+        console.log(msg.sender);
     }
 }
