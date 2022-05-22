@@ -24,7 +24,7 @@ contract MatrixFirst {
     function register(address wallet) payable public {
         console.log("MatrixFirst register");
 
-        Addresses[wallet] = User(237);
+        Addresses[wallet] = User(0);
         Indices.push(wallet);
     }
 

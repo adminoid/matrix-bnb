@@ -30,7 +30,7 @@ module.exports = {
     hardhat: {
       accounts: {
         // count: 200,
-        count: 3,
+        count: 30,
       },
     },
     testnet: {
