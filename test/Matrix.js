@@ -5,6 +5,7 @@ const { deployContract } = waffle
 // contracts
 const Matrix = require('../artifacts/contracts/Matrix.sol/Matrix.json')
 const MatrixFirst = require('../artifacts/contracts/MatrixFirst.sol/MatrixFirst.json')
+const {BigNumber} = require("ethers");
 
 const prepare = async () => {
   const [
@@ -66,11 +67,10 @@ describe('testing register method (by just transferring bnb', () => {
         value: ethers.utils.parseEther('0.01'),
       })
 
-      const balance = await p.FirstLevelContract.connect(p.userWallet).getBalance(p.userWallet.address)
+      const balanceObject = await p.FirstLevelContract.connect(p.userWallet).getBalance(p.userWallet.address)
 
-      console.log(balance)
+      expect(balanceObject.balance).equal(237)
 
-      await expect(true).equal(true)
-    }).timeout(5000)
+    })
   })
 })
