@@ -4,13 +4,13 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "hardhat/console.sol";
 
-contract MatrixFirst {
+contract MatrixTemplate {
     using SafeMath for uint256;
 
     address Deployer;
 
     constructor(address _deployer) {
-        console.log("Matrix constructor");
+        console.log("MatrixTemplate constructor");
         Deployer = _deployer;
     }
 
@@ -22,7 +22,7 @@ contract MatrixFirst {
     address[] Indices;
 
     function register(address wallet) payable public {
-        console.log("MatrixFirst register");
+        console.log("MatrixTemplate register");
 
         Addresses[wallet] = User(0);
         Indices.push(wallet);

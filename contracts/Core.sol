@@ -4,16 +4,17 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
-import "./MatrixFirst.sol";
+import "./MatrixTemplate.sol";
 
-contract Matrix is Ownable {
+contract Core is Ownable {
     using SafeMath for uint256;
 
-    MatrixFirst MF;
+    MatrixTemplate M;
 
     constructor() {
-        console.log("Matrix constructor");
-        MF = new MatrixFirst(msg.sender);
+        // todo: for multiple level contracts - push to array in range [0..7]
+        console.log("Core constructor");
+        M = new MatrixTemplate(msg.sender);
     }
 
     event Registered(address, uint);
@@ -27,17 +28,17 @@ contract Matrix is Ownable {
         uint256 level = msg.value.div(divider);
         require(level <= maxLevel, "max level is 8 (0.08 bnb)");
         if (level == 1) {
-            MF.register(msg.sender);
+            M.register(msg.sender);
         }
         emit Registered(msg.sender, level);
     }
 
-    function getLevelContract(uint level) external view returns(MatrixFirst) {
+    function getLevelContract(uint level) external view returns(MatrixTemplate) {
 //        if (level == 1) {
-//            return MF;
+//            return M;
 //        }
         console.log(level);
-        return MF;
+        return M;
     }
 
     // todo: delete later, that for experiment
