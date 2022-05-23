@@ -11,6 +11,7 @@ contract MatrixTemplate {
 
     constructor(address _deployer) {
         console.log("MatrixTemplate constructor");
+        register(_deployer);
         Deployer = _deployer;
     }
 

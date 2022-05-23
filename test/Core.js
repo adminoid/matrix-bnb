@@ -57,9 +57,9 @@ describe('testing register method (by just transferring bnb', () => {
     it('require error for over max transfer', async () => {
       await expect(p.userWallet.sendTransaction({
         to: p.CoreToken.address,
-        value: ethers.utils.parseEther('0.1'),
-      })).to.be.revertedWith('max level is 8 (0.08 bnb)')
-    })
+        value: ethers.utils.parseEther('0.21'),
+      })).to.be.revertedWith('min level is 0.01, max level is 20 (0.2 bnb)')
+    }).timeout(50000)
 
     it('require error for not multiply of level multiplier', async () => {
       await expect(p.userWallet.sendTransaction({
@@ -78,7 +78,7 @@ describe('testing register method (by just transferring bnb', () => {
       expect(balanceObject.balance).equal(0)
 
       const length = await p.FirstLevelContract.connect(p.userWallet).getLength()
-      expect(length).equal(1)
+      expect(length).equal(2) // (0 index = 1 number; +1 top registration while deploy MatrixTemplate)
     })
   })
 
@@ -98,9 +98,9 @@ describe('testing register method (by just transferring bnb', () => {
 
         const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
 
-        expect(length).equal(Number(index) + 1)
+        expect(length).equal(Number(index) + 2) // index(0..n) + 1(num) + 1 top node while deploy
       }
 
-    }).timeout(5000)
+    }).timeout(50000)
   })
 })
