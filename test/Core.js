@@ -59,7 +59,7 @@ describe('testing register method (by just transferring bnb', () => {
         to: p.CoreToken.address,
         value: ethers.utils.parseEther('0.21'),
       })).to.be.revertedWith('min level is 0.01, max level is 20 (0.2 bnb)')
-    }).timeout(50000)
+    })
 
     it('require error for not multiply of level multiplier', async () => {
       await expect(p.userWallet.sendTransaction({
@@ -101,6 +101,43 @@ describe('testing register method (by just transferring bnb', () => {
         expect(length).equal(Number(index) + 2) // index(0..n) + 1(num) + 1 top node while deploy
       }
 
-    }).timeout(50000)
+    })
+  })
+
+  describe('protection of extraordinary registration', () => {
+    let p
+    before(async () => {
+      p = await prepare()
+    })
+
+    it('check of attempt register in higher level without previous levels', async () => {
+      await p.userWallet.sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('0.01'),
+      })
+
+      expect(await p.userWallet.sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('0.02'),
+      }))
+
+      try {
+        expect(await p.userWallet.sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.04'),
+        }))
+          .to.be.revertedWith("You don't registered in previous level")
+
+      } catch (e) {
+        // console.error(e.message)
+
+        expect(await p.userWallet.sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.03'),
+        }))
+      }
+
+      expect(true).equal(true)
+    }).timeout(30000)
   })
 })

@@ -17,16 +17,21 @@ contract MatrixTemplate {
 
     struct User {
         uint balance;
+        bool isValue;
     }
 
     mapping(address => User) Addresses;
     address[] Indices;
 
-    function register(address wallet) payable public {
+    function register(address wallet) public {
         console.log("MatrixTemplate register");
 
-        Addresses[wallet] = User(0);
+        Addresses[wallet] = User(0, true);
         Indices.push(wallet);
+    }
+
+    function hasRegistered(address wallet) view public returns(bool) {
+        return Addresses[wallet].isValue;
     }
 
     function getBalance(address wallet) public view returns(User memory user) {
