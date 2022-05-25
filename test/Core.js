@@ -102,6 +102,22 @@ describe('testing register method (by just transferring bnb', () => {
       }
 
     })
+
+    it('check plato (level in pyramid)', async () => {
+      for (const index in [...Array(17).keys()]) {
+        await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.01'),
+        })
+
+        const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
+
+        console.log(length)
+
+        await expect(true).equal(true)
+      }
+
+    }).timeout(30000)
   })
 
   describe('protection of extraordinary registration', () => {

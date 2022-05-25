@@ -41,13 +41,6 @@ contract Core is Ownable {
             while(i + 1 < level) {
                 bool isRegistered = Matrices[i].hasRegistered(msg.sender);
 
-                console.log("O: ", i, level, isRegistered); // 0, 2, true
-
-//                if (i + 1 == level) {
-//                    console.log("break");
-//                    break;
-//                }
-
                 if (!isRegistered) {
                     console.log("--> ", i, level, isRegistered); // 0, 2, true
                     revert("You don't registered in previous level");
@@ -55,13 +48,6 @@ contract Core is Ownable {
 
                 i++;
             }
-//            for (i = 0; i < level; i++) {
-//                bool isRegistered = Matrices[i].hasRegistered(msg.sender);
-//                console.log(level + 1, i, isRegistered);
-//                if (level + 1 < i && !isRegistered) {
-//                    revert("You don't registered in previous level");
-//                }
-//            }
         }
 
         Matrices[level - 1].register(msg.sender);
