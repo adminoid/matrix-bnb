@@ -16,8 +16,8 @@ contract MatrixTemplate {
     }
 
     struct User {
-        uint balance;
         bool isValue;
+        uint plateau;
     }
 
     mapping(address => User) Addresses;
@@ -26,13 +26,71 @@ contract MatrixTemplate {
     function register(address wallet) public {
         console.log("MatrixTemplate register");
 
-        Addresses[wallet] = User(0, true);
-        Indices.push(wallet);
-
-        // plateau number calculation
+        // plateau number calculation (for current registration)
         uint plateau = log2(Indices.length + 2);
-        console.log(Indices.length, plateau);
+        console.log("Length:", Indices.length);
+        console.log("Plateau:", plateau);
 
+        // todo: get parent and save
+        // get total in current plateau
+        uint totalPlateau = 2 ** (plateau - 1);
+        console.log("Total in plateau:", totalPlateau);
+
+        // get total in start to sub previous plateau
+        uint previousTotal = getSumOfPlateau(0, plateau - 1);
+        console.log("previousTotal:", previousTotal);
+
+        // get current number in current plateau
+        uint currentNum = Indices.length - previousTotal + 1;
+        console.log("currentNum:", currentNum);
+
+        uint previousSubTotal;
+        if (plateau < 2) {
+            previousSubTotal = 0;
+        } else {
+            previousSubTotal = getSumOfPlateau(0, plateau - 2);
+        }
+
+        console.log("previousSubTotal:", previousSubTotal);
+
+
+        // divide to 2 for check parent
+        uint div = currentNum.div(2);
+        console.log("div:", div);
+
+        // and check mod for detect left or right on parent
+        uint mod = currentNum.mod(2);
+        console.log("mod:", mod);
+
+        uint parent;
+        if (previousSubTotal == 0) {
+            parent = 0;
+        } else {
+            parent = div + mod;
+        }
+        console.log("parent:", parent);
+
+        string memory side;
+        if (mod == 0) {
+            side = "right";
+        } else {
+            side = "left";
+        }
+        console.log("side:", side);
+
+        //        if (div < 2) {
+//            div = 1;
+//        }
+//        uint parent;
+//        if (previousSubTotal < 1) {
+//            parent = previousSubTotal + div - 1;
+//        } else {
+//            parent = previousSubTotal + div - 2;
+//        }
+//        console.log("parent:", parent);
+
+        Addresses[wallet] = User(true, plateau);
+        Indices.push(wallet);
     }
 
     function hasRegistered(address wallet) view public returns(bool) {
@@ -43,11 +101,18 @@ contract MatrixTemplate {
         user = Addresses[wallet];
     }
 
-    function getLength() public view returns(uint length) {
+    function getLength() external view returns(uint length) {
         length = Indices.length;
     }
 
-    function log2(uint x) private pure returns (uint y) {
+    function getSumOfPlateau(uint _from, uint _to) private pure returns(uint sum) {
+        sum = 0;
+        for (uint j = _from; j < _to; j++) {
+            sum += 2 ** (j);
+        }
+    }
+
+    function log2(uint x) private pure returns(uint y) {
         assembly {
             let arg := x
             x := sub(x,1)
