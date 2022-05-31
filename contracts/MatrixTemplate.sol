@@ -24,51 +24,45 @@ contract MatrixTemplate {
     address[] Indices;
 
     function register(address wallet) public {
-        console.log("MatrixTemplate register");
+        // todo: disable for 20 top matrix
+
+        console.log("MatrixTemplate::register()");
 
         // plateau number calculation (for current registration)
         uint plateau = log2(Indices.length + 2);
         console.log("Length:", Indices.length);
         console.log("Plateau:", plateau);
 
-        // todo: get parent and save
+        uint subPreviousTotal;
+        if (plateau < 2) {
+            subPreviousTotal = 0;
+        } else {
+            subPreviousTotal = getSumOfPlateau(0, plateau - 2);
+        }
+
         // get total in current plateau
-        uint totalPlateau = 2 ** (plateau - 1);
-        console.log("Total in plateau:", totalPlateau);
+//        uint totalPlateau = 2 ** (plateau - 1);
+//        console.log("Total in plateau:", totalPlateau);
 
         // get total in start to sub previous plateau
         uint previousTotal = getSumOfPlateau(0, plateau - 1);
-        console.log("previousTotal:", previousTotal);
 
         // get current number in current plateau
         uint currentNum = Indices.length - previousTotal + 1;
-        console.log("currentNum:", currentNum);
-
-        uint previousSubTotal;
-        if (plateau < 2) {
-            previousSubTotal = 0;
-        } else {
-            previousSubTotal = getSumOfPlateau(0, plateau - 2);
-        }
-
-        console.log("previousSubTotal:", previousSubTotal);
-
-
-        // divide to 2 for check parent
-        uint div = currentNum.div(2);
-        console.log("div:", div);
 
         // and check mod for detect left or right on parent
         uint mod = currentNum.mod(2);
-        console.log("mod:", mod);
 
-        uint parent;
-        if (previousSubTotal == 0) {
-            parent = 0;
+        // detect parentNum
+        uint parentNum = currentNum.div(2);
+        if (parentNum < 1) {
+            parentNum = 1;
         } else {
-            parent = div + mod;
+            parentNum = parentNum + mod;
         }
-        console.log("parent:", parent);
+
+        uint parentIndex = subPreviousTotal + parentNum - 1;
+        console.log("parentIndex", parentIndex);
 
         string memory side;
         if (mod == 0) {
@@ -77,17 +71,6 @@ contract MatrixTemplate {
             side = "left";
         }
         console.log("side:", side);
-
-        //        if (div < 2) {
-//            div = 1;
-//        }
-//        uint parent;
-//        if (previousSubTotal < 1) {
-//            parent = previousSubTotal + div - 1;
-//        } else {
-//            parent = previousSubTotal + div - 2;
-//        }
-//        console.log("parent:", parent);
 
         Addresses[wallet] = User(true, plateau);
         Indices.push(wallet);

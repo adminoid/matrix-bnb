@@ -104,7 +104,7 @@ describe('testing register method (by just transferring bnb', () => {
     })
 
     it('check plateau (level in pyramid)', async () => {
-      for (const index in [...Array(5).keys()]) {
+      for (const index in [...Array(67).keys()]) {
         await wallets[index].sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.01'),
