@@ -18,6 +18,13 @@ contract Core is Ownable {
     // array of matrices
     MatrixTemplate[] Matrices;
 
+    struct User {
+        bool isValue;
+        uint parent;
+        bool isRight;
+        uint plateau;
+    }
+
     constructor() {
         // todo: for multiple level contracts - push to array in range [0..7]
         console.log("Core constructor");
@@ -34,8 +41,8 @@ contract Core is Ownable {
         uint256 level = msg.value.div(divider);
         require(level <= maxLevel, "min level is 0.01, max level is 20 (0.2 bnb)");
 
+        // check registered in previous matrices before register actual
         if (level > 1) {
-            // todo: check registered in previous matrices before register actual
             // loop levels from 1 to level and check exist registration according matrices
             uint i = 0;
             while(i + 1 < level) {
@@ -50,12 +57,17 @@ contract Core is Ownable {
             }
         }
 
-        Matrices[level - 1].register(msg.sender);
+        Matrices[level - 1].register(msg.sender, false);
         emit Registered(msg.sender, level);
     }
 
     function getLevelContract(uint level) external view returns(MatrixTemplate) {
         return Matrices[level - 1];
+    }
+
+    function getUserFromMatrix(uint matrixIdx, address userWallet) external view
+    returns (MatrixTemplate.User memory user){
+        user = Matrices[matrixIdx].getUser(userWallet);
     }
 
     // todo: delete later, that for experiment

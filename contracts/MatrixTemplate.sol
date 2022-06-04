@@ -11,68 +11,68 @@ contract MatrixTemplate {
 
     constructor(address _deployer) {
         console.log("MatrixTemplate constructor");
-        register(_deployer);
+        register(_deployer, true);
         Deployer = _deployer;
     }
 
     struct User {
         bool isValue;
+        uint index;
+        uint parent;
+        bool isRight;
         uint plateau;
     }
 
     mapping(address => User) Addresses;
     address[] Indices;
 
-    function register(address wallet) public {
+    function register(address wallet, bool isTop) public {
         // todo: disable for 20 top matrix
 
-        console.log("MatrixTemplate::register()");
+        User memory user;
 
-        // plateau number calculation (for current registration)
-        uint plateau = log2(Indices.length + 2);
-        console.log("Length:", Indices.length);
-        console.log("Plateau:", plateau);
-
-        uint subPreviousTotal;
-        if (plateau < 2) {
-            subPreviousTotal = 0;
+        if (isTop) {
+            console.log("MatrixTemplate::register(isTop)");
+            user = User(true, 0, 0, false, 0);
         } else {
-            subPreviousTotal = getSumOfPlateau(0, plateau - 2);
+            console.log("MatrixTemplate::register(isnTTop)");
+            // plateau number calculation (for current registration)
+            uint plateau = log2(Indices.length + 2);
+            uint subPreviousTotal;
+            if (plateau < 2) {
+                subPreviousTotal = 0;
+            } else {
+                subPreviousTotal = getSumOfPlateau(0, plateau - 2);
+            }
+
+            // get total in current plateau
+            //        uint totalPlateau = 2 ** (plateau - 1);
+            //        console.log("Total in plateau:", totalPlateau);
+
+            // get total in start to sub previous plateau
+            uint previousTotal = getSumOfPlateau(0, plateau - 1);
+
+            // get current number in current plateau
+            uint currentNum = Indices.length - previousTotal + 1;
+
+            // and check mod for detect left or right on parent
+            uint mod = currentNum.mod(2);
+
+            // detect parentNum
+            uint parentNum = currentNum.div(2);
+            if (parentNum < 1) {
+                parentNum = 1;
+            } else {
+                parentNum = parentNum + mod;
+            }
+            uint parentIndex = subPreviousTotal + parentNum - 1;
+            user = User(true, Indices.length, parentIndex, false, plateau);
+            if (mod == 0) {
+                user.isRight = true;
+            }
         }
 
-        // get total in current plateau
-//        uint totalPlateau = 2 ** (plateau - 1);
-//        console.log("Total in plateau:", totalPlateau);
-
-        // get total in start to sub previous plateau
-        uint previousTotal = getSumOfPlateau(0, plateau - 1);
-
-        // get current number in current plateau
-        uint currentNum = Indices.length - previousTotal + 1;
-
-        // and check mod for detect left or right on parent
-        uint mod = currentNum.mod(2);
-
-        // detect parentNum
-        uint parentNum = currentNum.div(2);
-        if (parentNum < 1) {
-            parentNum = 1;
-        } else {
-            parentNum = parentNum + mod;
-        }
-
-        uint parentIndex = subPreviousTotal + parentNum - 1;
-        console.log("parentIndex", parentIndex);
-
-        string memory side;
-        if (mod == 0) {
-            side = "right";
-        } else {
-            side = "left";
-        }
-        console.log("side:", side);
-
-        Addresses[wallet] = User(true, plateau);
+        Addresses[wallet] = user;
         Indices.push(wallet);
     }
 
@@ -80,7 +80,7 @@ contract MatrixTemplate {
         return Addresses[wallet].isValue;
     }
 
-    function getBalance(address wallet) public view returns(User memory user) {
+    function getUser(address wallet) view public returns(User memory user) {
         user = Addresses[wallet];
     }
 

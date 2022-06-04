@@ -103,19 +103,26 @@ describe('testing register method (by just transferring bnb', () => {
 
     })
 
-    it('check plateau (level in pyramid)', async () => {
-      for (const index in [...Array(67).keys()]) {
+    it('check plateau (level in pyramid), parent and side', async () => {
+      for (const index in [...Array(7).keys()]) {
         await wallets[index].sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.01'),
         })
 
-        const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
-
-        console.log(length)
+        // const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
+        //
+        // console.log(length)
 
         await expect(true).equal(true)
+
       }
+
+      const user = await p.CoreToken.connect(wallets[3]).getUserFromMatrix(0, wallets[3].address);
+
+      console.log(user)
+
+      await expect(true).equal(true)
 
     }).timeout(160000)
   })
