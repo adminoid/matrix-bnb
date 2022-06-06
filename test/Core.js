@@ -104,10 +104,15 @@ describe('testing register method (by just transferring bnb', () => {
         users = []
 
       for (const index in [...Array(7).keys()]) {
-        await wallets[index].sendTransaction({
+        const tx = await wallets[index].sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.01'),
         })
+
+        // example for check gas used
+        // const receipt = await tx.wait();
+        // const gasUsed = receipt.gasUsed.toNumber()
+        // console.log(gasUsed)
 
         // example for separate contract:
         // const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
