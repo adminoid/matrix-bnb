@@ -74,11 +74,8 @@ describe('testing register method (by just transferring bnb', () => {
         value: ethers.utils.parseEther('0.01'),
       })
 
-      const balanceObject = await p.FirstLevelContract.connect(p.userWallet).getBalance(p.userWallet.address)
-      expect(balanceObject.balance).equal(0)
-
-      const length = await p.FirstLevelContract.connect(p.userWallet).getLength()
-      expect(length).equal(2) // (0 index = 1 number; +1 top registration while deploy MatrixTemplate)
+      const user = await p.FirstLevelContract.connect(p.userWallet).getUser(p.userWallet.address)
+      expect(user.index).equal(1) // (0 index = 1 number; +1 top registration while deploy MatrixTemplate)
     })
   })
 
