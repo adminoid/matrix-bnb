@@ -104,25 +104,47 @@ describe('testing register method (by just transferring bnb', () => {
     })
 
     it('check plateau (level in pyramid), parent and side', async () => {
+      const users = []
       for (const index in [...Array(7).keys()]) {
         await wallets[index].sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.01'),
         })
 
+        // example for separate contract:
         // const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
-        //
-        // console.log(length)
 
-        await expect(true).equal(true)
-
+        const user = await p.CoreToken.connect(wallets[index]).getUserFromMatrix(0, wallets[index].address);
+        users.push(user)
       }
 
-      const user = await p.CoreToken.connect(wallets[3]).getUserFromMatrix(0, wallets[3].address);
+      expect(users[0].parent.toNumber()).to.equal(0)
+      expect(users[0].plateau.toNumber()).to.equal(2)
+      expect(users[0].isRight).to.equal(false)
 
-      console.log(user)
+      expect(users[1].parent.toNumber()).to.equal(0)
+      expect(users[1].plateau.toNumber()).to.equal(2)
+      expect(users[1].isRight).to.equal(true)
 
-      await expect(true).equal(true)
+      expect(users[2].parent.toNumber()).to.equal(1)
+      expect(users[2].plateau.toNumber()).to.equal(3)
+      expect(users[2].isRight).to.equal(false)
+
+      expect(users[3].parent.toNumber()).to.equal(1)
+      expect(users[3].plateau.toNumber()).to.equal(3)
+      expect(users[3].isRight).to.equal(true)
+
+      expect(users[4].parent.toNumber()).to.equal(2)
+      expect(users[4].plateau.toNumber()).to.equal(3)
+      expect(users[4].isRight).to.equal(false)
+
+      expect(users[5].parent.toNumber()).to.equal(2)
+      expect(users[5].plateau.toNumber()).to.equal(3)
+      expect(users[5].isRight).to.equal(true)
+
+      expect(users[6].parent.toNumber()).to.equal(3)
+      expect(users[6].plateau.toNumber()).to.equal(4)
+      expect(users[6].isRight).to.equal(false)
 
     }).timeout(160000)
   })

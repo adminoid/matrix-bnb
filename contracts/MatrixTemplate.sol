@@ -16,11 +16,11 @@ contract MatrixTemplate {
     }
 
     struct User {
-        bool isValue;
         uint index;
         uint parent;
         bool isRight;
         uint plateau;
+        bool isValue;
     }
 
     mapping(address => User) Addresses;
@@ -33,7 +33,7 @@ contract MatrixTemplate {
 
         if (isTop) {
             console.log("MatrixTemplate::register(isTop)");
-            user = User(true, 0, 0, false, 0);
+            user = User(0, 0, false, 0, true);
         } else {
             console.log("MatrixTemplate::register(isnTTop)");
             // plateau number calculation (for current registration)
@@ -66,7 +66,7 @@ contract MatrixTemplate {
                 parentNum = parentNum + mod;
             }
             uint parentIndex = subPreviousTotal + parentNum - 1;
-            user = User(true, Indices.length, parentIndex, false, plateau);
+            user = User(Indices.length, parentIndex, false, plateau, true);
             if (mod == 0) {
                 user.isRight = true;
             }
