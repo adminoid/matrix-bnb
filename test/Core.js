@@ -80,13 +80,11 @@ describe('testing register method (by just transferring bnb', () => {
   })
 
   describe('multiple registrations check index and parent prop', () => {
-    let p, wallets
-    before(async () => {
-      p = await prepare()
-      wallets = await getWallets(2)
-    })
 
     it('check multiple registrations length', async () => {
+      const p = await prepare(),
+        wallets = await getWallets(2)
+
       for (const index in [...Array(5).keys()]) {
         await wallets[index].sendTransaction({
           to: p.CoreToken.address,
@@ -98,10 +96,13 @@ describe('testing register method (by just transferring bnb', () => {
         expect(length).equal(Number(index) + 2) // index(0..n) + 1(num) + 1 top node while deploy
       }
 
-    })
+    }).timeout(50000)
 
     it('check plateau (level in pyramid), parent and side', async () => {
-      const users = []
+      const p = await prepare(),
+        wallets = await getWallets(2),
+        users = []
+
       for (const index in [...Array(7).keys()]) {
         await wallets[index].sendTransaction({
           to: p.CoreToken.address,
