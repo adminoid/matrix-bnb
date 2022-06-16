@@ -12,18 +12,11 @@ contract Core is Ownable {
     event Registered(address, uint);
 
     // settings
-    uint256 divider = 0.01 * (10 ** 18); // first number is bnb amount
+    uint256 payUnit = 0.01 * (10 ** 18); // first number is bnb amount
     uint maxLevel = 20;
 
     // array of matrices
     MatrixTemplate[] Matrices;
-
-    struct User {
-        bool isValue;
-        uint parent;
-        bool isRight;
-        uint plateau;
-    }
 
     constructor() {
         // todo: for multiple level contracts - push to array in range [0..7]
@@ -32,13 +25,13 @@ contract Core is Ownable {
         uint i;
         for (i = 0; i < 20; i++) {
             console.log(i);
-            Matrices.push(new MatrixTemplate(msg.sender));
+            Matrices.push(new MatrixTemplate(msg.sender, i, address(this)));
         }
     }
 
     receive() external payable {
-        require(msg.value.mod(divider) == 0, "You must transfer multiple of 0.01 bnb");
-        uint256 level = msg.value.div(divider);
+        require(msg.value.mod(payUnit) == 0, "You must transfer multiple of 0.01 bnb");
+        uint256 level = msg.value.div(payUnit);
         require(level <= maxLevel, "min level is 0.01, max level is 20 (0.2 bnb)");
 
         // check registered in previous matrices before register actual
@@ -56,6 +49,8 @@ contract Core is Ownable {
                 i++;
             }
         }
+
+        console.log("value:", msg.value);
 
         Matrices[level - 1].register(msg.sender, false);
         emit Registered(msg.sender, level);
@@ -75,5 +70,14 @@ contract Core is Ownable {
         console.log("!!!fallback");
         console.log(msg.value);
         console.log(msg.sender);
+    }
+
+    function sendHalf(address wallet, uint matrixIndex) external {
+        uint amount = payUnit.mul(matrixIndex.add(1)).div(2);
+        console.log(wallet);
+        console.log(matrixIndex);
+        console.log(payUnit);
+        console.log(amount);
+        payable(wallet).transfer(amount);
     }
 }

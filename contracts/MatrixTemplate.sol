@@ -3,16 +3,21 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "hardhat/console.sol";
+import "./Core.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
 
     address Deployer;
+    uint matrixIndex;
+    address CoreAddress;
 
-    constructor(address _deployer) {
+    constructor(address _deployer, uint index, address _coreAddress) {
         console.log("MatrixTemplate constructor");
         register(_deployer, true);
         Deployer = _deployer;
+        matrixIndex = index;
+        CoreAddress = _coreAddress;
     }
 
     struct User {
@@ -70,6 +75,15 @@ contract MatrixTemplate {
             if (mod == 0) {
                 user.isRight = true;
             }
+
+//            console.log(Indices.length);
+//            console.log(user.index);
+            address parentWallet = Indices[parentIndex];
+
+            console.log(parentWallet);
+
+            Core CoreInstance = Core(payable(CoreAddress));
+            CoreInstance.sendHalf(parentWallet, matrixIndex);
         }
 
         Addresses[wallet] = user;

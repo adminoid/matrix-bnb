@@ -32,6 +32,7 @@ module.exports = {
       accounts: {
         // count: 200,
         count: 69,
+        accountsBalance: '1000000000000000000',
       },
     },
     testnet: {

@@ -38,12 +38,12 @@ const prepare = async () => {
 }
 
 /**
- * @param begin - skip amount wallets initialized in prepare function
+ * @param start - skip amount wallets initialized in prepare function
  * @returns {Promise}
  */
-const getWallets = async (begin) => {
+const getWallets = async (start) => {
   const signers = await ethers.getSigners()
-  return signers.slice(begin)
+  return signers.slice(start)
 }
 
 describe('testing register method (by just transferring bnb', () => {
@@ -188,4 +188,105 @@ describe('testing register method (by just transferring bnb', () => {
       expect(true).equal(true)
     }).timeout(30000)
   })
+})
+
+describe('practical testing interactions and that conclusion', () => {
+  it('check registrations and conclusion', async () => {
+    const p = await prepare(),
+      wallets = await getWallets(2),
+      users = [],
+      provider = waffle.provider
+
+    console.info('=========core balance before all=========')
+    const coreBalanceBefore = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.log('core wallet:', p.CoreToken.address)
+    console.info(ethers.utils.formatEther(coreBalanceBefore))
+
+    for (const index in [...Array(66).keys()]) {
+      const tx = await wallets[index].sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('0.01'),
+      })
+
+      // example for check gas used
+      const receipt = await tx.wait();
+      const gasUsed = receipt.gasUsed.toNumber()
+      // console.log(gasUsed)
+
+      // const user = await p.CoreToken.connect(wallets[index]).getUserFromMatrix(0, wallets[index].address);
+      users.push({
+        wallet: wallets[index],
+        // user,
+        gasUsed,
+      })
+    }
+
+    console.info('=========wallets after all=========')
+    for (let j = 0; j < users.length; j++) {
+      const balance = await provider.getBalance(users[j].wallet.address);
+      console.log('^^^^^^^')
+      console.log('index: ', j + 1, users[j].wallet.address)
+      console.log(ethers.utils.formatEther(balance))
+      console.log('gas: ', users[j].gasUsed)
+      console.log('_______')
+    }
+
+    console.info('=========core balance after all=========')
+    const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.log('core wallet:', p.CoreToken.address)
+    console.info(ethers.utils.formatEther(coreBalance))
+
+    await expect(true).to.equal(true)
+
+  }).timeout(160000)
+
+  it('check registration and resulting gifts and go up balances', async () => {
+    const p = await prepare(),
+      wallets = await getWallets(2),
+      users = [],
+      provider = waffle.provider
+
+    console.info('=========core balance before all=========')
+    const coreBalanceBefore = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.log('core wallet:', p.CoreToken.address)
+    console.info(ethers.utils.formatEther(coreBalanceBefore))
+
+    for (const index in [...Array(66).keys()]) {
+      const tx = await wallets[index].sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('0.01'),
+      })
+
+      // example for check gas used
+      const receipt = await tx.wait();
+      const gasUsed = receipt.gasUsed.toNumber()
+      // console.log(gasUsed)
+
+      // const user = await p.CoreToken.connect(wallets[index]).getUserFromMatrix(0, wallets[index].address);
+      users.push({
+        wallet: wallets[index],
+        // user,
+        gasUsed,
+      })
+    }
+
+    console.info('=========wallets after all=========')
+    for (let j = 0; j < users.length; j++) {
+      const balance = await provider.getBalance(users[j].wallet.address);
+      console.log('^^^^^^^')
+      console.log('index: ', j + 1, users[j].wallet.address)
+      console.log(ethers.utils.formatEther(balance))
+      console.log('gas: ', users[j].gasUsed)
+      console.log('_______')
+    }
+
+    console.info('=========core balance after all=========')
+    const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.log('core wallet:', p.CoreToken.address)
+    console.info(ethers.utils.formatEther(coreBalance))
+
+    await expect(true).to.equal(true)
+
+  }).timeout(160000)
+
 })
