@@ -94,8 +94,8 @@ contract MatrixTemplate {
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
         uint8 i = 2;
+        console.log("toUp iteration");
         while (i <= 5) {
-            console.log("toUp iteration");
             if (!nextUser.isRight || nextUser.parent == 0) {
                 break;
             }
@@ -105,13 +105,16 @@ contract MatrixTemplate {
                 Addresses[Indices[nextUser.parent]].gift = nextUser.gift.add(0.01 ether);
                 console.log("from", startIndex);
                 console.log("added gift to", nextUser.index);
-                console.log(nextUser.gift);
+                console.log(Addresses[Indices[nextUser.parent]].gift);
             }
             if (i == 4 || i == 5) {
                 Addresses[Indices[nextUser.parent]].claim = nextUser.claim.add(0.01 ether);
                 console.log("from", startIndex);
                 console.log("added claim to", nextUser.index);
-                console.log(nextUser.claim);
+                console.log(Addresses[Indices[nextUser.parent]].claim);
+                if (i == 5) {
+                    console.log("Go to next matrix");
+                }
             }
             i++;
         }
