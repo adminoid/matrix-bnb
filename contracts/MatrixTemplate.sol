@@ -26,6 +26,8 @@ contract MatrixTemplate {
         bool isRight;
         uint plateau;
         bool isValue;
+        uint calm;
+        uint gift;
     }
 
     mapping(address => User) Addresses;
@@ -38,7 +40,7 @@ contract MatrixTemplate {
 
         if (isTop) {
             console.log("MatrixTemplate::register(isTop)");
-            user = User(0, 0, false, 0, true);
+            user = User(0, 0, false, 0, true, 0, 0);
         } else {
             console.log("MatrixTemplate::register(isnTTop)");
             // plateau number calculation (for current registration)
@@ -71,23 +73,48 @@ contract MatrixTemplate {
                 parentNum = parentNum + mod;
             }
             uint parentIndex = subPreviousTotal + parentNum - 1;
-            user = User(Indices.length, parentIndex, false, plateau, true);
+            user = User(Indices.length, parentIndex, false, plateau, true, 0, 0);
             if (mod == 0) {
+                if (parentIndex > 0) {
+                    goUp(parentIndex, Indices.length);
+                }
                 user.isRight = true;
             }
 
-//            console.log(Indices.length);
-//            console.log(user.index);
             address parentWallet = Indices[parentIndex];
-
-            console.log(parentWallet);
-
             Core CoreInstance = Core(payable(CoreAddress));
             CoreInstance.sendHalf(parentWallet, matrixIndex);
         }
 
         Addresses[wallet] = user;
         Indices.push(wallet);
+    }
+
+    function goUp(uint parentIndex, uint startIndex) private {
+        address parentWallet = Indices[parentIndex];
+        User memory nextUser = Addresses[parentWallet];
+        uint8 i = 2;
+        while (i <= 5) {
+            console.log("toUp iteration");
+            if (!nextUser.isRight || nextUser.parent == 0) {
+                break;
+            }
+            // todo: think about remove this variable (nextUser)
+            nextUser = Addresses[Indices[nextUser.parent]];
+            if (i == 2 || i == 3) {
+                Addresses[Indices[nextUser.parent]].gift = nextUser.gift.add(0.01 ether);
+                console.log("from", startIndex);
+                console.log("added gift to", nextUser.index);
+                console.log(nextUser.gift);
+            }
+            if (i == 4 || i == 5) {
+                Addresses[Indices[nextUser.parent]].calm = nextUser.calm.add(0.01 ether);
+                console.log("from", startIndex);
+                console.log("added calm to", nextUser.index);
+                console.log(nextUser.calm);
+            }
+            i++;
+        }
     }
 
     function hasRegistered(address wallet) view public returns(bool) {

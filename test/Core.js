@@ -190,40 +190,41 @@ describe('testing register method (by just transferring bnb', () => {
   })
 })
 
-describe('practical testing interactions and that conclusion', () => {
-  it('check registrations and conclusion', async () => {
-    const p = await prepare(),
-      wallets = await getWallets(2),
-      users = [],
-      provider = waffle.provider
+describe('practical testing interactions and that conclusions', async () => {
 
-    console.info('=========core balance before all=========')
-    const coreBalanceBefore = await p.CoreToken.provider.getBalance(p.CoreToken.address)
-    console.log('core wallet:', p.CoreToken.address)
-    console.info(ethers.utils.formatEther(coreBalanceBefore))
+  let p, runRegistrations
+  before(async () => {
+    p = await prepare()
+    runRegistrations = async (total) => {
+      const wallets = await getWallets(2),
+        users = []
 
-    for (const index in [...Array(66).keys()]) {
-      const tx = await wallets[index].sendTransaction({
-        to: p.CoreToken.address,
-        value: ethers.utils.parseEther('0.01'),
-      })
+      for (const index in [...Array(total).keys()]) {
+        const tx = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.01'),
+        })
 
-      // example for check gas used
-      const receipt = await tx.wait();
-      const gasUsed = receipt.gasUsed.toNumber()
-      // console.log(gasUsed)
+        // example for check gas used
+        const receipt = await tx.wait();
+        const gasUsed = receipt.gasUsed.toNumber()
 
-      // const user = await p.CoreToken.connect(wallets[index]).getUserFromMatrix(0, wallets[index].address);
-      users.push({
-        wallet: wallets[index],
-        // user,
-        gasUsed,
-      })
+        users.push({
+          wallet: wallets[index],
+          gasUsed,
+        })
+      }
+
+      return users
     }
+  })
 
+  it('check registrations and first level up balances', async () => {
+
+    const users = await runRegistrations(66)
     console.info('=========wallets after all=========')
     for (let j = 0; j < users.length; j++) {
-      const balance = await provider.getBalance(users[j].wallet.address);
+      const balance = await waffle.provider.getBalance(users[j].wallet.address);
       console.log('^^^^^^^')
       console.log('index: ', j + 1, users[j].wallet.address)
       console.log(ethers.utils.formatEther(balance))
@@ -240,43 +241,20 @@ describe('practical testing interactions and that conclusion', () => {
 
   }).timeout(160000)
 
-  it('check registration and resulting gifts and go up balances', async () => {
-    const p = await prepare(),
-      wallets = await getWallets(2),
-      users = [],
-      provider = waffle.provider
-
-    console.info('=========core balance before all=========')
-    const coreBalanceBefore = await p.CoreToken.provider.getBalance(p.CoreToken.address)
-    console.log('core wallet:', p.CoreToken.address)
-    console.info(ethers.utils.formatEther(coreBalanceBefore))
-
-    for (const index in [...Array(66).keys()]) {
-      const tx = await wallets[index].sendTransaction({
-        to: p.CoreToken.address,
-        value: ethers.utils.parseEther('0.01'),
-      })
-
-      // example for check gas used
-      const receipt = await tx.wait();
-      const gasUsed = receipt.gasUsed.toNumber()
-      // console.log(gasUsed)
-
-      // const user = await p.CoreToken.connect(wallets[index]).getUserFromMatrix(0, wallets[index].address);
-      users.push({
-        wallet: wallets[index],
-        // user,
-        gasUsed,
-      })
-    }
+  it('check registration and resulting gift and calm', async () => {
+    const users = await runRegistrations(66)
 
     console.info('=========wallets after all=========')
     for (let j = 0; j < users.length; j++) {
-      const balance = await provider.getBalance(users[j].wallet.address);
+      const balance = await waffle.provider.getBalance(users[j].wallet.address)
+      const user = await p.CoreToken.connect(users[j].wallet.address).getUserFromMatrix(0, users[j].wallet.address);
+
       console.log('^^^^^^^')
       console.log('index: ', j + 1, users[j].wallet.address)
       console.log(ethers.utils.formatEther(balance))
       console.log('gas: ', users[j].gasUsed)
+      console.log('user.gift: ', user.gift)
+      console.log('user.calm: ', user.calm)
       console.log('_______')
     }
 

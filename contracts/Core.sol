@@ -50,7 +50,7 @@ contract Core is Ownable {
             }
         }
 
-        console.log("value:", msg.value);
+//        console.log("value:", msg.value);
 
         Matrices[level - 1].register(msg.sender, false);
         emit Registered(msg.sender, level);
@@ -74,10 +74,10 @@ contract Core is Ownable {
 
     function sendHalf(address wallet, uint matrixIndex) external {
         uint amount = payUnit.mul(matrixIndex.add(1)).div(2);
-        console.log(wallet);
-        console.log(matrixIndex);
-        console.log(payUnit);
-        console.log(amount);
+//        console.log(wallet);
+//        console.log(matrixIndex);
+//        console.log(payUnit);
+//        console.log(amount);
         payable(wallet).transfer(amount);
     }
 }
