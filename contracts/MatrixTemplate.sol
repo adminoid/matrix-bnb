@@ -26,7 +26,7 @@ contract MatrixTemplate {
         bool isRight;
         uint plateau;
         bool isValue;
-        uint calm;
+        uint claim;
         uint gift;
     }
 
@@ -108,10 +108,10 @@ contract MatrixTemplate {
                 console.log(nextUser.gift);
             }
             if (i == 4 || i == 5) {
-                Addresses[Indices[nextUser.parent]].calm = nextUser.calm.add(0.01 ether);
+                Addresses[Indices[nextUser.parent]].claim = nextUser.claim.add(0.01 ether);
                 console.log("from", startIndex);
-                console.log("added calm to", nextUser.index);
-                console.log(nextUser.calm);
+                console.log("added claim to", nextUser.index);
+                console.log(nextUser.claim);
             }
             i++;
         }

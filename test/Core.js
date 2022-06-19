@@ -241,7 +241,7 @@ describe('practical testing interactions and that conclusions', async () => {
 
   }).timeout(160000)
 
-  it('check registration and resulting gift and calm', async () => {
+  it('check registration and resulting gift and claim', async () => {
     const users = await runRegistrations(66)
 
     console.info('=========wallets after all=========')
@@ -254,7 +254,7 @@ describe('practical testing interactions and that conclusions', async () => {
       console.log(ethers.utils.formatEther(balance))
       console.log('gas: ', users[j].gasUsed)
       console.log('user.gift: ', user.gift)
-      console.log('user.calm: ', user.calm)
+      console.log('user.claim: ', user.claim)
       console.log('_______')
     }
 
