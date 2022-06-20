@@ -104,20 +104,18 @@ contract MatrixTemplate {
             if (i == 2 || i == 3) {
                 console.log("------------");
                 console.log("from", startIndex);
-                console.log("before", nextUser.gift);
+                console.log("gift before", nextUser.gift);
                 Addresses[Indices[nextUser.parent]].gift = nextUser.gift + 0.01 ether;
                 console.log("added gift to", nextUser.index);
-                console.log("after", Addresses[Indices[nextUser.parent]].gift);
-                console.log("after", nextUser.gift);
+                console.log("gift after", Addresses[Indices[nextUser.parent]].gift);
             }
             if (i == 4 || i == 5) {
                 console.log("------------");
                 console.log("from", startIndex);
-                console.log("before", nextUser.claim);
+                console.log("claim before", nextUser.claim);
                 Addresses[Indices[nextUser.parent]].claim = nextUser.claim + 0.01 ether;
                 console.log("added claim to", nextUser.index);
-                console.log("after", Addresses[Indices[nextUser.parent]].claim);
-                console.log("after", nextUser.claim);
+                console.log("claim after", Addresses[Indices[nextUser.parent]].claim);
                 if (i == 5) {
                     console.log("Go to next matrix");
                 }
@@ -132,6 +130,9 @@ contract MatrixTemplate {
 
     function getUser(address wallet) view public returns(User memory user) {
         user = Addresses[wallet];
+        console.log(user.index);
+        console.log(user.gift);
+        console.log(user.claim);
     }
 
     function getLength() external view returns(uint length) {

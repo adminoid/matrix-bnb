@@ -247,14 +247,14 @@ describe('practical testing interactions and that conclusions', async () => {
     console.info('=========wallets after all=========')
     for (let j = 0; j < users.length; j++) {
       const balance = await waffle.provider.getBalance(users[j].wallet.address)
-      const user = await p.CoreToken.connect(users[j].wallet.address).getUserFromMatrix(0, users[j].wallet.address);
+      const user = await p.FirstLevelContract.connect(users[j].wallet.address).getUser(users[j].wallet.address)
 
       console.log('^^^^^^^')
       console.log('index:', j + 1, users[j].wallet.address)
       console.log('wallet balance', ethers.utils.formatEther(balance))
       console.log('gas: ', users[j].gasUsed)
-      console.log('user.gift:', ethers.utils.formatEther(user.gift))
-      console.log('user.claim:', ethers.utils.formatEther(user.claim))
+      console.log('user.gift:', ethers.utils.formatEther(user['gift']))
+      console.log('user.claim:', ethers.utils.formatEther(user['claim']))
       console.log('_______')
     }
 
@@ -265,6 +265,7 @@ describe('practical testing interactions and that conclusions', async () => {
 
     await expect(true).to.equal(true)
 
-  }).timeout(160000)
+
+  }).timeout(960000)
 
 })
