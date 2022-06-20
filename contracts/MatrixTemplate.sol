@@ -102,16 +102,22 @@ contract MatrixTemplate {
             // todo: think about remove this variable (nextUser)
             nextUser = Addresses[Indices[nextUser.parent]];
             if (i == 2 || i == 3) {
-                Addresses[Indices[nextUser.parent]].gift = nextUser.gift.add(0.01 ether);
+                console.log("------------");
                 console.log("from", startIndex);
+                console.log("before", nextUser.gift);
+                Addresses[Indices[nextUser.parent]].gift = nextUser.gift + 0.01 ether;
                 console.log("added gift to", nextUser.index);
-                console.log(Addresses[Indices[nextUser.parent]].gift);
+                console.log("after", Addresses[Indices[nextUser.parent]].gift);
+                console.log("after", nextUser.gift);
             }
             if (i == 4 || i == 5) {
-                Addresses[Indices[nextUser.parent]].claim = nextUser.claim.add(0.01 ether);
+                console.log("------------");
                 console.log("from", startIndex);
+                console.log("before", nextUser.claim);
+                Addresses[Indices[nextUser.parent]].claim = nextUser.claim + 0.01 ether;
                 console.log("added claim to", nextUser.index);
-                console.log(Addresses[Indices[nextUser.parent]].claim);
+                console.log("after", Addresses[Indices[nextUser.parent]].claim);
+                console.log("after", nextUser.claim);
                 if (i == 5) {
                     console.log("Go to next matrix");
                 }

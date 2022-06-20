@@ -250,11 +250,11 @@ describe('practical testing interactions and that conclusions', async () => {
       const user = await p.CoreToken.connect(users[j].wallet.address).getUserFromMatrix(0, users[j].wallet.address);
 
       console.log('^^^^^^^')
-      console.log('index: ', j + 1, users[j].wallet.address)
-      console.log(ethers.utils.formatEther(balance))
+      console.log('index:', j + 1, users[j].wallet.address)
+      console.log('wallet balance', ethers.utils.formatEther(balance))
       console.log('gas: ', users[j].gasUsed)
-      console.log('user.gift: ', user.gift)
-      console.log('user.claim: ', user.claim)
+      console.log('user.gift:', ethers.utils.formatEther(user.gift))
+      console.log('user.claim:', ethers.utils.formatEther(user.claim))
       console.log('_______')
     }
 
