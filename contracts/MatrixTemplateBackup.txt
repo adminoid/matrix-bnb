@@ -92,7 +92,7 @@ contract MatrixTemplate {
 
     function goUp(uint parentIndex, uint startIndex) private {
         address parentWallet = Indices[parentIndex];
-        User memory nextUser = Addresses[parentWallet];
+        User storage nextUser = Addresses[parentWallet];
         uint8 i = 2;
         console.log("toUp iteration");
         while (i <= 5) {
@@ -106,18 +106,20 @@ contract MatrixTemplate {
                 console.log("------------");
                 console.log("from", startIndex);
                 console.log("gift before", nextUser.gift);
-                Addresses[Indices[nextUser.parent]].gift = nextUser.gift + 0.01 ether;
+                uint newGift = nextUser.gift + 0.01 ether;
+                address newAddressGift = Indices[nextUser.parent];
+                Addresses[newAddressGift].gift = newGift;
                 console.log("added gift to", nextUser.index);
-                console.log("address: ", Indices[nextUser.index]);
                 console.log("gift after", Addresses[Indices[nextUser.parent]].gift);
             }
             if (i == 4 || i == 5) {
                 console.log("------------");
                 console.log("from", startIndex);
                 console.log("claim before", nextUser.claim);
-                Addresses[Indices[nextUser.parent]].claim = nextUser.claim + 0.01 ether;
+                uint newClaim = nextUser.claim + 0.01 ether;
+                address newAddressClaim = Indices[nextUser.parent];
+                Addresses[newAddressClaim].claim = newClaim;
                 console.log("added claim to", nextUser.index);
-                console.log("address: ", Indices[nextUser.index]);
                 console.log("claim after", Addresses[Indices[nextUser.parent]].claim);
                 if (i == 5) {
                     console.log("Go to next matrix");

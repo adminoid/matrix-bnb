@@ -209,10 +209,10 @@ describe('practical testing interactions and that conclusions', async () => {
         const receipt = await tx.wait();
         const gasUsed = receipt.gasUsed.toNumber()
 
-        users.push({
+        users[index] = {
           wallet: wallets[index],
           gasUsed,
-        })
+        }
       }
 
       return users
@@ -242,7 +242,11 @@ describe('practical testing interactions and that conclusions', async () => {
   }).timeout(160000)
 
   it('check registration and resulting gift and claim', async () => {
-    const users = await runRegistrations(66)
+    const users = await runRegistrations(62)
+
+    const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)
+    // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
+    console.log('user0', user0)
 
     console.info('=========wallets after all=========')
     for (let j = 0; j < users.length; j++) {
@@ -253,8 +257,9 @@ describe('practical testing interactions and that conclusions', async () => {
       console.log('index:', j + 1, users[j].wallet.address)
       console.log('wallet balance', ethers.utils.formatEther(balance))
       console.log('gas: ', users[j].gasUsed)
-      console.log('user.gift:', ethers.utils.formatEther(user['gift']))
-      console.log('user.claim:', ethers.utils.formatEther(user['claim']))
+      // console.log('user.gift:', ethers.utils.formatEther(user['gift']))
+      // console.log('user.claim:', ethers.utils.formatEther(user['claim']))
+      console.log(user)
       console.log('_______')
     }
 
@@ -262,6 +267,10 @@ describe('practical testing interactions and that conclusions', async () => {
     const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.log('core wallet:', p.CoreToken.address)
     console.info(ethers.utils.formatEther(coreBalance))
+
+    const user1 = await p.FirstLevelContract.connect('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc').getUser('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc')
+    // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
+    console.log('user1', user1)
 
     await expect(true).to.equal(true)
 
