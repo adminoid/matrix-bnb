@@ -26,8 +26,8 @@ contract MatrixTemplate {
         bool isRight;
         uint plateau;
         bool isValue;
-        uint claim;
-        uint gift;
+        uint claims;
+        uint gifts;
     }
 
     mapping(address => User) Addresses;
@@ -78,12 +78,15 @@ contract MatrixTemplate {
                 if (parentIndex > 0) {
                     goUp(parentIndex, Indices.length);
                 }
+                console.log("After goUp");
                 user.isRight = true;
             }
+            console.log("After goUp 1");
 
             address parentWallet = Indices[parentIndex];
             Core CoreInstance = Core(payable(CoreAddress));
             CoreInstance.sendHalf(parentWallet, matrixIndex);
+            console.log("After goUp 2");
         }
 
         Addresses[wallet] = user;
@@ -94,37 +97,40 @@ contract MatrixTemplate {
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
         uint8 i = 2;
-        console.log("toUp iteration");
-        while (i <= 5) {
-//            if (!nextUser.isRight || nextUser.parent == 0) {
+        console.log("toUp iteration", startIndex);
+        do {
             if (!nextUser.isRight) {
+                console.log("Break");
                 break;
             }
-            // todo: think about remove this variable (nextUser)
             nextUser = Addresses[Indices[nextUser.parent]];
-            if (i == 2 || i == 3) {
+            if (i <= 3) {
                 console.log("------------");
                 console.log("from", startIndex);
-                console.log("gift before", nextUser.gift);
-                Addresses[Indices[nextUser.parent]].gift = nextUser.gift + 0.01 ether;
-                console.log("added gift to", nextUser.index);
-                console.log("address: ", Indices[nextUser.index]);
-                console.log("gift after", Addresses[Indices[nextUser.parent]].gift);
-            }
-            if (i == 4 || i == 5) {
+                console.log("gifts before", nextUser.gifts);
+                Addresses[Indices[nextUser.parent]].gifts = nextUser.gifts + 0.01 ether;
+                console.log("added gifts to", nextUser.parent);
+                console.log("index parent", nextUser.parent);
+//                console.log("address index: ", Indices[nextUser.index]);
+                console.log("address parent: ", Indices[nextUser.parent]);
+                console.log("gifts after", Addresses[Indices[nextUser.parent]].gifts);
+            } else {
                 console.log("------------");
                 console.log("from", startIndex);
-                console.log("claim before", nextUser.claim);
-                Addresses[Indices[nextUser.parent]].claim = nextUser.claim + 0.01 ether;
-                console.log("added claim to", nextUser.index);
-                console.log("address: ", Indices[nextUser.index]);
-                console.log("claim after", Addresses[Indices[nextUser.parent]].claim);
+                console.log("claims before", nextUser.claims);
+                Addresses[Indices[nextUser.parent]].claims = nextUser.claims + 0.01 ether;
+                console.log("added claims to", nextUser.parent);
+                console.log("index parent", nextUser.parent);
+//                console.log("address index: ", Indices[nextUser.index]);
+                console.log("address parent: ", Indices[nextUser.parent]);
+                console.log("claims after", Addresses[Indices[nextUser.parent]].claims);
                 if (i == 5) {
                     console.log("Go to next matrix");
                 }
             }
             i++;
         }
+        while (i <= 5);
     }
 
     function hasRegistered(address wallet) view public returns(bool) {
@@ -133,9 +139,10 @@ contract MatrixTemplate {
 
     function getUser(address wallet) view public returns(User memory user) {
         user = Addresses[wallet];
+        console.log("getUser()");
         console.log(user.index);
-        console.log(user.gift);
-        console.log(user.claim);
+        console.log(user.gifts);
+        console.log(user.claims);
     }
 
     function getLength() external view returns(uint length) {

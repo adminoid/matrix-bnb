@@ -207,6 +207,23 @@ describe('practical testing interactions and that conclusions', async () => {
 
         // example for check gas used
         const receipt = await tx.wait();
+
+        // console.info('here where')
+        // 46 => 47
+        console.log(typeof wallets[index].address, wallets[index].address)
+        // || index == 46 || index == 48
+        if (wallets[index].address === '0x90f79bf6eb2c4f870365e785982e1f101e93b906') {
+          console.info('here where')
+          const userClaim1 = await p.FirstLevelContract.connect('0x90f79bf6eb2c4f870365e785982e1f101e93b906').getUser('0x90f79bf6eb2c4f870365e785982e1f101e93b906')
+          console.info('userClaim1')
+          console.log(userClaim1)
+
+          // const userGift2 = await p.FirstLevelContract.connect('0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc').getUser('0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc')
+          // console.info('userGift2')
+          // console.log(userGift2)
+
+        }
+
         const gasUsed = receipt.gasUsed.toNumber()
 
         users[index] = {
@@ -241,13 +258,7 @@ describe('practical testing interactions and that conclusions', async () => {
 
   }).timeout(160000)
 
-  it('check registration and resulting gift and claim', async () => {
-    const users = await runRegistrations(62)
-
-    const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)
-    // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
-    console.log('user0', user0)
-
+  async function loopUsers(users) {
     console.info('=========wallets after all=========')
     for (let j = 0; j < users.length; j++) {
       const balance = await waffle.provider.getBalance(users[j].wallet.address)
@@ -262,6 +273,18 @@ describe('practical testing interactions and that conclusions', async () => {
       console.log(user)
       console.log('_______')
     }
+  }
+
+  it('check registration and resulting gift and claim', async () => {
+    const users = await runRegistrations(62)
+
+    const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)
+    // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
+    console.log('user0', user0)
+
+    // setTimeout(() => (loopUsers(users)), 120000)
+
+    await loopUsers(users)
 
     console.info('=========core balance after all=========')
     const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
