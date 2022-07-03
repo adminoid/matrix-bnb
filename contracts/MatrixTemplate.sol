@@ -103,7 +103,6 @@ contract MatrixTemplate {
                 console.log("Break");
                 break;
             }
-            nextUser = Addresses[Indices[nextUser.parent]];
             if (i <= 3) {
                 console.log("------------");
                 console.log("from", startIndex);
@@ -128,6 +127,7 @@ contract MatrixTemplate {
                     console.log("Go to next matrix");
                 }
             }
+            nextUser = Addresses[Indices[nextUser.parent]];
             i++;
         }
         while (i <= 5);
@@ -143,6 +143,7 @@ contract MatrixTemplate {
         console.log(user.index);
         console.log(user.gifts);
         console.log(user.claims);
+        return user;
     }
 
     function getLength() external view returns(uint length) {

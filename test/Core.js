@@ -196,67 +196,24 @@ describe('practical testing interactions and that conclusions', async () => {
   before(async () => {
     p = await prepare()
     runRegistrations = async (total) => {
-      const wallets = await getWallets(2),
-        users = []
-
+      const wallets = await getWallets(2)
+      let users = []
       for (const index in [...Array(total).keys()]) {
         const tx = await wallets[index].sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.01'),
         })
-
         // example for check gas used
-        const receipt = await tx.wait();
-
-        // console.info('here where')
-        // 46 => 47
-        console.log(typeof wallets[index].address, wallets[index].address)
-        // || index == 46 || index == 48
-        if (wallets[index].address === '0x90f79bf6eb2c4f870365e785982e1f101e93b906') {
-          console.info('here where')
-          const userClaim1 = await p.FirstLevelContract.connect('0x90f79bf6eb2c4f870365e785982e1f101e93b906').getUser('0x90f79bf6eb2c4f870365e785982e1f101e93b906')
-          console.info('userClaim1')
-          console.log(userClaim1)
-
-          // const userGift2 = await p.FirstLevelContract.connect('0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc').getUser('0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc')
-          // console.info('userGift2')
-          // console.log(userGift2)
-
-        }
-
+        const receipt = await tx.wait()
         const gasUsed = receipt.gasUsed.toNumber()
-
         users[index] = {
           wallet: wallets[index],
           gasUsed,
         }
       }
-
       return users
     }
   })
-
-  it('check registrations and first level up balances', async () => {
-
-    const users = await runRegistrations(66)
-    console.info('=========wallets after all=========')
-    for (let j = 0; j < users.length; j++) {
-      const balance = await waffle.provider.getBalance(users[j].wallet.address);
-      console.log('^^^^^^^')
-      console.log('index: ', j + 1, users[j].wallet.address)
-      console.log(ethers.utils.formatEther(balance))
-      console.log('gas: ', users[j].gasUsed)
-      console.log('_______')
-    }
-
-    console.info('=========core balance after all=========')
-    const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
-    console.log('core wallet:', p.CoreToken.address)
-    console.info(ethers.utils.formatEther(coreBalance))
-
-    await expect(true).to.equal(true)
-
-  }).timeout(160000)
 
   async function loopUsers(users) {
     console.info('=========wallets after all=========')
@@ -291,12 +248,11 @@ describe('practical testing interactions and that conclusions', async () => {
     console.log('core wallet:', p.CoreToken.address)
     console.info(ethers.utils.formatEther(coreBalance))
 
-    const user1 = await p.FirstLevelContract.connect('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc').getUser('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc')
+    const user1 = await p.FirstLevelContract.connect('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266').getUser('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
     // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
     console.log('user1', user1)
 
     await expect(true).to.equal(true)
-
 
   }).timeout(960000)
 
