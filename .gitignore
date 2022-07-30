@@ -3,3 +3,6 @@ private/
 cache/
 artifacts/
 secret.json
+
+**/.DS_Store
+.idea/
