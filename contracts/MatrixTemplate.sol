@@ -11,13 +11,14 @@ contract MatrixTemplate {
     address Deployer;
     uint matrixIndex;
     address CoreAddress;
+    Core CoreInstance;
 
-    constructor(address _deployer, uint index, address _coreAddress) {
-        console.log("MatrixTemplate constructor");
+    constructor(address _deployer, uint _index, address _coreAddress) {
         register(_deployer, true);
         Deployer = _deployer;
-        matrixIndex = index;
+        matrixIndex = _index;
         CoreAddress = _coreAddress;
+        CoreInstance = Core(payable(_coreAddress));
     }
 
     struct User {
@@ -26,8 +27,6 @@ contract MatrixTemplate {
         bool isRight;
         uint plateau;
         bool isValue;
-        uint claims;
-        uint gifts;
     }
 
     mapping(address => User) Addresses;
@@ -39,10 +38,9 @@ contract MatrixTemplate {
         User memory user;
 
         if (isTop) {
-            console.log("MatrixTemplate::register(isTop)");
-            user = User(0, 0, false, 0, true, 0, 0);
-        } else {
-            console.log("MatrixTemplate::register(isnTTop)");
+            user = User(0, 0, false, 0, true);
+        }
+        else {
             // plateau number calculation (for current registration)
             uint plateau = log2(Indices.length + 2);
             uint subPreviousTotal;
@@ -53,18 +51,14 @@ contract MatrixTemplate {
             }
 
             // get total in current plateau
-            //        uint totalPlateau = 2 ** (plateau - 1);
-            //        console.log("Total in plateau:", totalPlateau);
+            // uint totalPlateau = 2 ** (plateau - 1);
 
             // get total in start to sub previous plateau
             uint previousTotal = getSumOfPlateau(0, plateau - 1);
-
             // get current number in current plateau
             uint currentNum = Indices.length - previousTotal + 1;
-
             // and check mod for detect left or right on parent
             uint mod = currentNum.mod(2);
-
             // detect parentNum
             uint parentNum = currentNum.div(2);
             if (parentNum < 1) {
@@ -73,57 +67,58 @@ contract MatrixTemplate {
                 parentNum = parentNum + mod;
             }
             uint parentIndex = subPreviousTotal + parentNum - 1;
-            user = User(Indices.length, parentIndex, false, plateau, true, 0, 0);
+            user = User(Indices.length, parentIndex, false, plateau, true);
             if (mod == 0) {
                 if (parentIndex > 0) {
                     goUp(parentIndex, Indices.length);
                 }
-                console.log("After goUp");
                 user.isRight = true;
             }
-            console.log("After goUp 1");
-
             address parentWallet = Indices[parentIndex];
-            Core CoreInstance = Core(payable(CoreAddress));
+            // todo: what is matrixIndex here?
             CoreInstance.sendHalf(parentWallet, matrixIndex);
-            console.log("After goUp 2");
         }
 
         Addresses[wallet] = user;
         Indices.push(wallet);
     }
 
-    function goUp(uint parentIndex, uint startIndex) private {
+    // todo: remove currentIndex == Indices.length
+    function goUp(uint parentIndex, uint currentIndex) private {
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
         uint8 i = 2;
-        console.log("toUp iteration", startIndex);
         do {
+//            if (!nextUser.isRight || nextUser.plateau < 3) {
             if (!nextUser.isRight) {
-                console.log("Break");
                 break;
             }
+
+            address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
+
+            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
+//            address updatedUserAddress = Indices[Addresses[Indices[nextUser.parent]].parent]; // address of nextUser.parent
+
+//            console.log("237updatedUserAddress: ");
+//            console.log(updatedUserAddress);
+
+            console.log("---updatedUser: begin");
+            console.log("currentIndex: ");
+            console.log(currentIndex);
+            console.log("updatedUser.index: ");
+            console.log(updatedUser.index);
+
             if (i <= 3) {
-                console.log("------------");
-                console.log("from", startIndex);
-                console.log("gifts before", nextUser.gifts);
-                Addresses[Indices[nextUser.parent]].gifts = nextUser.gifts + 0.01 ether;
-                console.log("added gifts to", nextUser.parent);
-                console.log("index parent", nextUser.parent);
-//                console.log("address index: ", Indices[nextUser.index]);
-                console.log("address parent: ", Indices[nextUser.parent]);
-                console.log("gifts after", Addresses[Indices[nextUser.parent]].gifts);
+//                Addresses[Indices[nextUser.parent]].gifts = nextUser.gifts + 0.01 ether;
+                CoreInstance.updateUser(updatedUserAddress, matrixIndex, "gifts");
+
             } else {
-                console.log("------------");
-                console.log("from", startIndex);
-                console.log("claims before", nextUser.claims);
-                Addresses[Indices[nextUser.parent]].claims = nextUser.claims + 0.01 ether;
-                console.log("added claims to", nextUser.parent);
-                console.log("index parent", nextUser.parent);
-//                console.log("address index: ", Indices[nextUser.index]);
-                console.log("address parent: ", Indices[nextUser.parent]);
-                console.log("claims after", Addresses[Indices[nextUser.parent]].claims);
+                // todo: add claims by user address into Core contract
+//                Addresses[Indices[nextUser.parent]].claims = nextUser.claims + 0.01 ether;
+//                address updatedUser = Indices[nextUser.parent];
+                CoreInstance.updateUser(updatedUserAddress, matrixIndex, "claims");
                 if (i == 5) {
+                    // todo: make level up for user
                     console.log("Go to next matrix");
                 }
             }
@@ -133,16 +128,12 @@ contract MatrixTemplate {
         while (i <= 5);
     }
 
-    function hasRegistered(address wallet) view public returns(bool) {
+    function hasRegistered(address wallet) view external returns(bool) {
         return Addresses[wallet].isValue;
     }
 
-    function getUser(address wallet) view public returns(User memory user) {
+    function getUser(address wallet) view external returns(User memory user) {
         user = Addresses[wallet];
-        console.log("getUser()");
-        console.log(user.index);
-        console.log(user.gifts);
-        console.log(user.claims);
         return user;
     }
 

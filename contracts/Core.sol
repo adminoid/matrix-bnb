@@ -10,23 +10,57 @@ contract Core is Ownable {
     using SafeMath for uint256;
 
     event Registered(address, uint);
+    event Updated(address, string, uint);
 
     // settings
     uint256 payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint maxLevel = 20;
+    uint maxLevel = 3; // todo: change to actual matrices amount
 
     // array of matrices
     MatrixTemplate[] Matrices;
 
+    address zeroWallet;
+
     constructor() {
         // todo: for multiple level contracts - push to array in range [0..7]
         console.log("Core constructor");
+        zeroWallet = msg.sender;
         // initialize 20 matrices
         uint i;
-        for (i = 0; i < 20; i++) {
+        for (i = 0; i < maxLevel; i++) {
             console.log(i);
             Matrices.push(new MatrixTemplate(msg.sender, i, address(this)));
         }
+    }
+
+    struct UserGlobal {
+        uint claims;
+        uint gifts;
+        uint level;
+        address whose; // whose referral is user
+        bool isValue;
+    }
+
+    mapping(address => UserGlobal) AddressesGlobal;
+
+    function updateUser(address userAddress, uint matrixIndex, string calldata fieldName) external {
+        console.log("@@@@@@@@@@@@@@@@");
+        console.log(userAddress);
+        console.log(matrixIndex);
+        console.log(fieldName);
+        console.log("________________");
+        uint amount = payUnit.mul(matrixIndex.add(1));
+        uint newValue;
+
+        if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("claims"))) {
+            newValue = AddressesGlobal[userAddress].claims.add(amount);
+            AddressesGlobal[userAddress].claims = newValue;
+        } else if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("gifts"))) {
+            newValue = AddressesGlobal[userAddress].gifts.add(amount);
+            AddressesGlobal[userAddress].gifts = newValue;
+        }
+        // todo: calculate newValue
+        emit Updated(userAddress, fieldName, newValue);
     }
 
     receive() external payable {
@@ -50,8 +84,19 @@ contract Core is Ownable {
             }
         }
 
-//        console.log("value:", msg.value);
+//        struct UsersGlobal {
+//        uint claims;
+//        uint gifts;
+//        uint level;
+//        address whose; // whose referral is user
+//        bool isValue;
+//        }
 
+        // todo: check is already registered
+//        localRegister(level - 1,)
+
+        // add local Core registration in UserGlobal
+        AddressesGlobal[msg.sender] = UserGlobal(0, 0, level - 1, zeroWallet, true);
         Matrices[level - 1].register(msg.sender, false);
         emit Registered(msg.sender, level);
     }
@@ -61,8 +106,13 @@ contract Core is Ownable {
     }
 
     function getUserFromMatrix(uint matrixIdx, address userWallet) external view
-    returns (MatrixTemplate.User memory user){
+    returns (MatrixTemplate.User memory user) {
         user = Matrices[matrixIdx].getUser(userWallet);
+    }
+
+    function getUserFromCore(address userAddress) external view
+    returns (UserGlobal memory user) {
+        user = AddressesGlobal[userAddress];
     }
 
     // todo: delete later, that for experiment
@@ -74,10 +124,6 @@ contract Core is Ownable {
 
     function sendHalf(address wallet, uint matrixIndex) external {
         uint amount = payUnit.mul(matrixIndex.add(1)).div(2);
-//        console.log(wallet);
-//        console.log(matrixIndex);
-//        console.log(payUnit);
-//        console.log(amount);
         payable(wallet).transfer(amount);
     }
 }
