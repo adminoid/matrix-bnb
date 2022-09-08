@@ -97,10 +97,6 @@ contract MatrixTemplate {
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
 
             User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
-//            address updatedUserAddress = Indices[Addresses[Indices[nextUser.parent]].parent]; // address of nextUser.parent
-
-//            console.log("237updatedUserAddress: ");
-//            console.log(updatedUserAddress);
 
             console.log("---updatedUser: begin");
             console.log("currentIndex: ");
@@ -109,17 +105,13 @@ contract MatrixTemplate {
             console.log(updatedUser.index);
 
             if (i <= 3) {
-//                Addresses[Indices[nextUser.parent]].gifts = nextUser.gifts + 0.01 ether;
                 CoreInstance.updateUser(updatedUserAddress, matrixIndex, "gifts");
-
             } else {
-                // todo: add claims by user address into Core contract
-//                Addresses[Indices[nextUser.parent]].claims = nextUser.claims + 0.01 ether;
-//                address updatedUser = Indices[nextUser.parent];
+                // add claims by user address into Core contract
                 CoreInstance.updateUser(updatedUserAddress, matrixIndex, "claims");
                 if (i == 5) {
                     // todo: make level up for user
-                    console.log("Go to next matrix");
+                    console.log("Going to the next matrix");
                 }
             }
             nextUser = Addresses[Indices[nextUser.parent]];
