@@ -14,11 +14,14 @@ contract MatrixTemplate {
     Core CoreInstance;
 
     constructor(address _deployer, uint _index, address _coreAddress) {
+        console.log("MatrixTemplate: begin constructor() -----------------");
         register(_deployer, true);
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
         CoreInstance = Core(payable(_coreAddress));
+        console.log("_index == matrixIndex:", _index, matrixIndex);
+        console.log("MatrixTemplate: end constructor() -----------------");
     }
 
     struct User {
@@ -35,12 +38,17 @@ contract MatrixTemplate {
     function register(address wallet, bool isTop) public {
         // todo: disable for 20 top matrix
 
+        console.log("MatrixTemplate: begin register() -----------------");
+        console.log("matrixIndex ==", matrixIndex);
+
         User memory user;
 
         if (isTop) {
             user = User(0, 0, false, 0, true);
         }
         else {
+            console.log("");
+            console.log("MatrixTemplate: begin isTop == false calculations() -----------------");
             // plateau number calculation (for current registration)
             uint plateau = log2(Indices.length + 2);
             uint subPreviousTotal;
@@ -68,8 +76,20 @@ contract MatrixTemplate {
             }
             uint parentIndex = subPreviousTotal + parentNum - 1;
             user = User(Indices.length, parentIndex, false, plateau, true);
+
+            console.log("MT::register()");
+            console.log("Indices.length");
+            console.log(Indices.length);
+            console.log("parentIndex");
+            console.log(parentIndex);
+            console.log("plateau");
+            console.log(plateau);
+            console.log("mod");
+            console.log(mod);
+
             if (mod == 0) {
                 if (parentIndex > 0) {
+                    console.log("before goUp()");
                     goUp(parentIndex, Indices.length);
                 }
                 user.isRight = true;
@@ -77,18 +97,28 @@ contract MatrixTemplate {
             address parentWallet = Indices[parentIndex];
             // todo: what is matrixIndex here?
             CoreInstance.sendHalf(parentWallet, matrixIndex);
+            console.log("MatrixTemplate: end isTop == false calculations() -----------------");
         }
 
         Addresses[wallet] = user;
         Indices.push(wallet);
+
+        console.log("");
+        console.log("MatrixTemplate: end register() -----------------");
     }
 
     // todo: remove currentIndex == Indices.length
     function goUp(uint parentIndex, uint currentIndex) private {
+        console.log("");
+        console.log("MatrixTemplate: begin goUp() -----------------");
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
         uint8 i = 2;
+        console.log("");
+        console.log("MatrixTemplate: before goUp do() cycle -----------------");
         do {
+            console.log("");
+            console.log("MatrixTemplate: begin goUp do() cycle -----------------");
 //            if (!nextUser.isRight || nextUser.plateau < 3) {
             if (!nextUser.isRight) {
                 break;
@@ -98,7 +128,6 @@ contract MatrixTemplate {
 
             User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
 
-            console.log("---updatedUser: begin");
             console.log("currentIndex: ");
             console.log(currentIndex);
             console.log("updatedUser.index: ");
@@ -116,8 +145,12 @@ contract MatrixTemplate {
             }
             nextUser = Addresses[Indices[nextUser.parent]];
             i++;
+            console.log("MatrixTemplate: begin goUp do() cycle -----------------");
         }
         while (i <= 5);
+
+        console.log("MatrixTemplate: after goUp do() cycle -----------------");
+        console.log("MatrixTemplate: end goUp() -----------------");
     }
 
     function hasRegistered(address wallet) view external returns(bool) {

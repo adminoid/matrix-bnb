@@ -31,7 +31,7 @@ module.exports = {
     hardhat: {
       accounts: {
         // count: 200,
-        count: 69,
+        count: 110,
         accountsBalance: '1000000000000000000',
       },
     },
