@@ -34,6 +34,7 @@ module.exports = {
         count: 110,
         accountsBalance: '1000000000000000000',
       },
+      // gas: 1800000,
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
@@ -51,7 +52,7 @@ module.exports = {
     }
   },
   solidity: {
-    version: "0.8.13",
+    version: "0.8.17",
     settings: {
       optimizer: {
         enabled: true

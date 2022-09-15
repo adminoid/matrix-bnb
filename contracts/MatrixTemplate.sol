@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "hardhat/console.sol";
@@ -14,14 +14,13 @@ contract MatrixTemplate {
     Core CoreInstance;
 
     constructor(address _deployer, uint _index, address _coreAddress) {
-        console.log("MatrixTemplate: begin constructor() -----------------");
         register(_deployer, true);
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
         CoreInstance = Core(payable(_coreAddress));
-        console.log("_index == matrixIndex:", _index, matrixIndex);
-        console.log("MatrixTemplate: end constructor() -----------------");
+        console.log("");
+        console.log("MT: Deployed MatrixTemplate with index:", _index);
     }
 
     struct User {
@@ -36,19 +35,15 @@ contract MatrixTemplate {
     address[] Indices;
 
     function register(address wallet, bool isTop) public {
-        // todo: disable for 20 top matrix
-
-        console.log("MatrixTemplate: begin register() -----------------");
-        console.log("matrixIndex ==", matrixIndex);
-
+        console.log("");
+        console.log("MT: register() start");
         User memory user;
 
+        // disable for 20 top matrix
         if (isTop) {
             user = User(0, 0, false, 0, true);
         }
         else {
-            console.log("");
-            console.log("MatrixTemplate: begin isTop == false calculations() -----------------");
             // plateau number calculation (for current registration)
             uint plateau = log2(Indices.length + 2);
             uint subPreviousTotal;
@@ -77,19 +72,8 @@ contract MatrixTemplate {
             uint parentIndex = subPreviousTotal + parentNum - 1;
             user = User(Indices.length, parentIndex, false, plateau, true);
 
-            console.log("MT::register()");
-            console.log("Indices.length");
-            console.log(Indices.length);
-            console.log("parentIndex");
-            console.log(parentIndex);
-            console.log("plateau");
-            console.log(plateau);
-            console.log("mod");
-            console.log(mod);
-
             if (mod == 0) {
                 if (parentIndex > 0) {
-                    console.log("before goUp()");
                     goUp(parentIndex, Indices.length);
                 }
                 user.isRight = true;
@@ -97,41 +81,31 @@ contract MatrixTemplate {
             address parentWallet = Indices[parentIndex];
             // todo: what is matrixIndex here?
             CoreInstance.sendHalf(parentWallet, matrixIndex);
-            console.log("MatrixTemplate: end isTop == false calculations() -----------------");
         }
 
         Addresses[wallet] = user;
         Indices.push(wallet);
-
         console.log("");
-        console.log("MatrixTemplate: end register() -----------------");
+        console.log("MT: register() end");
     }
 
     // todo: remove currentIndex == Indices.length
     function goUp(uint parentIndex, uint currentIndex) private {
         console.log("");
-        console.log("MatrixTemplate: begin goUp() -----------------");
+        console.log("MT: goUp() start for parentIndex:", parentIndex, "and currentIndex", currentIndex);
+        console.log("start for parentIndex:", parentIndex);
+        console.log("and currentIndex", currentIndex);
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
         uint8 i = 2;
-        console.log("");
-        console.log("MatrixTemplate: before goUp do() cycle -----------------");
         do {
-            console.log("");
-            console.log("MatrixTemplate: begin goUp do() cycle -----------------");
-//            if (!nextUser.isRight || nextUser.plateau < 3) {
             if (!nextUser.isRight) {
                 break;
             }
 
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
 
-            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
-
-            console.log("currentIndex: ");
-            console.log(currentIndex);
-            console.log("updatedUser.index: ");
-            console.log(updatedUser.index);
+//            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
 
             if (i <= 3) {
                 CoreInstance.updateUser(updatedUserAddress, matrixIndex, "gifts");
@@ -145,12 +119,9 @@ contract MatrixTemplate {
             }
             nextUser = Addresses[Indices[nextUser.parent]];
             i++;
-            console.log("MatrixTemplate: begin goUp do() cycle -----------------");
         }
         while (i <= 5);
-
-        console.log("MatrixTemplate: after goUp do() cycle -----------------");
-        console.log("MatrixTemplate: end goUp() -----------------");
+        console.log("MT: goUp() end");
     }
 
     function hasRegistered(address wallet) view external returns(bool) {

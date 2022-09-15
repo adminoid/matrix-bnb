@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -22,14 +22,16 @@ contract Core is Ownable {
     address zeroWallet;
 
     constructor() {
+        console.log("Core: constructor starting");
+
+        uint256 startGas = gasleft();
+        console.log("gasleft:", startGas);
+
         // todo: for multiple level contracts - push to array in range [0..7]
-        console.log("");
-        console.log("Core: begin constructor() -----------------");
         zeroWallet = msg.sender;
         // initialize 20 matrices
         uint i;
         for (i = 0; i < maxLevel; i++) {
-            console.log(i);
             MatrixTemplate matrixInstance = new MatrixTemplate(msg.sender, i, address(this));
             AddressesGlobal[msg.sender] = UserGlobal(0, 0, i, zeroWallet, true);
 
@@ -37,7 +39,11 @@ contract Core is Ownable {
 
             Matrices.push(matrixInstance);
         }
-        console.log("Core: end constructor() -----------------");
+
+        uint gasUsed = startGas - gasleft();
+        console.log("gasUsed:", gasUsed);
+
+        console.log("Core: Deployed Core with 20 MatrixTemplate instances");
     }
 
     struct UserGlobal {
@@ -51,121 +57,97 @@ contract Core is Ownable {
     mapping(address => UserGlobal) AddressesGlobal;
 
     function updateUser(address userAddress, uint matrixIndex, string calldata fieldName) external {
-        console.log("");
-        console.log("Core: begin updateUser() -----------------");
-        console.log("userAddress", userAddress);
-//        console.log("matrixIndex", matrixIndex);
-        console.log("fieldName", fieldName);
-        uint amount = payUnit.mul(matrixIndex.add(1));
-        uint newValue;
-        console.log("amount", amount);
-        console.log("________________");
+        console.log("Core: updateUser()");
+        console.log("for matrix:", matrixIndex);
+        console.log("and user:", userAddress);
+        console.log("field name:", fieldName);
 
+        uint amount = payUnit.mul(matrixIndex.add(1));
+
+        console.log("amount:", amount);
+
+        uint newValue;
+
+        // calculate newValue
         if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("claims"))) {
             newValue = AddressesGlobal[userAddress].claims.add(amount);
             AddressesGlobal[userAddress].claims = newValue;
+            console.log("matrixIndex:", matrixIndex);
+            console.log("newValue:", newValue);
+            console.log("need value:", amount.mul(2));
+            // todo: here uncomment and release
+//            if (newValue >= amount.mul(2)) {
+//                matricesRegistration(userAddress, 0);
+//            }
         } else if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("gifts"))) {
             newValue = AddressesGlobal[userAddress].gifts.add(amount);
             AddressesGlobal[userAddress].gifts = newValue;
         }
-        // todo: calculate newValue
         emit Updated(userAddress, fieldName, newValue);
-
-        console.log("AddressesGlobal[userAddress].claims ->", AddressesGlobal[userAddress].claims);
-        console.log("AddressesGlobal[userAddress].gifts ->", AddressesGlobal[userAddress].gifts);
-
-        console.log("Core: end updateUser() -----------------");
     }
 
     receive() external payable {
-        console.log("");
-        console.log("Core: begin receive() -----------------");
-        // todo: check for enough to register in multiple matrices, change of amount add to wallet claim
+        console.log("Core: receiving from wallet:", msg.sender);
+        console.log("value:", msg.value);
+        console.log("gasleft:", gasleft());
+        matricesRegistration(msg.sender, msg.value);
+    }
+
+    // check for enough to register in multiple matrices, change of amount add to wallet claim
+    function matricesRegistration(address wallet, uint transferredAmount) private {
+        console.log("Core: matricesRegistration start");
         uint balance;
         uint level;
-        uint registerPrice = payUnit;
+        uint registerPrice;
 
-        console.log("AddressesGlobal[msg.sender].isValue:", AddressesGlobal[msg.sender].isValue);
-        console.log("");
-
-        if (AddressesGlobal[msg.sender].isValue) {
-            console.log("initial claims", AddressesGlobal[msg.sender].claims);
-            balance = msg.value.add(AddressesGlobal[msg.sender].claims);
-            level = AddressesGlobal[msg.sender].level;
-
-            console.log("AddressesGlobal[msg.sender].level", AddressesGlobal[msg.sender].level);
-
-            // todo: below calculates initial value of registerPrice for level more than 1
-            console.log("Core: begin first value cycle in receive() -----------------");
-//            if (level > 0) {
-//                for (uint i = 1; i <= level; i++) {
-//                    registerPrice = registerPrice*2;
-//                    console.log("registerPrice*2...");
-//                    console.log(registerPrice);
-//                }
-//            }
+        if (AddressesGlobal[wallet].isValue) {
+            balance = transferredAmount.add(AddressesGlobal[wallet].claims);
+            level = AddressesGlobal[wallet].level;
+            // below calculates initial value of registerPrice for level more than 1
             registerPrice = getLevelPrice(level);
-            console.log("Core: end first value cycle in receive() -----------------");
-            console.log("");
 
         } else {
-            balance = msg.value;
-            level = 1;
+            balance = transferredAmount;
+            // todo: check also here
+            level = 0;
+            registerPrice = payUnit;
         }
-        console.log("level:", level);
-        console.log("balance:", balance);
-        console.log("registerPrice:", registerPrice);
 
         require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
 
-        console.log("Core: before do() in receive -----------------");
         // make loop for register and decrement remains
         do {
+            console.log("Core: matricesRegistration cycle begins with:");
+            console.log("Core: balance (for next matrix registration)", balance);
+            console.log("Core: level", level);
+            console.log("Core: registerPrice", registerPrice);
             // todo: run that cycle only if need
-            console.log("");
-            console.log("Core: begin do() in receive -----------------");
-            console.log("isValue", AddressesGlobal[msg.sender].isValue);
-            console.log("claims", AddressesGlobal[msg.sender].claims);
             // register in, decrease balance and increment level
             // local Core registration in UserGlobal and matrix registration
-            if (AddressesGlobal[msg.sender].isValue) {
-                AddressesGlobal[msg.sender].claims = balance;
-                console.log("before. level:", level);
-                AddressesGlobal[msg.sender].level = level.add(1);
-                console.log("after1. level:", level);
-                Matrices[level.add(1)].register(msg.sender, false);
-                console.log("after2. level:", level);
-                console.log("...not else after check isValue");
+            if (AddressesGlobal[wallet].isValue) {
+                uint newLevel = level.add(1);
+                AddressesGlobal[wallet].claims = balance;
+                AddressesGlobal[wallet].level = newLevel;
+                Matrices[newLevel].register(wallet, false);
+                console.log("Core: wallet:", wallet);
+                console.log("registered matrix level is:", newLevel);
+                console.log("claims remain:", balance);
             } else {
                 // todo: here after each first cycle isValue == true
-                AddressesGlobal[msg.sender] = UserGlobal(balance, 0, 0, zeroWallet, true);
-                console.log("level==0, isValue == false");
-                Matrices[0].register(msg.sender, false);
-                console.log("...else after check isValue");
+                AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
+                Matrices[0].register(wallet, false);
+                console.log("Core: wallet:", wallet);
+                console.log("registered matrix level is ZERO");
+                console.log("claims remain:", balance);
             }
-            emit Registered(msg.sender, level);
+            emit Registered(wallet, level);
             balance = balance.sub(registerPrice);
-            AddressesGlobal[msg.sender].claims = balance;
+            AddressesGlobal[wallet].claims = balance;
             level = level.add(1);
             registerPrice = registerPrice.mul(2);
-            console.log("claims", AddressesGlobal[msg.sender].claims);
-            console.log("gifts", AddressesGlobal[msg.sender].gifts);
-            console.log("level", AddressesGlobal[msg.sender].level);
-            console.log("whose", AddressesGlobal[msg.sender].whose);
-            console.log("isValue", AddressesGlobal[msg.sender].isValue);
-            console.log("-----");
-            console.log("next balance");
-            console.log(balance);
-            console.log("next level");
-            console.log(level);
-            console.log("next registerPrice");
-            console.log(registerPrice);
-            console.log("Core: end do() in receive -----------------");
-            console.log("");
         }
         while (balance >= registerPrice);
-        console.log("Core: after do() in receive -----------------");
-        console.log("Core: end receive() -----------------");
+        console.log("Core: matricesRegistration end");
     }
 
     function getLevelPrice(uint level) internal view returns(uint) {
@@ -173,8 +155,8 @@ contract Core is Ownable {
         if (level > 0) {
             for (uint i = 1; i <= level; i++) {
                 registerPrice = registerPrice*2;
-                console.log("registerPrice*2...");
-                console.log(registerPrice);
+                console.log("");
+                console.log("registerPrice * 2 =", registerPrice);
             }
         }
         return registerPrice;
@@ -194,25 +176,13 @@ contract Core is Ownable {
         user = AddressesGlobal[userAddress];
     }
 
-    // todo: delete later, that for experiment
-    fallback() external payable {
-        console.log("!!!fallback");
-        console.log(msg.value);
-        console.log(msg.sender);
-    }
-
     function sendHalf(address wallet, uint matrixIndex) external {
-        console.log("Core: begin sendHalf() -----------------");
-        console.log("wallet", wallet);
-        console.log("payUnit", payUnit);
-        console.log("matrixIndex", matrixIndex);
-        // todo: multiply to 2 matrixIndex times
-//        registerPrice = ;
+        console.log("Core: sendHalf start");
         uint amount = getLevelPrice(matrixIndex).div(2);
-//        uint amount = payUnit.mul(matrixIndex.add(1)).div(2);
-//        uint amount = (payUnit*(matrixIndex + 1)) / 2;
-        console.log("amount", amount);
-        payable(wallet).transfer(amount);
-        console.log("Core: end sendHalf() -----------------");
+//        payable(wallet).transfer(amount); // not recommended
+        (bool sent,) = payable(wallet).call{value: amount}("");
+        require(sent, "Failed to send Ether");
+
+        console.log("Core: sendHalf end");
     }
 }
