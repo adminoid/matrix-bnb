@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./MatrixTemplate.sol";
 
-contract Core is AccessControl, ReentrancyGuard {
+contract Core is AccessControl {
     using SafeMath for uint256;
 
     bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
@@ -100,7 +100,7 @@ contract Core is AccessControl, ReentrancyGuard {
     }
 
     // check for enough to register in multiple matrices, change of amount add to wallet claim
-    function matricesRegistration(address wallet, uint transferredAmount) private nonReentrant {
+    function matricesRegistration(address wallet, uint transferredAmount) private {
         console.log("Core: matricesRegistration start");
         uint balance;
         uint level;
@@ -183,7 +183,7 @@ contract Core is AccessControl, ReentrancyGuard {
         user = AddressesGlobal[userAddress];
     }
 
-    function sendHalf(address wallet, uint matrixIndex) external onlyRole(MATRIX_ROLE) nonReentrant {
+    function sendHalf(address wallet, uint matrixIndex) external onlyRole(MATRIX_ROLE) {
         console.log("Core: sendHalf start");
         uint amount = getLevelPrice(matrixIndex).div(2);
         payable(wallet).transfer(amount); // not recommended
