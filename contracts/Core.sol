@@ -2,12 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./MatrixTemplate.sol";
 
-contract Core is Ownable {
+contract Core is AccessControl, ReentrancyGuard {
     using SafeMath for uint256;
+
+    bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
 
     event Registered(address, uint);
     event Updated(address, string, uint);
@@ -27,6 +30,8 @@ contract Core is Ownable {
         uint256 startGas = gasleft();
         console.log("gasleft:", startGas);
 
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
         // todo: for multiple level contracts - push to array in range [0..7]
         zeroWallet = msg.sender;
         // initialize 20 matrices
@@ -37,6 +42,7 @@ contract Core is Ownable {
 
             // todo: register secondWallet and ThirdWallet
 
+            _setupRole(MATRIX_ROLE, address(matrixInstance));
             Matrices.push(matrixInstance);
         }
 
@@ -56,7 +62,7 @@ contract Core is Ownable {
 
     mapping(address => UserGlobal) AddressesGlobal;
 
-    function updateUser(address userAddress, uint matrixIndex, string calldata fieldName) external {
+    function updateUser(address userAddress, uint matrixIndex, string calldata fieldName) external onlyRole(MATRIX_ROLE) {
         console.log("Core: updateUser()");
         console.log("for matrix:", matrixIndex);
         console.log("and user:", userAddress);
@@ -74,7 +80,7 @@ contract Core is Ownable {
             AddressesGlobal[userAddress].claims = newValue;
             console.log("matrixIndex:", matrixIndex);
             console.log("newValue:", newValue);
-            console.log("need value:", amount.mul(2));
+            console.log("need newValue:", amount.mul(2));
             // todo: here uncomment and release
 //            if (newValue >= amount.mul(2)) {
 //                matricesRegistration(userAddress, 0);
@@ -94,7 +100,7 @@ contract Core is Ownable {
     }
 
     // check for enough to register in multiple matrices, change of amount add to wallet claim
-    function matricesRegistration(address wallet, uint transferredAmount) private {
+    function matricesRegistration(address wallet, uint transferredAmount) private nonReentrant {
         console.log("Core: matricesRegistration start");
         uint balance;
         uint level;
@@ -125,17 +131,16 @@ contract Core is Ownable {
             // register in, decrease balance and increment level
             // local Core registration in UserGlobal and matrix registration
             if (AddressesGlobal[wallet].isValue) {
-                uint newLevel = level.add(1);
+                level = level.add(1);
                 AddressesGlobal[wallet].claims = balance;
-                AddressesGlobal[wallet].level = newLevel;
-                Matrices[newLevel].register(wallet, false);
+                AddressesGlobal[wallet].level = level;
                 console.log("Core: wallet:", wallet);
-                console.log("registered matrix level is:", newLevel);
+                console.log("registered matrix level is:", level);
                 console.log("claims remain:", balance);
             } else {
+                level = 0;
                 // todo: here after each first cycle isValue == true
                 AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
-                Matrices[0].register(wallet, false);
                 console.log("Core: wallet:", wallet);
                 console.log("registered matrix level is ZERO");
                 console.log("claims remain:", balance);
@@ -143,8 +148,10 @@ contract Core is Ownable {
             emit Registered(wallet, level);
             balance = balance.sub(registerPrice);
             AddressesGlobal[wallet].claims = balance;
-            level = level.add(1);
             registerPrice = registerPrice.mul(2);
+            require(level <= 19, "max level is 19");
+
+            Matrices[level].register(wallet, false);
         }
         while (balance >= registerPrice);
         console.log("Core: matricesRegistration end");
@@ -176,12 +183,14 @@ contract Core is Ownable {
         user = AddressesGlobal[userAddress];
     }
 
-    function sendHalf(address wallet, uint matrixIndex) external {
+    function sendHalf(address wallet, uint matrixIndex) external onlyRole(MATRIX_ROLE) nonReentrant {
         console.log("Core: sendHalf start");
         uint amount = getLevelPrice(matrixIndex).div(2);
-//        payable(wallet).transfer(amount); // not recommended
-        (bool sent,) = payable(wallet).call{value: amount}("");
-        require(sent, "Failed to send Ether");
+        payable(wallet).transfer(amount); // not recommended
+        // (bool sent,) = payable(wallet).call{value: amount}("");
+        // require(sent, "Failed to send Ether");
+
+        // https://ethereum.stackexchange.com/questions/118165/how-much-gas-is-forwarded-by-caller-contract-when-calling-a-deployed-contracts
 
         console.log("Core: sendHalf end");
     }

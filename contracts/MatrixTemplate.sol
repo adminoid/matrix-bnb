@@ -2,10 +2,11 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./Core.sol";
 
-contract MatrixTemplate {
+contract MatrixTemplate is ReentrancyGuard {
     using SafeMath for uint256;
 
     address Deployer;
@@ -34,7 +35,7 @@ contract MatrixTemplate {
     mapping(address => User) Addresses;
     address[] Indices;
 
-    function register(address wallet, bool isTop) public {
+    function register(address wallet, bool isTop) public nonReentrant {
         console.log("");
         console.log("MT: register() start");
         User memory user;
@@ -90,7 +91,7 @@ contract MatrixTemplate {
     }
 
     // todo: remove currentIndex == Indices.length
-    function goUp(uint parentIndex, uint currentIndex) private {
+    function goUp(uint parentIndex, uint currentIndex) private nonReentrant {
         console.log("");
         console.log("MT: goUp() start for parentIndex:", parentIndex, "and currentIndex", currentIndex);
         console.log("start for parentIndex:", parentIndex);
