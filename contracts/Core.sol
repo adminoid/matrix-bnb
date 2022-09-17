@@ -20,7 +20,7 @@ contract Core is AccessControl {
     uint maxLevel = 20; // todo: change to actual matrices amount
 
     // array of matrices
-    MatrixTemplate[] Matrices;
+    MatrixTemplate[20] Matrices;
 
     address zeroWallet;
 
@@ -43,7 +43,7 @@ contract Core is AccessControl {
             // todo: register secondWallet and ThirdWallet
 
             _setupRole(MATRIX_ROLE, address(matrixInstance));
-            Matrices.push(matrixInstance);
+            Matrices[i] = matrixInstance;
         }
 
         uint gasUsed = startGas - gasleft();
