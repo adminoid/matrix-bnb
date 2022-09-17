@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./MatrixTemplate.sol";
 
-contract Core is AccessControl {
+contract Core is AccessControl, ReentrancyGuard {
     using SafeMath for uint256;
 
     bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
@@ -24,7 +24,7 @@ contract Core is AccessControl {
 
     address zeroWallet;
 
-    constructor() {
+    constructor() payable {
         console.log("Core: constructor starting");
 
         uint256 startGas = gasleft();
@@ -34,9 +34,13 @@ contract Core is AccessControl {
 
         // todo: for multiple level contracts - push to array in range [0..7]
         zeroWallet = msg.sender;
+
+        console.log("constructor(), msg.sender is", msg.sender);
+
         // initialize 20 matrices
         uint i;
         for (i = 0; i < maxLevel; i++) {
+            console.log("I ->", i);
             MatrixTemplate matrixInstance = new MatrixTemplate(msg.sender, i, address(this));
             AddressesGlobal[msg.sender] = UserGlobal(0, 0, i, zeroWallet, true);
 
@@ -92,7 +96,7 @@ contract Core is AccessControl {
         emit Updated(userAddress, fieldName, newValue);
     }
 
-    receive() external payable {
+    receive() external payable nonReentrant {
         console.log("Core: receiving from wallet:", msg.sender);
         console.log("value:", msg.value);
         console.log("gasleft:", gasleft());
@@ -158,9 +162,12 @@ contract Core is AccessControl {
     }
 
     function getLevelPrice(uint level) internal view returns(uint) {
+        
+        console.log("level:", level);
+        
         uint registerPrice = payUnit;
         if (level > 0) {
-            for (uint i = 1; i <= level; i++) {
+            for (uint i = 0; i <= level; i++) {
                 registerPrice = registerPrice*2;
                 console.log("");
                 console.log("registerPrice * 2 =", registerPrice);

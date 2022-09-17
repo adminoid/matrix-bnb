@@ -2,24 +2,24 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./Core.sol";
 
-contract MatrixTemplate {
+contract MatrixTemplate is ReentrancyGuard {
     using SafeMath for uint256;
 
     address Deployer;
     uint matrixIndex;
     address CoreAddress;
-    Core CoreInstance;
+//    Core CoreInstance;
 
     constructor(address _deployer, uint _index, address _coreAddress) {
         register(_deployer, true);
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
-        CoreInstance = Core(payable(_coreAddress));
+//        CoreInstance = Core(payable(_coreAddress));
         console.log("");
         console.log("MT: Deployed MatrixTemplate with index:", _index);
     }
@@ -38,7 +38,7 @@ contract MatrixTemplate {
     // todo: make it protected (only Core::matricesRegistration() and MatrixTemplate::constructor()
     function register(address wallet, bool isTop) public {
         console.log("");
-        console.log("MT: register() start");
+        console.log("MT: register() start", matrixIndex);
         User memory user;
 
         // disable for 20 top matrix
@@ -82,7 +82,7 @@ contract MatrixTemplate {
             }
             address parentWallet = Indices[parentIndex];
             // todo: what is matrixIndex here?
-            CoreInstance.sendHalf(parentWallet, matrixIndex);
+            Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
         }
 
         Addresses[wallet] = user;
@@ -110,10 +110,10 @@ contract MatrixTemplate {
 //            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
 
             if (i <= 3) {
-                CoreInstance.updateUser(updatedUserAddress, matrixIndex, "gifts");
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, "gifts");
             } else {
                 // add claims by user address into Core contract
-                CoreInstance.updateUser(updatedUserAddress, matrixIndex, "claims");
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, "claims");
                 if (i == 5) {
                     // todo: make level up for user
                     console.log("Going to the next matrix");
