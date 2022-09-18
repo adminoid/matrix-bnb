@@ -49,7 +49,7 @@ contract Core is AccessControl, ReentrancyGuard {
 
             AddressesGlobal[msg.sender] = UserGlobal(0, 0, i, zeroWallet, true);
 
-            // todo: register secondWallet and ThirdWallet
+            // todo: _register secondWallet and ThirdWallet
 
             _setupRole(MATRIX_ROLE, address(matrixInstance));
         }
@@ -72,7 +72,7 @@ contract Core is AccessControl, ReentrancyGuard {
 
     // field: 0 - gifts, 1 - claims
     function updateUser(address userAddress, uint matrixIndex, uint8 field) external onlyRole(MATRIX_ROLE) {
-        console.log("Core: updateUser()");
+        console.log("Core: _updateUser()");
         console.log("for matrix:", matrixIndex);
         console.log("and user:", userAddress);
         console.log("0 - gifts, 1 - claims", field);
@@ -108,9 +108,9 @@ contract Core is AccessControl, ReentrancyGuard {
         matricesRegistration(msg.sender, msg.value);
     }
 
-    // check for enough to register in multiple matrices, change of amount add to wallet claim
+    // check for enough to _register in multiple matrices, change of amount add to wallet claim
     function matricesRegistration(address wallet, uint transferredAmount) private {
-        console.log("Core: matricesRegistration start");
+        console.log("Core: _matricesRegistration start");
         uint balance;
         uint level;
         uint registerPrice;
@@ -130,14 +130,14 @@ contract Core is AccessControl, ReentrancyGuard {
 
         require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
 
-        // make loop for register and decrement remains
+        // make loop for _register and decrement remains
         do {
-            console.log("Core: matricesRegistration cycle begins with:");
+            console.log("Core: _matricesRegistration cycle begins with:");
             console.log("Core: balance (for next matrix registration)", balance);
             console.log("Core: level", level);
             console.log("Core: registerPrice", registerPrice);
             // todo: run that cycle only if need
-            // register in, decrease balance and increment level
+            // _register in, decrease balance and increment level
             // local Core registration in UserGlobal and matrix registration
             if (AddressesGlobal[wallet].isValue) {
                 level = level.add(1);
@@ -163,7 +163,7 @@ contract Core is AccessControl, ReentrancyGuard {
             Matrices[level].register(wallet, false);
         }
         while (balance >= registerPrice);
-        console.log("Core: matricesRegistration end");
+        console.log("Core: _matricesRegistration end");
     }
 
     function getLevelPrice(uint level) internal view returns(uint) {

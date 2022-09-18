@@ -94,7 +94,7 @@ contract MatrixTemplate is ReentrancyGuard {
     // todo: remove currentIndex == Indices.length
     function goUp(uint parentIndex, uint currentIndex) private {
         console.log("");
-        console.log("MT: goUp() start for parentIndex:", parentIndex, "and currentIndex", currentIndex);
+        console.log("MT: _goUp() start for parentIndex:", parentIndex, "and currentIndex", currentIndex);
         console.log("start for parentIndex:", parentIndex);
         console.log("and currentIndex", currentIndex);
         address parentWallet = Indices[parentIndex];
@@ -123,7 +123,7 @@ contract MatrixTemplate is ReentrancyGuard {
             i++;
         }
         while (i <= 5);
-        console.log("MT: goUp() end");
+        console.log("MT: _goUp() end");
     }
 
     function hasRegistered(address wallet) view external returns(bool) {
