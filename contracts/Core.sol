@@ -13,7 +13,7 @@ contract Core is AccessControl, ReentrancyGuard {
     bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
 
     event Registered(address, uint);
-    event Updated(address, string, uint);
+    event Updated(address, uint8, uint);
 
     // settings
     uint payUnit = 0.01 * (10 ** 18); // first number is bnb amount
@@ -70,11 +70,12 @@ contract Core is AccessControl, ReentrancyGuard {
 
     mapping(address => UserGlobal) AddressesGlobal;
 
-    function updateUser(address userAddress, uint matrixIndex, string calldata fieldName) external onlyRole(MATRIX_ROLE) {
+    // field: 0 - gifts, 1 - claims
+    function updateUser(address userAddress, uint matrixIndex, uint8 field) external onlyRole(MATRIX_ROLE) {
         console.log("Core: updateUser()");
         console.log("for matrix:", matrixIndex);
         console.log("and user:", userAddress);
-        console.log("field name:", fieldName);
+        console.log("0 - gifts, 1 - claims", field);
 
         uint amount = payUnit.mul(matrixIndex.add(1));
 
@@ -83,21 +84,21 @@ contract Core is AccessControl, ReentrancyGuard {
         uint newValue;
 
         // calculate newValue
-        if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("claims"))) {
+        if (field == 0) { // gifts
+            newValue = AddressesGlobal[userAddress].gifts.add(amount);
+            AddressesGlobal[userAddress].gifts = newValue;
+        } else if (field == 1) { // claims
             newValue = AddressesGlobal[userAddress].claims.add(amount);
             AddressesGlobal[userAddress].claims = newValue;
             console.log("matrixIndex:", matrixIndex);
             console.log("newValue:", newValue);
             console.log("need newValue:", amount.mul(2));
             // todo: here uncomment and release
-            //            if (newValue >= amount.mul(2)) {
-            //                matricesRegistration(userAddress, 0);
-            //            }
-        } else if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("gifts"))) {
-            newValue = AddressesGlobal[userAddress].gifts.add(amount);
-            AddressesGlobal[userAddress].gifts = newValue;
+            // if (newValue >= amount.mul(2)) {
+            //    matricesRegistration(userAddress, 0);
+            // }
         }
-        emit Updated(userAddress, fieldName, newValue);
+        emit Updated(userAddress, field, newValue);
     }
 
     receive() external payable nonReentrant {

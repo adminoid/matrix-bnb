@@ -110,10 +110,10 @@ contract MatrixTemplate is ReentrancyGuard {
 //            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
 
             if (i <= 3) {
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, "gifts");
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
             } else {
                 // add claims by user address into Core contract
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, "claims");
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
                 if (i == 5) {
                     // todo: make level up for user
                     console.log("Going to the next matrix");
