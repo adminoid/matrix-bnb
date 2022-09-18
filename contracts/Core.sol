@@ -40,14 +40,18 @@ contract Core is AccessControl, ReentrancyGuard {
         // initialize 20 matrices
         uint i;
         for (i = 0; i < maxLevel; i++) {
+            console.log("");
+            console.log("________");
             console.log("I ->", i);
+            console.log("address(this)", address(this));
             MatrixTemplate matrixInstance = new MatrixTemplate(msg.sender, i, address(this));
+            Matrices[i] = matrixInstance;
+
             AddressesGlobal[msg.sender] = UserGlobal(0, 0, i, zeroWallet, true);
 
             // todo: register secondWallet and ThirdWallet
 
             _setupRole(MATRIX_ROLE, address(matrixInstance));
-            Matrices[i] = matrixInstance;
         }
 
         uint gasUsed = startGas - gasleft();
@@ -86,9 +90,9 @@ contract Core is AccessControl, ReentrancyGuard {
             console.log("newValue:", newValue);
             console.log("need newValue:", amount.mul(2));
             // todo: here uncomment and release
-//            if (newValue >= amount.mul(2)) {
-//                matricesRegistration(userAddress, 0);
-//            }
+            //            if (newValue >= amount.mul(2)) {
+            //                matricesRegistration(userAddress, 0);
+            //            }
         } else if (keccak256(abi.encodePacked(fieldName)) == keccak256(abi.encodePacked("gifts"))) {
             newValue = AddressesGlobal[userAddress].gifts.add(amount);
             AddressesGlobal[userAddress].gifts = newValue;
@@ -162,9 +166,9 @@ contract Core is AccessControl, ReentrancyGuard {
     }
 
     function getLevelPrice(uint level) internal view returns(uint) {
-        
+
         console.log("level:", level);
-        
+
         uint registerPrice = payUnit;
         if (level > 0) {
             for (uint i = 0; i <= level; i++) {
@@ -177,7 +181,7 @@ contract Core is AccessControl, ReentrancyGuard {
     }
 
     function getLevelContract(uint level) external view returns(MatrixTemplate) {
-        return Matrices[level - 1];
+        return Matrices[level];
     }
 
     function getUserFromMatrix(uint matrixIdx, address userWallet) external view
