@@ -25,7 +25,7 @@ contract Core {
     address zeroWallet;
 
     constructor() payable {
-        console.log("Core: constructor starting");
+        console.log("C: constructor starting");
 
         uint256 startGas = gasleft();
         console.log("gasleft:", startGas);
@@ -59,7 +59,7 @@ contract Core {
         uint gasUsed = startGas - gasleft();
         console.log("gasUsed:", gasUsed);
 
-        console.log("Core: Deployed Core with 20 MatrixTemplate instances");
+        console.log("C: Deployed Core with 20 MatrixTemplate instances");
     }
 
     function isMatrix(address _mt) private view returns(bool) {
@@ -84,7 +84,7 @@ contract Core {
 
     // field: 0 - gifts, 1 - claims
     function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
-        console.log("Core: _updateUser()");
+        console.log("C: _updateUser()");
         console.log("for matrix:", matrixIndex);
         console.log("and user:", userAddress);
         console.log("0 - gifts, 1 - claims", field);
@@ -116,7 +116,7 @@ contract Core {
     }
 
     receive() external payable {
-        console.log("Core: receiving from wallet:", msg.sender);
+        console.log("C: receiving from wallet:", msg.sender);
         console.log("value:", msg.value);
         console.log("gasleft:", gasleft());
         matricesRegistration(msg.sender, msg.value);
@@ -124,7 +124,7 @@ contract Core {
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
     function matricesRegistration(address wallet, uint transferredAmount) private {
-        console.log("Core: _matricesRegistration start");
+        console.log("C: _matricesRegistration start");
         uint balance;
         uint level;
         uint registerPrice;
@@ -147,10 +147,10 @@ contract Core {
 
         // make loop for _register and decrement remains
         do {
-            console.log("Core: _matricesRegistration cycle begins with:");
-            console.log("Core: balance (for next matrix registration)", balance);
-            console.log("Core: level", level);
-            console.log("Core: registerPrice", registerPrice);
+            console.log("C: _matricesRegistration cycle begins with:");
+            console.log("C: balance (for next matrix registration)", balance);
+            console.log("C: level", level);
+            console.log("C: registerPrice", registerPrice);
             // todo: run that cycle only if need
             // _register in, decrease balance and increment level
             // local Core registration in UserGlobal and matrix registration
@@ -158,14 +158,14 @@ contract Core {
                 level = level.add(1);
                 AddressesGlobal[wallet].claims = balance;
                 AddressesGlobal[wallet].level = level;
-                console.log("Core: wallet:", wallet);
+                console.log("C: wallet:", wallet);
                 console.log("registered matrix level is:", level);
                 console.log("claims remain:", balance);
             } else {
                 level = 0;
                 // todo: here after each first cycle isValue == true
                 AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
-                console.log("Core: wallet:", wallet);
+                console.log("C: wallet:", wallet);
                 console.log("registered matrix level is ZERO");
                 console.log("claims remain:", balance);
             }
@@ -176,10 +176,10 @@ contract Core {
             AddressesGlobal[wallet].claims = balance;
 
             registerPrice = registerPrice.mul(2);
-            MatrixTemplate(Matrices[level]).register(wallet, false);
+            MatrixTemplate(Matrices[level]).register(wallet);
         }
         while (balance >= registerPrice);
-        console.log("Core: _matricesRegistration end");
+        console.log("C: _matricesRegistration end");
     }
 
     function getLevelPrice(uint level) internal view returns(uint) {
@@ -213,9 +213,9 @@ contract Core {
 
     function sendHalf(address wallet, uint matrixIndex) external {
         console.log("");
-        console.log("Core: sendHalf start");
+        console.log("C: sendHalf start");
 
-        require(isMatrix(msg.sender), "access denied");
+        require(isMatrix(msg.sender), "access denied for C::sendHalf()");
 
         uint amount = getLevelPrice(matrixIndex).div(2);
         payable(wallet).transfer(amount); // not recommended
@@ -224,6 +224,6 @@ contract Core {
 
         // https://ethereum.stackexchange.com/questions/118165/how-much-gas-is-forwarded-by-caller-contract-when-calling-a-deployed-contracts
 
-        console.log("Core: sendHalf end");
+        console.log("C: sendHalf end");
     }
 }

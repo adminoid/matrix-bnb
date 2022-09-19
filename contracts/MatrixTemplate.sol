@@ -14,7 +14,12 @@ contract MatrixTemplate {
     address CoreAddress;
 
     constructor(address _deployer, uint _index, address _coreAddress) {
-        register(_deployer, true);
+        // manual registration first (top) special user in matrix
+        User memory user = User(0, 0, false, 0, true);
+        Addresses[_deployer] = user;
+        Indices.push(_deployer);
+
+        // initiations
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
@@ -34,59 +39,56 @@ contract MatrixTemplate {
     address[] Indices;
 
     // todo: make it protected (only Core::matricesRegistration() and MatrixTemplate::constructor()
-    function register(address wallet, bool isTop) public {
+    function register(address wallet) public {
         console.log("");
-        console.log("MT: register() start", matrixIndex);
+        console.log("MT: _register() start", matrixIndex);
+
+        require(msg.sender == Deployer, "access denied for MT::register()");
+
         User memory user;
 
-        // disable for 20 top matrix
-        if (isTop) {
-            user = User(0, 0, false, 0, true);
+        // plateau number calculation (for current registration)
+        uint plateau = log2(Indices.length + 2);
+        uint subPreviousTotal;
+        if (plateau < 2) {
+            subPreviousTotal = 0;
+        } else {
+            subPreviousTotal = getSumOfPlateau(0, plateau - 2);
         }
-        else {
-            // plateau number calculation (for current registration)
-            uint plateau = log2(Indices.length + 2);
-            uint subPreviousTotal;
-            if (plateau < 2) {
-                subPreviousTotal = 0;
-            } else {
-                subPreviousTotal = getSumOfPlateau(0, plateau - 2);
-            }
 
-            // get total in current plateau
-            // uint totalPlateau = 2 ** (plateau - 1);
+        // get total in current plateau
+        // uint totalPlateau = 2 ** (plateau - 1);
 
-            // get total in start to sub previous plateau
-            uint previousTotal = getSumOfPlateau(0, plateau - 1);
-            // get current number in current plateau
-            uint currentNum = Indices.length - previousTotal + 1;
-            // and check mod for detect left or right on parent
-            uint mod = currentNum.mod(2);
-            // detect parentNum
-            uint parentNum = currentNum.div(2);
-            if (parentNum < 1) {
-                parentNum = 1;
-            } else {
-                parentNum = parentNum + mod;
-            }
-            uint parentIndex = subPreviousTotal + parentNum - 1;
-            user = User(Indices.length, parentIndex, false, plateau, true);
-
-            if (mod == 0) {
-                if (parentIndex > 0) {
-                    goUp(parentIndex, Indices.length);
-                }
-                user.isRight = true;
-            }
-            address parentWallet = Indices[parentIndex];
-            // todo: what is matrixIndex here?
-            Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
+        // get total in start to sub previous plateau
+        uint previousTotal = getSumOfPlateau(0, plateau - 1);
+        // get current number in current plateau
+        uint currentNum = Indices.length - previousTotal + 1;
+        // and check mod for detect left or right on parent
+        uint mod = currentNum.mod(2);
+        // detect parentNum
+        uint parentNum = currentNum.div(2);
+        if (parentNum < 1) {
+            parentNum = 1;
+        } else {
+            parentNum = parentNum + mod;
         }
+        uint parentIndex = subPreviousTotal + parentNum - 1;
+        user = User(Indices.length, parentIndex, false, plateau, true);
+
+        if (mod == 0) {
+            if (parentIndex > 0) {
+                goUp(parentIndex, Indices.length);
+            }
+            user.isRight = true;
+        }
+        address parentWallet = Indices[parentIndex];
+        // todo: what is matrixIndex here?
+        Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
 
         Addresses[wallet] = user;
         Indices.push(wallet);
         console.log("");
-        console.log("MT: register() end");
+        console.log("MT: _register() end");
     }
 
     // todo: remove currentIndex == Indices.length
