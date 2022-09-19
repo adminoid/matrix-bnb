@@ -128,6 +128,7 @@ contract Core is AccessControl, ReentrancyGuard {
             registerPrice = payUnit;
         }
 
+        // todo: check for many cycles
         require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
 
         // make loop for _register and decrement remains
@@ -154,12 +155,13 @@ contract Core is AccessControl, ReentrancyGuard {
                 console.log("registered matrix level is ZERO");
                 console.log("claims remain:", balance);
             }
+            require(level <= 19, "max level is 19");
+
             emit Registered(wallet, level);
             balance = balance.sub(registerPrice);
             AddressesGlobal[wallet].claims = balance;
-            registerPrice = registerPrice.mul(2);
-            require(level <= 19, "max level is 19");
 
+            registerPrice = registerPrice.mul(2);
             Matrices[level].register(wallet, false);
         }
         while (balance >= registerPrice);
@@ -168,12 +170,12 @@ contract Core is AccessControl, ReentrancyGuard {
 
     function getLevelPrice(uint level) internal view returns(uint) {
 
-        console.log("level:", level);
+        //console.log("level:", level);
 
         uint registerPrice = payUnit;
         if (level > 0) {
             for (uint i = 0; i <= level; i++) {
-                registerPrice = registerPrice*2;
+                registerPrice = registerPrice * 2;
                 console.log("");
                 console.log("registerPrice * 2 =", registerPrice);
             }
@@ -196,6 +198,7 @@ contract Core is AccessControl, ReentrancyGuard {
     }
 
     function sendHalf(address wallet, uint matrixIndex) external onlyRole(MATRIX_ROLE) {
+        console.log("");
         console.log("Core: sendHalf start");
         uint amount = getLevelPrice(matrixIndex).div(2);
         payable(wallet).transfer(amount); // not recommended

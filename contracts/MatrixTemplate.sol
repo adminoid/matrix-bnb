@@ -12,14 +12,12 @@ contract MatrixTemplate is ReentrancyGuard {
     address Deployer;
     uint matrixIndex;
     address CoreAddress;
-//    Core CoreInstance;
 
     constructor(address _deployer, uint _index, address _coreAddress) {
         register(_deployer, true);
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
-//        CoreInstance = Core(payable(_coreAddress));
         console.log("");
         console.log("MT: Deployed MatrixTemplate with index:", _index);
     }
