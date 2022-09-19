@@ -20,7 +20,7 @@ contract Core is AccessControl, ReentrancyGuard {
     uint maxLevel = 20; // todo: change to actual matrices amount
 
     // array of matrices
-    MatrixTemplate[20] Matrices;
+    address[20] Matrices;
 
     address zeroWallet;
 
@@ -45,7 +45,9 @@ contract Core is AccessControl, ReentrancyGuard {
             console.log("I ->", i);
             console.log("address(this)", address(this));
             MatrixTemplate matrixInstance = new MatrixTemplate(msg.sender, i, address(this));
-            Matrices[i] = matrixInstance;
+            Matrices[i] = address(matrixInstance);
+
+            console.log("matrixInstance:", address(matrixInstance));
 
             AddressesGlobal[msg.sender] = UserGlobal(0, 0, i, zeroWallet, true);
 
@@ -162,7 +164,7 @@ contract Core is AccessControl, ReentrancyGuard {
             AddressesGlobal[wallet].claims = balance;
 
             registerPrice = registerPrice.mul(2);
-            Matrices[level].register(wallet, false);
+            MatrixTemplate(Matrices[level]).register(wallet, false);
         }
         while (balance >= registerPrice);
         console.log("Core: _matricesRegistration end");
@@ -183,13 +185,13 @@ contract Core is AccessControl, ReentrancyGuard {
         return registerPrice;
     }
 
-    function getLevelContract(uint level) external view returns(MatrixTemplate) {
+    function getLevelContract(uint level) external view returns(address) {
         return Matrices[level];
     }
 
     function getUserFromMatrix(uint matrixIdx, address userWallet) external view
     returns (MatrixTemplate.User memory user) {
-        user = Matrices[matrixIdx].getUser(userWallet);
+        user = MatrixTemplate(Matrices[matrixIdx]).getUser(userWallet);
     }
 
     function getUserFromCore(address userAddress) external view
