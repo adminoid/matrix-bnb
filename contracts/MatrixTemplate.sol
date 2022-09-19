@@ -2,11 +2,11 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./Core.sol";
 
-contract MatrixTemplate is ReentrancyGuard {
+contract MatrixTemplate {
     using SafeMath for uint256;
 
     address Deployer;

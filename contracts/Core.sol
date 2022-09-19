@@ -2,15 +2,15 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@openzeppelin/contracts/access/AccessControl.sol";
+//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./MatrixTemplate.sol";
 
-contract Core is AccessControl, ReentrancyGuard {
+contract Core {
     using SafeMath for uint256;
 
-    bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
+//    bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
 
     event Registered(address, uint);
     event Updated(address, uint8, uint);
@@ -19,7 +19,7 @@ contract Core is AccessControl, ReentrancyGuard {
     uint payUnit = 0.01 * (10 ** 18); // first number is bnb amount
     uint maxLevel = 20; // todo: change to actual matrices amount
 
-    // array of matrices
+    // array of matrices (addresses)
     address[20] Matrices;
 
     address zeroWallet;
@@ -30,7 +30,7 @@ contract Core is AccessControl, ReentrancyGuard {
         uint256 startGas = gasleft();
         console.log("gasleft:", startGas);
 
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+//        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         // todo: for multiple level contracts - push to array in range [0..7]
         zeroWallet = msg.sender;
@@ -53,13 +53,23 @@ contract Core is AccessControl, ReentrancyGuard {
 
             // todo: _register secondWallet and ThirdWallet
 
-            _setupRole(MATRIX_ROLE, address(matrixInstance));
+//            _setupRole(MATRIX_ROLE, address(matrixInstance));
         }
 
         uint gasUsed = startGas - gasleft();
         console.log("gasUsed:", gasUsed);
 
         console.log("Core: Deployed Core with 20 MatrixTemplate instances");
+    }
+
+    function isMatrix(address _mt) private view returns(bool) {
+        for (uint i = 0; i < Matrices.length; i++) {
+            if (Matrices[i] == _mt) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     struct UserGlobal {
@@ -73,11 +83,13 @@ contract Core is AccessControl, ReentrancyGuard {
     mapping(address => UserGlobal) AddressesGlobal;
 
     // field: 0 - gifts, 1 - claims
-    function updateUser(address userAddress, uint matrixIndex, uint8 field) external onlyRole(MATRIX_ROLE) {
+    function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
         console.log("Core: _updateUser()");
         console.log("for matrix:", matrixIndex);
         console.log("and user:", userAddress);
         console.log("0 - gifts, 1 - claims", field);
+
+        require(isMatrix(msg.sender), "access denied");
 
         uint amount = payUnit.mul(matrixIndex.add(1));
 
@@ -103,7 +115,7 @@ contract Core is AccessControl, ReentrancyGuard {
         emit Updated(userAddress, field, newValue);
     }
 
-    receive() external payable nonReentrant {
+    receive() external payable {
         console.log("Core: receiving from wallet:", msg.sender);
         console.log("value:", msg.value);
         console.log("gasleft:", gasleft());
@@ -199,9 +211,12 @@ contract Core is AccessControl, ReentrancyGuard {
         user = AddressesGlobal[userAddress];
     }
 
-    function sendHalf(address wallet, uint matrixIndex) external onlyRole(MATRIX_ROLE) {
+    function sendHalf(address wallet, uint matrixIndex) external {
         console.log("");
         console.log("Core: sendHalf start");
+
+        require(isMatrix(msg.sender), "access denied");
+
         uint amount = getLevelPrice(matrixIndex).div(2);
         payable(wallet).transfer(amount); // not recommended
         // (bool sent,) = payable(wallet).call{value: amount}("");
