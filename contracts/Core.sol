@@ -2,22 +2,18 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-//import "@openzeppelin/contracts/access/AccessControl.sol";
-//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "hardhat/console.sol";
 import "./MatrixTemplate.sol";
 
 contract Core {
     using SafeMath for uint256;
 
-//    bytes32 public constant MATRIX_ROLE = keccak256("MATRIX_ROLE");
-
-    event Registered(address, uint);
-    event Updated(address, uint8, uint);
+    event UserRegistered(address, uint);
+    event UserUpdated(address, uint8, uint);
 
     // settings
     uint payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint maxLevel = 20; // todo: change to actual matrices amount
+    uint maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
     address[20] Matrices;
@@ -29,32 +25,24 @@ contract Core {
 
         uint256 startGas = gasleft();
         console.log("gasleft:", startGas);
-
-//        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-
-        // todo: for multiple level contracts - push to array in range [0..7]
         zeroWallet = msg.sender;
 
         console.log("constructor(), msg.sender is", msg.sender);
 
         // initialize 20 matrices
         uint i;
-        for (i = 0; i < maxLevel; i++) {
+        for (i = 0; i <= maxLevel; i++) {
             console.log("");
             console.log("________");
             console.log("I ->", i);
             console.log("address(this)", address(this));
             MatrixTemplate matrixInstance = new MatrixTemplate(msg.sender, i, address(this));
             Matrices[i] = address(matrixInstance);
-
             console.log("matrixInstance:", address(matrixInstance));
-
-            AddressesGlobal[msg.sender] = UserGlobal(0, 0, i, zeroWallet, true);
-
             // todo: _register secondWallet and ThirdWallet
-
-//            _setupRole(MATRIX_ROLE, address(matrixInstance));
         }
+
+        AddressesGlobal[msg.sender] = UserGlobal(0, 0, maxLevel, zeroWallet, true);
 
         uint gasUsed = startGas - gasleft();
         console.log("gasUsed:", gasUsed);
@@ -87,7 +75,7 @@ contract Core {
         console.log("C: _updateUser()");
         console.log("for matrix:", matrixIndex);
         console.log("and user:", userAddress);
-        console.log("0 - gifts, 1 - claims", field);
+        console.log("0 - gifts, 1 - claims ->", field);
 
         require(isMatrix(msg.sender), "access denied");
 
@@ -108,11 +96,11 @@ contract Core {
             console.log("newValue:", newValue);
             console.log("need newValue:", amount.mul(2));
             // todo: here uncomment and release
-            // if (newValue >= amount.mul(2)) {
-            //    matricesRegistration(userAddress, 0);
-            // }
+            if (newValue >= amount.mul(2)) {
+                matricesRegistration(userAddress, 0);
+            }
         }
-        emit Updated(userAddress, field, newValue);
+        emit UserUpdated(userAddress, field, newValue);
     }
 
     receive() external payable {
@@ -133,6 +121,11 @@ contract Core {
             balance = transferredAmount.add(AddressesGlobal[wallet].claims);
             level = AddressesGlobal[wallet].level;
             // below calculates initial value of registerPrice for level more than 1
+            if (level >= 19) {
+                console.log("matrixIndex >= 19 (matricesRegistration)");
+                return;
+            }
+
             registerPrice = getLevelPrice(level);
 
         } else {
@@ -171,7 +164,7 @@ contract Core {
             }
             require(level <= 19, "max level is 19");
 
-            emit Registered(wallet, level);
+            emit UserRegistered(wallet, level);
             balance = balance.sub(registerPrice);
             AddressesGlobal[wallet].claims = balance;
 
@@ -183,8 +176,8 @@ contract Core {
     }
 
     function getLevelPrice(uint level) internal view returns(uint) {
-
-        //console.log("level:", level);
+        console.log("_getLevelPrice() started");
+        console.log("level:", level);
 
         uint registerPrice = payUnit;
         if (level > 0) {
@@ -213,11 +206,20 @@ contract Core {
 
     function sendHalf(address wallet, uint matrixIndex) external {
         console.log("");
-        console.log("C: sendHalf start");
+        console.log("C: sendHalf() start");
+        console.log("wallet", wallet);
+        console.log("matrixIndex", matrixIndex);
 
         require(isMatrix(msg.sender), "access denied for C::sendHalf()");
 
+        if (matrixIndex >= 19) {
+            console.log("matrixIndex >= 19 (sendHalf)");
+            return;
+        }
+
         uint amount = getLevelPrice(matrixIndex).div(2);
+        console.log("amount", amount);
+
         payable(wallet).transfer(amount); // not recommended
         // (bool sent,) = payable(wallet).call{value: amount}("");
         // require(sent, "Failed to send Ether");

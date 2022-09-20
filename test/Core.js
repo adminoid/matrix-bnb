@@ -202,17 +202,26 @@ describe('practical testing interactions and that conclusions', async () => {
 
         // todo: get matrix level for calculating send value (0.01 * level)
 
-        const tx = await wallets[index].sendTransaction({
-          to: p.CoreToken.address,
-          value: ethers.utils.parseEther('0.01'),
-        })
-        // example for check gas used
-        const receipt = await tx.wait()
-        const gasUsed = receipt.gasUsed.toNumber()
-        users[index] = {
-          wallet: wallets[index],
-          gasUsed,
+        if (wallets[index].address === '0x924ba5ce9f91dded37b4ebf8c0dc82a40202fc0a') {
+          console.info('user who touch zero wallet')
+          await expect(p.userWallet.sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.01'),
+          })).to.be.revertedWith('the cost of registration is more expensive than you transferred')
+        } else { // normal user
+          const tx = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.01'),
+          })
+          // example for check gas used
+          const receipt = await tx.wait()
+          const gasUsed = receipt.gasUsed.toNumber()
+          users[index] = {
+            wallet: wallets[index],
+            gasUsed,
+          }
         }
+
       }
       return users
     }
@@ -259,7 +268,7 @@ describe('practical testing interactions and that conclusions', async () => {
     }
   }
 
-  it('check registration and resulting gift and claim', async () => {
+  it('check registration and resulting gifts and claims', async () => {
     const users = await runRegistrations(62)
 
     // const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)

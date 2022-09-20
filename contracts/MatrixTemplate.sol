@@ -43,7 +43,7 @@ contract MatrixTemplate {
         console.log("");
         console.log("MT: _register() start", matrixIndex);
 
-        require(msg.sender == Deployer, "access denied for MT::register()");
+//        require(msg.sender == Deployer, "access denied for MT::register()");
 
         User memory user;
 
