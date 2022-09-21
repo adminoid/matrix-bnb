@@ -94,9 +94,9 @@ contract MatrixTemplate {
     // todo: remove currentIndex == Indices.length
     function goUp(uint parentIndex, uint currentIndex) private {
         console.log("");
-        console.log("MT: _goUp() start for parentIndex:", parentIndex, "and currentIndex", currentIndex);
-        console.log("start for parentIndex:", parentIndex);
-        console.log("and currentIndex", currentIndex);
+        console.log("MT: _goUp() start");
+        console.log("parentIndex:", parentIndex);
+        console.log("currentIndex", currentIndex);
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
         uint8 i = 2;
@@ -108,6 +108,8 @@ contract MatrixTemplate {
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
 
 //            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
+
+            console.log("i ==", i);
 
             if (i <= 3) {
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts

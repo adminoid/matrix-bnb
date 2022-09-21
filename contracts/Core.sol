@@ -20,6 +20,16 @@ contract Core {
 
     address zeroWallet;
 
+    struct UserGlobal {
+        uint claims;
+        uint gifts;
+        uint level;
+        address whose; // whose referral is user
+        bool isValue;
+    }
+
+    mapping(address => UserGlobal) AddressesGlobal;
+
     constructor() payable {
         console.log("C: constructor starting");
 
@@ -59,16 +69,6 @@ contract Core {
 
         return false;
     }
-
-    struct UserGlobal {
-        uint claims;
-        uint gifts;
-        uint level;
-        address whose; // whose referral is user
-        bool isValue;
-    }
-
-    mapping(address => UserGlobal) AddressesGlobal;
 
     // field: 0 - gifts, 1 - claims
     function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
@@ -113,65 +113,63 @@ contract Core {
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
     function matricesRegistration(address wallet, uint transferredAmount) private {
         console.log("C: _matricesRegistration start");
+        console.log("transferredAmount:", transferredAmount);
+
         uint balance;
         uint level;
         uint registerPrice;
 
+        // compose data for user registration
         if (AddressesGlobal[wallet].isValue) {
             balance = transferredAmount.add(AddressesGlobal[wallet].claims);
-            level = AddressesGlobal[wallet].level;
-            // below calculates initial value of registerPrice for level more than 1
-            if (level >= 19) {
-                console.log("matrixIndex >= 19 (matricesRegistration)");
-                return;
-            }
-
+            level = AddressesGlobal[wallet].level.add(1);
             registerPrice = getLevelPrice(level);
-
         } else {
             balance = transferredAmount;
-            // todo: check also here
             level = 0;
             registerPrice = payUnit;
         }
+        // already have register data: balance, level, registerPrice
 
-        // todo: check for many cycles
-        require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
+        if (level <= 19) {
+            // commented because of add funds to claims anyway
+            require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
 
-        // make loop for _register and decrement remains
-        do {
-            console.log("C: _matricesRegistration cycle begins with:");
-            console.log("C: balance (for next matrix registration)", balance);
-            console.log("C: level", level);
-            console.log("C: registerPrice", registerPrice);
-            // todo: run that cycle only if need
-            // _register in, decrease balance and increment level
-            // local Core registration in UserGlobal and matrix registration
-            if (AddressesGlobal[wallet].isValue) {
+            // make loop for _register and decrement remains
+            while (balance >= registerPrice) {
+                require(level <= 19, "max level is 19");
+
+                console.log("C: _matricesRegistration cycle begins with:");
+                console.log("C: balance", balance);
+                console.log("C: level", level);
+                console.log("C: registerPrice", registerPrice);
+
+                // _register in, decrease balance and increment level
+                // local Core registration in UserGlobal and matrix registration
+
+                if (AddressesGlobal[wallet].isValue) {
+                    // todo: set claims, level
+                    AddressesGlobal[wallet].level = level;
+                    AddressesGlobal[wallet].claims = balance;
+                } else {
+                    // todo: replace zeroWallet to whose referral address
+                    AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
+                }
+
+                MatrixTemplate(Matrices[level]).register(wallet);
+
+                emit UserRegistered(wallet, level);
+
+                balance = balance.sub(registerPrice);
+                registerPrice = registerPrice.mul(2);
                 level = level.add(1);
-                AddressesGlobal[wallet].claims = balance;
-                AddressesGlobal[wallet].level = level;
-                console.log("C: wallet:", wallet);
-                console.log("registered matrix level is:", level);
-                console.log("claims remain:", balance);
-            } else {
-                level = 0;
-                // todo: here after each first cycle isValue == true
-                AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
-                console.log("C: wallet:", wallet);
-                console.log("registered matrix level is ZERO");
-                console.log("claims remain:", balance);
+
+                console.log("new balance", balance);
+                console.log("new level", level);
+                console.log("new registerPrice", registerPrice);
             }
-            require(level <= 19, "max level is 19");
-
-            emit UserRegistered(wallet, level);
-            balance = balance.sub(registerPrice);
-            AddressesGlobal[wallet].claims = balance;
-
-            registerPrice = registerPrice.mul(2);
-            MatrixTemplate(Matrices[level]).register(wallet);
         }
-        while (balance >= registerPrice);
+
         console.log("C: _matricesRegistration end");
     }
 
@@ -181,7 +179,7 @@ contract Core {
 
         uint registerPrice = payUnit;
         if (level > 0) {
-            for (uint i = 0; i <= level; i++) {
+            for (uint i = 0; i < level; i++) {
                 registerPrice = registerPrice * 2;
                 console.log("");
                 console.log("registerPrice * 2 =", registerPrice);
@@ -206,26 +204,26 @@ contract Core {
 
     function sendHalf(address wallet, uint matrixIndex) external {
         console.log("");
-        console.log("C: sendHalf() start");
+        console.log("C: _sendHalf() start");
         console.log("wallet", wallet);
         console.log("matrixIndex", matrixIndex);
 
-        require(isMatrix(msg.sender), "access denied for C::sendHalf()");
+        require(isMatrix(msg.sender), "access denied for C::_sendHalf()");
 
         if (matrixIndex >= 19) {
-            console.log("matrixIndex >= 19 (sendHalf)");
+            console.log("matrixIndex >= 19 (_sendHalf)");
             return;
         }
 
         uint amount = getLevelPrice(matrixIndex).div(2);
         console.log("amount", amount);
 
-        payable(wallet).transfer(amount); // not recommended
-        // (bool sent,) = payable(wallet).call{value: amount}("");
-        // require(sent, "Failed to send Ether");
+//        payable(wallet).transfer(amount); // not recommended
+        (bool sent,) = payable(wallet).call{value: amount}("");
+        require(sent, "Failed to send Ether");
 
         // https://ethereum.stackexchange.com/questions/118165/how-much-gas-is-forwarded-by-caller-contract-when-calling-a-deployed-contracts
 
-        console.log("C: sendHalf end");
+        console.log("C: _sendHalf end");
     }
 }

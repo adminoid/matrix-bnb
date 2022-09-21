@@ -202,25 +202,37 @@ describe('practical testing interactions and that conclusions', async () => {
 
         // todo: get matrix level for calculating send value (0.01 * level)
 
-        if (wallets[index].address === '0x924ba5ce9f91dded37b4ebf8c0dc82a40202fc0a') {
-          console.info('user who touch zero wallet')
-          await expect(p.userWallet.sendTransaction({
+        // if (wallets[index].address === '0x924ba5ce9f91dded37b4ebf8c0dc82a40202fc0a') {
+        //   console.info('user who touch zero wallet')
+        //   await expect(p.userWallet.sendTransaction({
+        //     to: p.CoreToken.address,
+        //     value: ethers.utils.parseEther('0.01'),
+        //   })).to.be.revertedWith('the cost of registration is more expensive than you transferred')
+        // } else { // normal user
+
+        let tx
+        // debug_2
+        if (wallets[index].address === '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC') {
+          tx = await wallets[index].sendTransaction({
             to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.01'),
-          })).to.be.revertedWith('the cost of registration is more expensive than you transferred')
-        } else { // normal user
-          const tx = await wallets[index].sendTransaction({
+            value: ethers.utils.parseEther('0.02'),
+          })
+        } else {
+          tx = await wallets[index].sendTransaction({
             to: p.CoreToken.address,
             value: ethers.utils.parseEther('0.01'),
           })
-          // example for check gas used
-          const receipt = await tx.wait()
-          const gasUsed = receipt.gasUsed.toNumber()
-          users[index] = {
-            wallet: wallets[index],
-            gasUsed,
-          }
         }
+
+        // example for check gas used
+        const receipt = await tx.wait()
+        const gasUsed = receipt.gasUsed.toNumber()
+        users[index] = {
+          wallet: wallets[index],
+          gasUsed,
+        }
+
+        // }
 
       }
       return users
@@ -236,6 +248,7 @@ describe('practical testing interactions and that conclusions', async () => {
       const userCore = await p.CoreToken.connect(users[j].wallet.address).getUserFromCore(users[j].wallet.address);
       const userMatrix = await p.CoreToken.connect(users[j].wallet.address).getUserFromMatrix(userCore.level, users[j].wallet.address);
 
+      // debug_1
       if (users[j].wallet.address === '0x90F79bf6EB2c4f870365E785982E1f101E93b906') {
         console.info('62 index for test')
         // const userCore = await p.CoreToken.connect(users[j].wallet.address).getUserFromCore(users[j].wallet.address);

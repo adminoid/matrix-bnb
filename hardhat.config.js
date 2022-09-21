@@ -32,7 +32,7 @@ module.exports = {
       accounts: {
         // count: 200,
         count: 110,
-        accountsBalance: '1000000000000000000',
+        accountsBalance: '10000000000000000000',
       },
       // gas: 1800000,
     },
