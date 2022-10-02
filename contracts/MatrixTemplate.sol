@@ -116,24 +116,30 @@ contract MatrixTemplate {
             console.log("i ==", i);
 
             if (i <= 3) {
+                if (matrixIndex == 0) {
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
+                }
                 // if matrixIndex > 0, then
-                if (matrixIndex > 0) {
-                    //  for i == 2 -> 100% to ref holder claims
-                    if (i == 2) {
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // holder claims
-                    }
-                    //  for i == 3 -> 100% to himself claims
-                    else if (i == 3) {
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 3); // whose (ref bringer) claims
+                else {
+                    if (matrixIndex == 19) {
+                        if (i == 3) {
+                            Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
+                        } else {
+                            Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+                        }
+                    } else {
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                     }
                 }
                 // if matrixIndex == 0, update gifts for i <= 3
-                else {
-                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
-                }
             } else {
-                // add claims by user address into Core contract
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
+                if (matrixIndex == 19) {
+                    // holder claims
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+                } else {
+                    // add claims by user address into Core contract
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
+                }
                 if (i == 5) {
                     // todo: make level up for user
                     console.log("Going to the next matrix");

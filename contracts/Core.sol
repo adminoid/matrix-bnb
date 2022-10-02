@@ -79,36 +79,26 @@ contract Core {
 
         require(isMatrix(msg.sender), "access denied");
 
-        uint amount = payUnit.mul(matrixIndex.add(1));
-
+        uint amount = getLevelPrice(matrixIndex);
         console.log("amount:", amount);
-
-        uint newValue;
 
         // calculate newValue
         if (field == 0) { // gifts
-            newValue = AddressesGlobal[userAddress].gifts.add(amount);
-            AddressesGlobal[userAddress].gifts = newValue;
-        } else if (field == 1) { // claims
-            console.log("updated user claims before", AddressesGlobal[userAddress].claims);
-            newValue = AddressesGlobal[userAddress].claims.add(amount);
-            AddressesGlobal[userAddress].claims = newValue;
-            console.log("matrixIndex:", matrixIndex);
-            console.log("newValue:", newValue);
-            uint needValue = amount.mul(2);
-            console.log("need newValue:", needValue);
-            // todo: here uncomment and release
-            if (newValue >= needValue && userAddress != zeroWallet) {
-                matricesRegistration(userAddress, 0);
-            }
+            AddressesGlobal[userAddress].gifts = AddressesGlobal[userAddress].gifts.add(amount);
         }
-        else if (field == 2) { // update user claims
-            // get user and update claims
-            AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(getLevelPrice(matrixIndex));
+        else if (field == 1) { // claims
+            console.log("updated user claims before", AddressesGlobal[userAddress].claims);
+            AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(amount);
         }
         else if (field == 2) { // update whose claims
             // get user `whose` field, then whose instance and update his claims
             AddressesGlobal[AddressesGlobal[userAddress].whose].claims.add(getLevelPrice(matrixIndex));
+        }
+
+        uint needValue = amount.mul(2);
+        console.log("need newValue:", needValue);
+        if (amount >= needValue && userAddress != zeroWallet) {
+            matricesRegistration(userAddress, 0);
         }
         emit UserUpdated(userAddress, field, newValue);
     }
@@ -118,6 +108,16 @@ contract Core {
         console.log("value:", msg.value);
         console.log("gasleft:", gasleft());
         matricesRegistration(msg.sender, msg.value);
+    }
+
+    function register(address referral) external payable {
+        // todo: check it out
+        // check user is not registered
+        require(!AddressesGlobal[wallet].isValue, "user already registered");
+        // check user whose >= payUnit
+        require(AddressesGlobal[wallet].gifts >= payUnit, "your owner haven't enough gifts");
+        // create user and set whose field
+        matricesRegistration(msg.sender, msg.value + AddressesGlobal[wallet].gifts);
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
