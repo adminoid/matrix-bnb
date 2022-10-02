@@ -75,6 +75,12 @@ contract MatrixTemplate {
         uint parentIndex = subPreviousTotal + parentNum - 1;
         user = User(Indices.length, parentIndex, false, plateau, true);
 
+//        console.log("");
+//        console.log("checking CoreAddress");
+//        console.log(CoreAddress);
+//        console.log(parentIndex);
+//        console.log("");
+
         if (mod == 0) {
             if (parentIndex > 0) {
                 goUp(parentIndex, Indices.length);
@@ -107,18 +113,31 @@ contract MatrixTemplate {
 
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
 
-//            User memory updatedUser = Addresses[updatedUserAddress]; // address of nextUser.parent
-
             console.log("i ==", i);
 
             if (i <= 3) {
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
+                // if matrixIndex > 0, then
+                if (matrixIndex > 0) {
+                    //  for i == 2 -> 100% to ref holder claims
+                    if (i == 2) {
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // holder claims
+                    }
+                    //  for i == 3 -> 100% to himself claims
+                    else if (i == 3) {
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 3); // whose (ref bringer) claims
+                    }
+                }
+                // if matrixIndex == 0, update gifts for i <= 3
+                else {
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
+                }
             } else {
                 // add claims by user address into Core contract
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
                 if (i == 5) {
                     // todo: make level up for user
                     console.log("Going to the next matrix");
+                    break;
                 }
             }
             nextUser = Addresses[Indices[nextUser.parent]];

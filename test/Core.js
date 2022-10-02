@@ -210,26 +210,29 @@ describe('practical testing interactions and that conclusions', async () => {
         //   })).to.be.revertedWith('the cost of registration is more expensive than you transferred')
         // } else { // normal user
 
-        let tx
-        // debug_2
-        if (wallets[index].address === '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC') {
-          tx = await wallets[index].sendTransaction({
-            to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.02'),
-          })
-        } else {
-          tx = await wallets[index].sendTransaction({
-            to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.01'),
-          })
-        }
+        if (wallets[index]) {
+          let tx
+          // debug_2
+          if (wallets[index].address === '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC') {
+            tx = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.02'),
+            })
+          } else {
+            tx = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.01'),
+            })
+          }
 
-        // example for check gas used
-        const receipt = await tx.wait()
-        const gasUsed = receipt.gasUsed.toNumber()
-        users[index] = {
-          wallet: wallets[index],
-          gasUsed,
+          // example for check gas used
+          const receipt = await tx.wait()
+          const gasUsed = receipt.gasUsed.toNumber()
+          users[index] = {
+            wallet: wallets[index],
+            gasUsed,
+          }
+
         }
 
         // }
@@ -282,7 +285,7 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(62)
+    const users = await runRegistrations(125)
 
     // const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)
     // // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))

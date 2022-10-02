@@ -90,15 +90,25 @@ contract Core {
             newValue = AddressesGlobal[userAddress].gifts.add(amount);
             AddressesGlobal[userAddress].gifts = newValue;
         } else if (field == 1) { // claims
+            console.log("updated user claims before", AddressesGlobal[userAddress].claims);
             newValue = AddressesGlobal[userAddress].claims.add(amount);
             AddressesGlobal[userAddress].claims = newValue;
             console.log("matrixIndex:", matrixIndex);
             console.log("newValue:", newValue);
-            console.log("need newValue:", amount.mul(2));
+            uint needValue = amount.mul(2);
+            console.log("need newValue:", needValue);
             // todo: here uncomment and release
-            if (newValue >= amount.mul(2)) {
+            if (newValue >= needValue && userAddress != zeroWallet) {
                 matricesRegistration(userAddress, 0);
             }
+        }
+        else if (field == 2) { // update user claims
+            // get user and update claims
+            AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(getLevelPrice(matrixIndex));
+        }
+        else if (field == 2) { // update whose claims
+            // get user `whose` field, then whose instance and update his claims
+            AddressesGlobal[AddressesGlobal[userAddress].whose].claims.add(getLevelPrice(matrixIndex));
         }
         emit UserUpdated(userAddress, field, newValue);
     }
@@ -160,13 +170,15 @@ contract Core {
 
                 emit UserRegistered(wallet, level);
 
-                balance = balance.sub(registerPrice);
-                registerPrice = registerPrice.mul(2);
-                level = level.add(1);
+                if (balance > 0) {
+                    balance = balance.sub(registerPrice);
+                    registerPrice = registerPrice.mul(2);
+                    level = level.add(1);
 
-                console.log("new balance", balance);
-                console.log("new level", level);
-                console.log("new registerPrice", registerPrice);
+                    console.log("new balance", balance);
+                    console.log("new level", level);
+                    console.log("new registerPrice", registerPrice);
+                }
             }
         }
 
