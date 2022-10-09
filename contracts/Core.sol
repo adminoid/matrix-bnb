@@ -97,10 +97,10 @@ contract Core {
 
         uint needValue = amount.mul(2);
         console.log("need newValue:", needValue);
-        if (amount >= needValue && userAddress != zeroWallet) {
+        if (amount >= needValue && userAddress != zeroWallet && matrixIndex < 19) {
             matricesRegistration(userAddress, 0);
         }
-        emit UserUpdated(userAddress, field, newValue);
+        emit UserUpdated(userAddress, field, needValue);
     }
 
     receive() external payable {
@@ -110,14 +110,21 @@ contract Core {
         matricesRegistration(msg.sender, msg.value);
     }
 
-    function register(address referral) external payable {
+    function register(address whose) external payable {
         // todo: check it out
         // check user is not registered
-        require(!AddressesGlobal[wallet].isValue, "user already registered");
+        require(!AddressesGlobal[msg.sender].isValue, "user already registered");
+
+        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+        MatrixTemplate(Matrices[0]).register(msg.sender);
+
         // check user whose >= payUnit
-        require(AddressesGlobal[wallet].gifts >= payUnit, "your owner haven't enough gifts");
-        // create user and set whose field
-        matricesRegistration(msg.sender, msg.value + AddressesGlobal[wallet].gifts);
+        if (AddressesGlobal[whose].gifts >= payUnit) {
+            // subtract register amount from  whose gifts
+            AddressesGlobal[whose].gifts = AddressesGlobal[whose].gifts.sub(payUnit);
+        } else {
+            payable(this).transfer(payUnit);
+        }
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
