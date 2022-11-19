@@ -12,7 +12,8 @@ contract Core {
     event UserUpdated(address, uint8, uint);
 
     // settings
-    uint payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+//    uint payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+    uint payUnit = 0.000001 * (10 ** 18); // first number is bnb amount
     uint maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
@@ -115,9 +116,6 @@ contract Core {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
 
-        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
-        MatrixTemplate(Matrices[0]).register(msg.sender);
-
         // check user whose >= payUnit
         if (AddressesGlobal[whose].gifts >= payUnit) {
             // subtract register amount from  whose gifts
@@ -125,6 +123,9 @@ contract Core {
         } else {
             payable(this).transfer(payUnit);
         }
+
+        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+        MatrixTemplate(Matrices[0]).register(msg.sender);
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
