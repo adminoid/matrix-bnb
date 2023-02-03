@@ -8,12 +8,9 @@ import "./MatrixTemplate.sol";
 contract Core {
     using SafeMath for uint256;
 
-    event UserRegistered(address, uint);
-    event UserUpdated(address, uint8, uint);
-
     // settings
-//    uint payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint payUnit = 0.000001 * (10 ** 18); // first number is bnb amount
+    uint public payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+//    uint payUnit = 0.000001 * (10 ** 18); // first number is bnb amount
     uint maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
@@ -30,6 +27,11 @@ contract Core {
     }
 
     mapping(address => UserGlobal) AddressesGlobal;
+
+    event UserRegistered(address, uint);
+    event UserUpdated(address, uint8, uint);
+//    event GettingUserFromMatrix(MatrixTemplate.User user);
+//    event GettingUserFromCore(UserGlobal user);
 
     constructor() payable {
         console.log("C: constructor starting");
@@ -116,14 +118,19 @@ contract Core {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
 
-        // check user whose >= payUnit
+        console.log("There register!");
+        console.log(whose);
+        console.log(AddressesGlobal[whose].gifts);
+
         if (AddressesGlobal[whose].gifts >= payUnit) {
-            // subtract register amount from  whose gifts
-            AddressesGlobal[whose].gifts = AddressesGlobal[whose].gifts.sub(payUnit);
-        } else {
-            payable(this).transfer(payUnit);
+            payable(msg.sender).transfer(msg.value);
+        } else if (msg.value > payUnit) {
+            payable(msg.sender).transfer(msg.value - payUnit);
+        } else if (msg.value < payUnit) {
+            require(msg.value == payUnit, "did not pay the required amount");
         }
 
+        // All fine, run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
         MatrixTemplate(Matrices[0]).register(msg.sender);
     }
@@ -136,6 +143,9 @@ contract Core {
         uint balance;
         uint level;
         uint registerPrice;
+
+        console.log("matricesRegistration()>", wallet);
+        console.log("transferredAmount:", transferredAmount);
 
         // compose data for user registration
         if (AddressesGlobal[wallet].isValue) {
@@ -151,11 +161,19 @@ contract Core {
 
         if (level <= 19) {
             // commented because of add funds to claims anyway
-            require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
+//            require(balance >= registerPrice, "the cost of registration is more expensive than you transferred");
+//            if (balance >= registerPrice) {
+//                console.log("the cost of registration is more expensive than you transferred");
+//                break;
+//            }
 
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
-                require(level <= 19, "max level is 19");
+//                require(level <= 19, "max level is 19");
+                if (level > 19) {
+                    console.log("max level is 19");
+                    break;
+                }
 
                 console.log("C: _matricesRegistration cycle begins with:");
                 console.log("C: balance", balance);
@@ -215,11 +233,13 @@ contract Core {
     function getUserFromMatrix(uint matrixIdx, address userWallet) external view
     returns (MatrixTemplate.User memory user) {
         user = MatrixTemplate(Matrices[matrixIdx]).getUser(userWallet);
+//        emit GettingUserFromMatrix(user);
     }
 
     function getUserFromCore(address userAddress) external view
     returns (UserGlobal memory user) {
         user = AddressesGlobal[userAddress];
+//        emit GettingUserFromCore(user);
     }
 
     function sendHalf(address wallet, uint matrixIndex) external {

@@ -6,10 +6,14 @@ const { deployContract } = waffle
 const Core = require('../artifacts/contracts/Core.sol/Core.json')
 // const MatrixTemplate = require('../artifacts/contracts/MatrixTemplate.sol/MatrixTemplate.json')
 
+const customWallets = 3;
+
 const prepare = async () => {
+  // so many that equal customWallets (see below)
   const [
     coreWallet,
     userWallet,
+    testWallet,
   ] = await ethers.getSigners()
 
   const CoreToken = await deployContract(coreWallet, Core)
@@ -33,6 +37,7 @@ const prepare = async () => {
     coreWallet,
     CoreToken,
     userWallet,
+    testWallet,
     FirstLevelContract,
   }
 }
@@ -83,7 +88,7 @@ describe.skip('testing register method (by just transferring bnb', () => {
 
     it('check multiple registrations length', async () => {
       const p = await prepare(),
-        wallets = await getWallets(2)
+        wallets = await getWallets(customWallets)
 
       for (const index in [...Array(5).keys()]) {
         await wallets[index].sendTransaction({
@@ -100,7 +105,7 @@ describe.skip('testing register method (by just transferring bnb', () => {
 
     it('check plateau (level in pyramid), parent and side', async () => {
       const p = await prepare(),
-        wallets = await getWallets(2),
+        wallets = await getWallets(customWallets),
         users = []
 
       for (const index in [...Array(7).keys()]) {
@@ -196,7 +201,7 @@ describe('practical testing interactions and that conclusions', async () => {
   before(async () => {
     p = await prepare()
     runRegistrations = async (total) => {
-      const wallets = await getWallets(2)
+      const wallets = await getWallets(customWallets)
       let users = []
       for (const index in [...Array(total).keys()]) {
 
@@ -285,7 +290,7 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(125)
+    const users = await runRegistrations(126)
 
     // const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)
     // // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
@@ -305,6 +310,15 @@ describe('practical testing interactions and that conclusions', async () => {
     console.log('specialUser 0', specialUser)
 
     await expect(true).to.equal(true)
+
+    // todo: add one more wallet and top up it balance
+    console.info("p.testWallet.address:")
+    // 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+    console.log(p.testWallet.address)
+    // await p.userWallet.sendTransaction({
+    //   to: p.testWallet.address,
+    //   value: ethers.utils.parseEther('2'),
+    // })
 
   }).timeout(960000)
 

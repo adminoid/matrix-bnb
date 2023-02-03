@@ -105,8 +105,12 @@ contract MatrixTemplate {
         console.log("currentIndex", currentIndex);
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
-        uint8 i = 2;
-        do {
+//        uint8 i = 2;
+
+        for (uint i = 2; i <= 5; i++) {
+
+            console.log("i ====> ", i);
+
             if (!nextUser.isRight) {
                 break;
             }
@@ -147,9 +151,8 @@ contract MatrixTemplate {
                 }
             }
             nextUser = Addresses[Indices[nextUser.parent]];
-            i++;
         }
-        while (i <= 5);
+
         console.log("MT: _goUp() end");
     }
 

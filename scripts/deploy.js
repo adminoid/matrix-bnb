@@ -23,5 +23,5 @@ main()
 // running script:
 // npx hardhat run --network testnet scripts/deploy.js
 
-// Matrix deployed to: 0x2Ae22C2E2f5d90AD43e2001e1742B49F75eB0239
-// latest contract: https://testnet.bscscan.com/token/0x2Ae22C2E2f5d90AD43e2001e1742B49F75eB0239
+// Matrix deployed to: 0x5461B3E2dE0372589f028A6736DaB8677B351057
+// latest contract: https://testnet.bscscan.com/token/0x5461B3E2dE0372589f028A6736DaB8677B351057
