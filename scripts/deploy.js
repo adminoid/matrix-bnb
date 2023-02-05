@@ -1,3 +1,5 @@
+#!/Users/petja/.nvm/versions/node/v19.1.0/bin/node
+
 const { ethers } = require('hardhat')
 
 async function main() {
@@ -23,5 +25,7 @@ main()
 // running script:
 // npx hardhat run --network testnet scripts/deploy.js
 
-// Matrix deployed to: 0x5461B3E2dE0372589f028A6736DaB8677B351057
-// latest contract: https://testnet.bscscan.com/token/0x5461B3E2dE0372589f028A6736DaB8677B351057
+// Core deployed to:  0xF18F944120BADf165098CA3C92934d5510E4386E
+// latest contract:
+// https://testnet.bscscan.com/token/0xF18F944120BADf165098CA3C92934d5510E4386E
+
