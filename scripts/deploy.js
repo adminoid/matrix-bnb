@@ -25,7 +25,7 @@ main()
 // running script:
 // npx hardhat run --network testnet scripts/deploy.js
 
-// Core deployed to:  0xF18F944120BADf165098CA3C92934d5510E4386E
+// Core deployed to:  0xB9d1d4Fb5d0B0F36f8B1626afAe978FF8d115b72
 // latest contract:
-// https://testnet.bscscan.com/token/0xF18F944120BADf165098CA3C92934d5510E4386E
+// https://testnet.bscscan.com/token/0xB9d1d4Fb5d0B0F36f8B1626afAe978FF8d115b72
 
