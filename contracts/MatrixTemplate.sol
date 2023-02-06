@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 //import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 import "./Core.sol";
 
 contract MatrixTemplate {
@@ -23,8 +23,8 @@ contract MatrixTemplate {
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
-        console.log("");
-        console.log("MT: Deployed MatrixTemplate with index:", _index);
+//        console.log("");
+//        console.log("MT: Deployed MatrixTemplate with index:", _index);
     }
 
     struct User {
@@ -40,8 +40,8 @@ contract MatrixTemplate {
 
     // todo: make it protected (only Core::matricesRegistration() and MatrixTemplate::constructor()
     function register(address wallet) public {
-        console.log("");
-        console.log("MT: _register() start", matrixIndex);
+//        console.log("");
+//        console.log("MT: _register() start", matrixIndex);
 
 //        require(msg.sender == Deployer, "access denied for MT::register()");
 
@@ -83,7 +83,8 @@ contract MatrixTemplate {
 
         if (mod == 0) {
             if (parentIndex > 0) {
-                goUp(parentIndex, Indices.length);
+//                goUp(parentIndex, Indices.length);
+                goUp(parentIndex);
             }
             user.isRight = true;
         }
@@ -93,23 +94,24 @@ contract MatrixTemplate {
 
         Addresses[wallet] = user;
         Indices.push(wallet);
-        console.log("");
-        console.log("MT: _register() end");
+//        console.log("");
+//        console.log("MT: _register() end");
     }
 
     // todo: remove currentIndex == Indices.length
-    function goUp(uint parentIndex, uint currentIndex) private {
-        console.log("");
-        console.log("MT: _goUp() start");
-        console.log("parentIndex:", parentIndex);
-        console.log("currentIndex", currentIndex);
+//    function goUp(uint parentIndex, uint currentIndex) private {
+    function goUp(uint parentIndex) private {
+//        console.log("");
+//        console.log("MT: _goUp() start");
+//        console.log("parentIndex:", parentIndex);
+//        console.log("currentIndex", currentIndex);
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
 //        uint8 i = 2;
 
         for (uint i = 2; i <= 5; i++) {
 
-            console.log("i ====> ", i);
+//            console.log("i ====> ", i);
 
             if (!nextUser.isRight) {
                 break;
@@ -117,7 +119,7 @@ contract MatrixTemplate {
 
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
 
-            console.log("i ==", i);
+//            console.log("i ==", i);
 
             if (i <= 3) {
                 if (matrixIndex == 0) {
@@ -146,14 +148,14 @@ contract MatrixTemplate {
                 }
                 if (i == 5) {
                     // todo: make level up for user
-                    console.log("Going to the next matrix");
+//                    console.log("Going to the next matrix");
                     break;
                 }
             }
             nextUser = Addresses[Indices[nextUser.parent]];
         }
 
-        console.log("MT: _goUp() end");
+//        console.log("MT: _goUp() end");
     }
 
     function hasRegistered(address wallet) view external returns(bool) {
