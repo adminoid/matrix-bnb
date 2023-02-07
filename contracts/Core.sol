@@ -121,23 +121,42 @@ contract Core {
 //        console.log("There register!");
 //        console.log(whose);
 //        console.log(AddressesGlobal[whose].gifts);
+//        console.log("sender", msg.sender);
+//        console.log("value", msg.value);
+//        console.log("payUnit", payUnit);
+//        console.log("----------------");
 
         if (AddressesGlobal[whose].gifts < payUnit) {
+
+//            console.log("whose", whose);
+//            console.log("gifts", AddressesGlobal[whose].gifts);
+//            console.log("value  ", msg.value);
+//            console.log("payUnit", payUnit);
+
+            uint compare = payUnit.add(1);
+//            console.log("compare", compare);
+            // if payment less than register price (payUnit)
+            require(msg.value < compare, "you paid less than the cost of registration");
+
             // there registration is paid
             if (msg.value > payUnit) {
+//                console.log("msg.value > payUnit");
                 // transfer with change for full price
                 payable(msg.sender).transfer(msg.value.sub(payUnit));
             }
 
-            // if payment less than register price (payUnit)
-            require(msg.value < payUnit, "you paid less than the cost of registration");
+//            console.log("there msg.value is equal to payUnit");
+
         } else {
-            // there registration is free
+            // there registration is free, sending payment back
             payable(msg.sender).transfer(msg.value);
+            // updating gifts value
+            AddressesGlobal[whose].gifts = AddressesGlobal[whose].gifts.sub(payUnit);
         }
 
         // All fine, run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+        // todo: uncomment later
         MatrixTemplate(Matrices[0]).register(msg.sender);
     }
 

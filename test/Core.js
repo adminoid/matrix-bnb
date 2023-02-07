@@ -322,4 +322,8 @@ describe('practical testing interactions and that conclusions', async () => {
 
   }).timeout(960000)
 
+  it('just deploy', async () => {
+    p = await prepare()
+  })
+
 })
