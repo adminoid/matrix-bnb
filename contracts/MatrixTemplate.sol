@@ -25,8 +25,6 @@ contract MatrixTemplate {
         Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
-//        console.log("");
-//        console.log("MT: Deployed MatrixTemplate with index:", _index);
     }
 
     struct User {
@@ -42,9 +40,6 @@ contract MatrixTemplate {
 
     // todo: make it protected (only Core::matricesRegistration() and MatrixTemplate::constructor()
     function register(address wallet) public {
-//        console.log("");
-//        console.log("MT: _register() start", matrixIndex);
-
 //        require(msg.sender == Deployer, "access denied for MT::register()");
 
         User memory user;
@@ -77,12 +72,6 @@ contract MatrixTemplate {
         uint parentIndex = subPreviousTotal + parentNum - 1;
         user = User(Indices.length, parentIndex, false, plateau, true);
 
-//        console.log("");
-//        console.log("checking CoreAddress");
-//        console.log(CoreAddress);
-//        console.log(parentIndex);
-//        console.log("");
-
         if (mod == 0) {
             if (parentIndex > 0) {
 //                goUp(parentIndex, Indices.length);
@@ -96,33 +85,17 @@ contract MatrixTemplate {
 
         Addresses[wallet] = user;
         Indices.push(wallet);
-//        console.log("");
-//        console.log("MT: _register() end");
     }
 
-    // todo: remove currentIndex == Indices.length
-//    function goUp(uint parentIndex, uint currentIndex) private {
     function goUp(uint parentIndex) private {
-//        console.log("");
-//        console.log("MT: _goUp() start");
-//        console.log("parentIndex:", parentIndex);
-//        console.log("currentIndex", currentIndex);
         address parentWallet = Indices[parentIndex];
         User memory nextUser = Addresses[parentWallet];
-//        uint8 i = 2;
-
         for (uint i = 2; i <= 5; i++) {
-
-//            console.log("i ====> ", i);
-
             if (!nextUser.isRight) {
                 break;
             }
 
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
-
-//            console.log("i ==", i);
-
             if (i <= 3) {
                 if (matrixIndex == 0) {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
@@ -156,8 +129,6 @@ contract MatrixTemplate {
             }
             nextUser = Addresses[Indices[nextUser.parent]];
         }
-
-//        console.log("MT: _goUp() end");
     }
 
     function hasRegistered(address wallet) view external returns(bool) {
