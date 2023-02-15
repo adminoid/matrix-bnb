@@ -19,6 +19,8 @@ contract MatrixTemplate {
         Addresses[_deployer] = user;
         Indices.push(_deployer);
 
+        // todo: make five special wallet on top of each matrix
+
         // initiations
         Deployer = _deployer;
         matrixIndex = _index;

@@ -63,6 +63,18 @@ contract Core {
 //        console.log("C: Deployed Core with 20 MatrixTemplate instances");
     }
 
+    // todo: make protection "only owner" later
+    function withdrawClaim(uint amount) public {
+        if (AddressesGlobal[msg.sender].claims > amount) {
+            AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(amount);
+            payable(msg.sender).transfer(amount);
+        } else {
+            uint value = AddressesGlobal[msg.sender].claims;
+            AddressesGlobal[msg.sender].claims = 0;
+            payable(msg.sender).transfer(value);
+        }
+    }
+
     function isMatrix(address _mt) private view returns(bool) {
         for (uint i = 0; i < Matrices.length; i++) {
             if (Matrices[i] == _mt) {
@@ -133,31 +145,35 @@ contract Core {
 //            console.log("value  ", msg.value);
 //            console.log("payUnit", payUnit);
 
-            uint compare = payUnit.add(1);
 //            console.log("compare", compare);
             // if payment less than register price (payUnit)
-            require(msg.value < compare, "you paid less than the cost of registration");
+            require(msg.value < payUnit.add(1), "you paid less than the cost of registration");
 
             // there registration is paid
             if (msg.value > payUnit) {
 //                console.log("msg.value > payUnit");
                 // transfer with change for full price
+
+                // run register logic
+                AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+                MatrixTemplate(Matrices[0]).register(msg.sender);
+
                 payable(msg.sender).transfer(msg.value.sub(payUnit));
             }
 
 //            console.log("there msg.value is equal to payUnit");
 
         } else {
-            // there registration is free, sending payment back
-            payable(msg.sender).transfer(msg.value);
             // updating gifts value
             AddressesGlobal[whose].gifts = AddressesGlobal[whose].gifts.sub(payUnit);
-        }
 
-        // All fine, run register logic
-        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
-        // todo: uncomment later
-        MatrixTemplate(Matrices[0]).register(msg.sender);
+            // run register logic
+            AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+            MatrixTemplate(Matrices[0]).register(msg.sender);
+
+            // there registration is free, sending payment back
+            payable(msg.sender).transfer(msg.value);
+        }
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
