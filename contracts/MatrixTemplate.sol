@@ -2,27 +2,22 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-//import "hardhat/console.sol";
 import "./Core.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
 
-    address Deployer;
     uint matrixIndex;
     address CoreAddress;
 
-    constructor(address _deployer, uint _index, address _coreAddress) {
-        // manual registration first (top) special user in matrix
-        User memory user = User(0, 0, false, 0, true);
-        Addresses[_deployer] = user;
-        Indices.push(_deployer);
-
-        // todo: make five special wallet on top of each matrix
-
+    constructor(uint _index, address _coreAddress, address[] memory sixFounders) {
+        // registration of first top six investors/maintainers without balances
+        // sixFounders.length must be equal to 6
+        for (uint8 i = 0; i < 6; i++) {
+            Addresses[sixFounders[i]] = User(0, 0, false, 0, true);
+            Indices.push(sixFounders[i]);
+        }
         // initiations
-        Deployer = _deployer;
         matrixIndex = _index;
         CoreAddress = _coreAddress;
     }
@@ -38,9 +33,9 @@ contract MatrixTemplate {
     mapping(address => User) Addresses;
     address[] Indices;
 
-    // todo: make it protected (only Core::matricesRegistration() and MatrixTemplate::constructor()
     function register(address wallet) public {
-//        require(msg.sender == Deployer, "access denied for MT::register()");
+        // make it protected (calls only from Core contract)
+        require(msg.sender == CoreAddress, "access denied 02");
 
         User memory user;
 
@@ -74,17 +69,15 @@ contract MatrixTemplate {
 
         if (mod == 0) {
             if (parentIndex > 0) {
-//                goUp(parentIndex, Indices.length);
                 goUp(parentIndex);
             }
             user.isRight = true;
         }
-        address parentWallet = Indices[parentIndex];
-        // todo: what is matrixIndex here?
-        Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
-
         Addresses[wallet] = user;
         Indices.push(wallet);
+
+        address parentWallet = Indices[parentIndex];
+        Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
     }
 
     function goUp(uint parentIndex) private {
@@ -114,16 +107,10 @@ contract MatrixTemplate {
                 }
                 // if matrixIndex == 0, update gifts for i <= 3
             } else {
-                if (matrixIndex == 19) {
-                    // holder claims
-                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
-                } else {
-                    // add claims by user address into Core contract
-                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
-                }
+                // add claims by user address into Core contract
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
                 if (i == 5) {
-                    // todo: make level up for user
-//                    console.log("Going to the next matrix");
+                    // here going level up for user
                     break;
                 }
             }

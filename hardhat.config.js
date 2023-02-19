@@ -4,7 +4,7 @@ require("@nomiclabs/hardhat-web3");
 require("hardhat-gas-reporter");
 // const { task } = require("hardhat/config");
 // const { ethers } = require('hardhat')
-const { mnemonic } = require('./secret.json');
+const { mnemonic } = require('./secret/secret.json');
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -23,8 +23,8 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  defaultNetwork: "localhost",
+  // defaultNetwork: "testnet",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
@@ -32,8 +32,8 @@ module.exports = {
     hardhat: {
       accounts: {
         // count: 200,
-        // count: 126,
-        count: 6,
+        count: 135,
+        // count: 6,
         accountsBalance: '10000000000000000000',
       },
       // gas: 1800000,

@@ -1,30 +1,35 @@
 const { expect } = require("chai")
-const { ethers, waffle, web3 } = require('hardhat')
+const { ethers, waffle } = require('hardhat')
 const { deployContract } = waffle
 
-// contracts abi
+// contract abi
 const Core = require('../artifacts/contracts/Core.sol/Core.json')
-// const MatrixTemplate = require('../artifacts/contracts/MatrixTemplate.sol/MatrixTemplate.json')
 
-const customWallets = 3;
+const customWallets = 9; // 3 system plus 6 maintainers
 
 const prepare = async () => {
-  // so many that equal customWallets (see below)
+  // so many that equal customWallets (see above)
+  const allAddresses = await ethers.getSigners();
+  // console.log("all:", allAddresses.length, allAddresses.map(v => v.address))
   const [
     coreWallet,
     userWallet,
     testWallet,
-  ] = await ethers.getSigners()
+  ] = allAddresses
+  const firstSix = allAddresses.slice(3, 9).map(v => v.address)
 
-  const CoreToken = await deployContract(coreWallet, Core)
+  // console.log("coreWallet:", coreWallet.address)
+  // console.log("userWallet:", userWallet.address)
+  // console.log("testWallet:", testWallet.address)
+  // console.log("firstSix:", firstSix.length, firstSix)
 
-  // const wei = web3.utils.toWei('1', 'ether')
-  // update user balance in BNB (now balances top up from hardhat.config.js)
-  // top up bnb to user wallet
-  // await waffle.provider.send("hardhat_setBalance", [
-  //   userWallet.address,
-  //   web3.utils.toHex(wei),
-  // ])
+  console.log(await coreWallet.getBalance())
+  // fill addresses
+  const CoreToken = await deployContract(
+    coreWallet,
+    Core,
+    [firstSix],
+  )
 
   // getting contract instance through main contract
   const FirstLevelContractAddress = await CoreToken.getLevelContract(1)
@@ -109,18 +114,10 @@ describe.skip('testing register method (by just transferring bnb', () => {
         users = []
 
       for (const index in [...Array(7).keys()]) {
-        const tx = await wallets[index].sendTransaction({
+        await wallets[index].sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.01'),
         })
-
-        // example for check gas used
-        // const receipt = await tx.wait();
-        // const gasUsed = receipt.gasUsed.toNumber()
-        // console.log(gasUsed)
-
-        // example for separate contract:
-        // const length = await p.FirstLevelContract.connect(wallets[index]).getLength()
 
         const user = await p.CoreToken.connect(wallets[index]).getUserFromMatrix(0, wallets[index].address);
         users.push(user)
@@ -182,8 +179,6 @@ describe.skip('testing register method (by just transferring bnb', () => {
           .to.be.revertedWith("You don't registered in previous level")
 
       } catch (e) {
-        // console.error(e.message)
-
         expect(await p.userWallet.sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.03'),
@@ -196,7 +191,6 @@ describe.skip('testing register method (by just transferring bnb', () => {
 })
 
 describe('practical testing interactions and that conclusions', async () => {
-
   let p, runRegistrations
   before(async () => {
     p = await prepare()
@@ -204,16 +198,6 @@ describe('practical testing interactions and that conclusions', async () => {
       const wallets = await getWallets(customWallets)
       let users = []
       for (const index in [...Array(total).keys()]) {
-
-        // todo: get matrix level for calculating send value (0.01 * level)
-
-        // if (wallets[index].address === '0x924ba5ce9f91dded37b4ebf8c0dc82a40202fc0a') {
-        //   console.info('user who touch zero wallet')
-        //   await expect(p.userWallet.sendTransaction({
-        //     to: p.CoreToken.address,
-        //     value: ethers.utils.parseEther('0.01'),
-        //   })).to.be.revertedWith('the cost of registration is more expensive than you transferred')
-        // } else { // normal user
 
         if (wallets[index]) {
           let tx
@@ -239,9 +223,6 @@ describe('practical testing interactions and that conclusions', async () => {
           }
 
         }
-
-        // }
-
       }
       return users
     }
@@ -251,36 +232,15 @@ describe('practical testing interactions and that conclusions', async () => {
     console.info('=========wallets after all=========')
     for (let j = 0; j < users.length; j++) {
       const balance = await waffle.provider.getBalance(users[j].wallet.address)
-      // const userMatrix = await p.FirstLevelContract.connect(users[j].wallet.address).getUser(users[j].wallet.address)
 
       const userCore = await p.CoreToken.connect(users[j].wallet.address).getUserFromCore(users[j].wallet.address);
       const userMatrix = await p.CoreToken.connect(users[j].wallet.address).getUserFromMatrix(userCore.level, users[j].wallet.address);
-
-      // debug_1
-      if (users[j].wallet.address === '0x90F79bf6EB2c4f870365E785982E1f101E93b906') {
-        console.info('62 index for test')
-        // const userCore = await p.CoreToken.connect(users[j].wallet.address).getUserFromCore(users[j].wallet.address);
-        const tx = await users[j].wallet.sendTransaction({
-          to: p.CoreToken.address,
-          value: ethers.utils.parseEther('0.05'),
-        })
-        // example for check gas used
-        const receipt = await tx.wait()
-        const gasUsed = receipt.gasUsed.toNumber()
-        console.log('gasUsed: ', gasUsed)
-        console.log(users[j].wallet.address)
-        console.info('30 end')
-        // todo: get user balance from Core (getUserFromCore)
-
-      }
 
       // todo: run getUserFromCore() user for complete logging
       console.log('^^^^^^^')
       console.log('index:', j + 1, users[j].wallet.address)
       console.log('wallet balance', ethers.utils.formatEther(balance))
       console.log('gas: ', users[j].gasUsed)
-      // console.log('user.gift:', ethers.utils.formatEther(user['gift']))
-      // console.log('user.claim:', ethers.utils.formatEther(user['claim']))
       console.info("userMatrix: index,parent,isRight,plateau,isValue")
       console.log(userMatrix)
       console.info("userCore: claims,gifts,level,whose,isValue")
@@ -292,12 +252,6 @@ describe('practical testing interactions and that conclusions', async () => {
   it('check registration and resulting gifts and claims', async () => {
     const users = await runRegistrations(126)
 
-    // const user0 = await p.FirstLevelContract.connect(p.coreWallet.address).getUser(p.coreWallet.address)
-    // // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
-    // console.log('user0', user0)
-
-    // setTimeout(() => (loopUsers(users)), 120000)
-
     await loopUsers(users)
 
     console.info('=========core balance after all=========')
@@ -306,24 +260,17 @@ describe('practical testing interactions and that conclusions', async () => {
     console.info(ethers.utils.formatEther(coreBalance))
 
     const specialUser = await p.FirstLevelContract.connect('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266').getUser('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
-    // const balance0 = ethers.utils.formatEther(await waffle.provider.getBalance(p.coreWallet.address))
     console.log('specialUser 0', specialUser)
 
     await expect(true).to.equal(true)
 
     // todo: add one more wallet and top up it balance
     console.info("p.testWallet.address:")
-    // 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
     console.log(p.testWallet.address)
-    // await p.userWallet.sendTransaction({
-    //   to: p.testWallet.address,
-    //   value: ethers.utils.parseEther('2'),
-    // })
-
-  }).timeout(960000)
+  }).timeout(999999)
 
   it('just deploy', async () => {
-    p = await prepare()
+    // p = await prepare()
   })
 
 })

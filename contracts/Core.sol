@@ -2,7 +2,6 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-//import "hardhat/console.sol";
 import "./MatrixTemplate.sol";
 
 contract Core {
@@ -10,7 +9,6 @@ contract Core {
 
     // settings
     uint public payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-//    uint payUnit = 0.000001 * (10 ** 18); // first number is bnb amount
     uint maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
@@ -30,23 +28,15 @@ contract Core {
 
     event UserRegistered(address, uint);
     event UserUpdated(address, uint8, uint);
-//    event GettingUserFromMatrix(MatrixTemplate.User user);
-//    event GettingUserFromCore(UserGlobal user);
 
-    constructor() payable {
-
-//        uint256 startGas = gasleft();
-
-        zeroWallet = msg.sender;
-
+    constructor(address[] memory sixFounders) payable {
+        zeroWallet = sixFounders[0];
         // initialize 20 matrices
-        uint i;
-        for (i = 0; i <= maxLevel; i++) {
-            MatrixTemplate matrixInstance = new MatrixTemplate(msg.sender, i, address(this));
+        for (uint i = 0; i <= maxLevel; i++) {
+            MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), sixFounders);
             Matrices[i] = address(matrixInstance);
             // todo: _register another five wallets
         }
-
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, maxLevel, zeroWallet, true);
     }
 
@@ -74,7 +64,7 @@ contract Core {
 
     // field: 0 - gifts, 1 - claims
     function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
-        require(isMatrix(msg.sender), "access denied");
+        require(isMatrix(msg.sender), "access denied 01");
 
         uint amount = getLevelPrice(matrixIndex);
 
@@ -104,28 +94,29 @@ contract Core {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
 
+        uint change = 0;
         if (AddressesGlobal[whose].gifts < payUnit) {
             // if payment less than register price (payUnit)
             require(msg.value < payUnit.add(1), "you paid less than the cost of registration");
 
             // there registration is paid
             if (msg.value > payUnit) {
-                // run register logic
-                AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
-                MatrixTemplate(Matrices[0]).register(msg.sender);
-                // transfer with change for full price
-                payable(msg.sender).transfer(msg.value.sub(payUnit));
+                change = msg.value.sub(payUnit);
             }
         } else {
             // updating gifts value
             AddressesGlobal[whose].gifts = AddressesGlobal[whose].gifts.sub(payUnit);
-
-            // run register logic
-            AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
-            MatrixTemplate(Matrices[0]).register(msg.sender);
-
             // there registration is free, sending payment back
-            payable(msg.sender).transfer(msg.value);
+            change = msg.value;
+        }
+
+        // run register logic
+        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+        MatrixTemplate(Matrices[0]).register(msg.sender);
+
+        if (change > 0) {
+            // transfer with change for full price
+            payable(msg.sender).transfer(change);
         }
     }
 
@@ -146,7 +137,6 @@ contract Core {
             registerPrice = payUnit;
         }
         // already have register data: balance, level, registerPrice
-
         if (level <= 19) {
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
@@ -154,7 +144,7 @@ contract Core {
                     break;
                 }
 
-                // _register in, decrease balance and increment level
+                // register in, decrease balance and increment level
                 // local Core registration in UserGlobal and matrix registration
 
                 if (AddressesGlobal[wallet].isValue) {
@@ -167,7 +157,6 @@ contract Core {
                 }
 
                 MatrixTemplate(Matrices[level]).register(wallet);
-
                 emit UserRegistered(wallet, level);
 
                 if (balance > 0) {
@@ -184,7 +173,7 @@ contract Core {
         uint registerPrice = payUnit;
         if (level > 0) {
             for (uint i = 0; i < level; i++) {
-                registerPrice = registerPrice * 2;
+                registerPrice = registerPrice.mul(2);
             }
         }
         return registerPrice;
@@ -197,13 +186,11 @@ contract Core {
     function getUserFromMatrix(uint matrixIdx, address userWallet) external view
     returns (MatrixTemplate.User memory user) {
         user = MatrixTemplate(Matrices[matrixIdx]).getUser(userWallet);
-//        emit GettingUserFromMatrix(user);
     }
 
     function getUserFromCore(address userAddress) external view
     returns (UserGlobal memory user) {
         user = AddressesGlobal[userAddress];
-//        emit GettingUserFromCore(user);
     }
 
     function sendHalf(address wallet, uint matrixIndex) external {
@@ -215,10 +202,7 @@ contract Core {
 
         uint amount = getLevelPrice(matrixIndex).div(2);
 
-//        payable(wallet).transfer(amount); // not recommended
         (bool sent,) = payable(wallet).call{value: amount}("");
-        require(sent, "Failed to send Ether");
-
-        // https://ethereum.stackexchange.com/questions/118165/how-much-gas-is-forwarded-by-caller-contract-when-calling-a-deployed-contracts
+        require(sent, "Failed to send BNB");
     }
 }

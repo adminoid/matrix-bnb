@@ -2,7 +2,8 @@ node_modules/
 private/
 cache/
 artifacts/
-secret.json
+/**/secret.json
+secret/**/*
 
 **/.DS_Store
 .idea/
