@@ -33,8 +33,12 @@ contract MatrixTemplate {
     mapping(address => User) Addresses;
     address[] Indices;
 
-    function register(address wallet) public {
-        // make it protected (calls only from Core contract)
+    /*
+       methods below is important interactions includes base logic
+    */
+
+    function register(address wallet) external {
+        // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
 
         User memory user;
@@ -118,17 +122,13 @@ contract MatrixTemplate {
         }
     }
 
-    function hasRegistered(address wallet) view external returns(bool) {
-        return Addresses[wallet].isValue;
-    }
+    /*
+        methods below is service ones
+    */
 
     function getUser(address wallet) view external returns(User memory user) {
         user = Addresses[wallet];
         return user;
-    }
-
-    function getLength() external view returns(uint length) {
-        length = Indices.length;
     }
 
     function getSumOfPlateau(uint _from, uint _to) private pure returns(uint sum) {

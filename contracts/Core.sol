@@ -35,13 +35,21 @@ contract Core {
         for (uint i = 0; i <= maxLevel; i++) {
             MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), sixFounders);
             Matrices[i] = address(matrixInstance);
-            // todo: _register another five wallets
         }
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, maxLevel, zeroWallet, true);
     }
 
-    // todo: make protection "only owner" later
-    function withdrawClaim(uint amount) public {
+    // proxy for registering wallet by simple payment to contract address
+    receive() external payable {
+        matricesRegistration(msg.sender, msg.value);
+    }
+
+    /*
+        methods below is important interactions includes base logic
+    */
+
+    // withdrawing claims from balance in BNB
+    function withdrawClaim(uint amount) external {
         if (AddressesGlobal[msg.sender].claims > amount) {
             AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(amount);
             payable(msg.sender).transfer(amount);
@@ -52,44 +60,7 @@ contract Core {
         }
     }
 
-    function isMatrix(address _mt) private view returns(bool) {
-        for (uint i = 0; i < Matrices.length; i++) {
-            if (Matrices[i] == _mt) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    // field: 0 - gifts, 1 - claims
-    function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
-        require(isMatrix(msg.sender), "access denied 01");
-
-        uint amount = getLevelPrice(matrixIndex);
-
-        // calculate newValue
-        if (field == 0) { // gifts
-            AddressesGlobal[userAddress].gifts = AddressesGlobal[userAddress].gifts.add(amount);
-        }
-        else if (field == 1) { // claims
-            AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(amount);
-        }
-        else if (field == 2) { // update whose claims
-            AddressesGlobal[AddressesGlobal[userAddress].whose].claims.add(getLevelPrice(matrixIndex));
-        }
-
-        uint needValue = amount.mul(2);
-        if (amount >= needValue && userAddress != zeroWallet && matrixIndex < 19) {
-            matricesRegistration(userAddress, 0);
-        }
-        emit UserUpdated(userAddress, field, needValue);
-    }
-
-    receive() external payable {
-        matricesRegistration(msg.sender, msg.value);
-    }
-
+    // register referral of whose
     function register(address whose) external payable {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
@@ -169,7 +140,17 @@ contract Core {
 
     }
 
-    function getLevelPrice(uint level) internal view returns(uint) {
+    /*
+        methods below called only internal for some information
+    */
+
+    // service method for getting MatrixTemplate contract address of specific level
+    function getLevelContract(uint level) external view returns(address) {
+        return Matrices[level];
+    }
+
+    // getting price for registration in specific level
+    function getLevelPrice(uint level) private view returns(uint) {
         uint registerPrice = payUnit;
         if (level > 0) {
             for (uint i = 0; i < level; i++) {
@@ -179,8 +160,23 @@ contract Core {
         return registerPrice;
     }
 
-    function getLevelContract(uint level) external view returns(address) {
-        return Matrices[level];
+    // check address is matrix or not
+    function isMatrix(address _mt) private view returns(bool) {
+        for (uint i = 0; i < Matrices.length; i++) {
+            if (Matrices[i] == _mt) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+        methods below are only called by external for getting some information
+    */
+
+    function getUserFromCore(address userAddress) external view
+    returns (UserGlobal memory user) {
+        user = AddressesGlobal[userAddress];
     }
 
     function getUserFromMatrix(uint matrixIdx, address userWallet) external view
@@ -188,9 +184,32 @@ contract Core {
         user = MatrixTemplate(Matrices[matrixIdx]).getUser(userWallet);
     }
 
-    function getUserFromCore(address userAddress) external view
-    returns (UserGlobal memory user) {
-        user = AddressesGlobal[userAddress];
+    /*
+        methods below are only called by MatrixTemplate contract
+    */
+
+    // field: 0 - gifts, 1 - claims
+    function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
+        require(isMatrix(msg.sender), "access denied 01");
+
+        uint amount = getLevelPrice(matrixIndex);
+
+        // calculate newValue
+        if (field == 0) { // gifts
+            AddressesGlobal[userAddress].gifts = AddressesGlobal[userAddress].gifts.add(amount);
+        }
+        else if (field == 1) { // claims
+            AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(amount);
+        }
+        else if (field == 2) { // update whose claims
+            AddressesGlobal[AddressesGlobal[userAddress].whose].claims.add(getLevelPrice(matrixIndex));
+        }
+
+        uint needValue = amount.mul(2);
+        if (amount >= needValue && userAddress != zeroWallet && matrixIndex < 19) {
+            matricesRegistration(userAddress, 0);
+        }
+        emit UserUpdated(userAddress, field, needValue);
     }
 
     function sendHalf(address wallet, uint matrixIndex) external {
