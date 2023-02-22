@@ -18,12 +18,12 @@ const prepare = async () => {
   ] = allAddresses
   const firstSix = allAddresses.slice(3, 9).map(v => v.address)
 
-  // console.log("coreWallet:", coreWallet.address)
-  // console.log("userWallet:", userWallet.address)
-  // console.log("testWallet:", testWallet.address)
-  // console.log("firstSix:", firstSix.length, firstSix)
+  console.log("coreWallet:", coreWallet.address)
+  console.log("userWallet:", userWallet.address)
+  console.log("testWallet:", testWallet.address)
+  console.log("firstSix:", firstSix.length, firstSix)
 
-  console.log(await coreWallet.getBalance())
+  console.log(ethers.utils.formatEther(await coreWallet.getBalance()))
   // fill addresses
   const CoreToken = await deployContract(
     coreWallet,
@@ -202,17 +202,10 @@ describe('practical testing interactions and that conclusions', async () => {
         if (wallets[index]) {
           let tx
           // debug_2
-          if (wallets[index].address === '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC') {
-            tx = await wallets[index].sendTransaction({
-              to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.02'),
-            })
-          } else {
-            tx = await wallets[index].sendTransaction({
-              to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.01'),
-            })
-          }
+          tx = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.1'),
+          })
 
           // example for check gas used
           const receipt = await tx.wait()

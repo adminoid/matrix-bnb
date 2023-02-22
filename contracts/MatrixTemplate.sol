@@ -93,31 +93,45 @@ contract MatrixTemplate {
             }
 
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
+
             if (i <= 3) {
                 if (matrixIndex == 0) {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
-                }
-                // if matrixIndex > 0, then
-                else {
-                    if (matrixIndex == 19) {
-                        if (i == 3) {
-                            Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
-                        } else {
-                            Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
-                        }
-                    } else {
+                } else {
+                    if (i == 2) {
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
+                    } else { // i == 3
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                     }
                 }
-                // if matrixIndex == 0, update gifts for i <= 3
-            } else {
-                // add claims by user address into Core contract
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // claims
+            } else { // 4 >= i <= 5 (either 4 or 5)
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                 if (i == 5) {
-                    // here going level up for user
+                    // here going level up for user (break for loop)
                     break;
                 }
             }
+
+//            if (i == 2) {
+//                if (matrixIndex == 0) {
+//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
+//                } else {
+//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
+//                }
+//            } else if (i == 3) {
+//                if (matrixIndex == 0) {
+//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
+//                } else {
+//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+//                }
+//            } else if (i > 3) {
+//                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+//                if (i == 5) {
+//                    // here going level up for user
+//                    break;
+//                }
+//            }
+
             nextUser = Addresses[Indices[nextUser.parent]];
         }
     }

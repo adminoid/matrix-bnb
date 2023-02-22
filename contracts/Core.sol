@@ -36,7 +36,7 @@ contract Core {
             MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), sixFounders);
             Matrices[i] = address(matrixInstance);
         }
-        AddressesGlobal[msg.sender] = UserGlobal(0, 0, maxLevel, zeroWallet, true);
+        AddressesGlobal[zeroWallet] = UserGlobal(0, 0, maxLevel, zeroWallet, true);
     }
 
     // proxy for registering wallet by simple payment to contract address
