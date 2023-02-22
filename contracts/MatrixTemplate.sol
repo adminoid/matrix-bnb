@@ -10,7 +10,7 @@ contract MatrixTemplate {
     uint matrixIndex;
     address CoreAddress;
 
-    constructor(uint _index, address _coreAddress, address[] memory sixFounders) {
+    constructor(uint _index, address _coreAddress, address[6] memory sixFounders) {
         // registration of first top six investors/maintainers without balances
         // sixFounders.length must be equal to 6
         for (uint8 i = 0; i < 6; i++) {
@@ -111,27 +111,6 @@ contract MatrixTemplate {
                     break;
                 }
             }
-
-//            if (i == 2) {
-//                if (matrixIndex == 0) {
-//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
-//                } else {
-//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
-//                }
-//            } else if (i == 3) {
-//                if (matrixIndex == 0) {
-//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
-//                } else {
-//                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
-//                }
-//            } else if (i > 3) {
-//                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
-//                if (i == 5) {
-//                    // here going level up for user
-//                    break;
-//                }
-//            }
-
             nextUser = Addresses[Indices[nextUser.parent]];
         }
     }

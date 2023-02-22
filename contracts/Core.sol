@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
+import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -29,14 +30,18 @@ contract Core {
     event UserRegistered(address, uint);
     event UserUpdated(address, uint8, uint);
 
-    constructor(address[] memory sixFounders) payable {
+    constructor(address[6] memory sixFounders) payable {
         zeroWallet = sixFounders[0];
+        // register in Core sixFounders
+        for (uint i = 0; i < 6; i++) {
+            console.log("sp23-->", sixFounders[i]);
+            AddressesGlobal[sixFounders[i]] = UserGlobal(0, 0, maxLevel, sixFounders[i], true);
+        }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
             MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), sixFounders);
             Matrices[i] = address(matrixInstance);
         }
-        AddressesGlobal[zeroWallet] = UserGlobal(0, 0, maxLevel, zeroWallet, true);
     }
 
     // proxy for registering wallet by simple payment to contract address

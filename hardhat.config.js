@@ -34,7 +34,7 @@ module.exports = {
         // count: 200,
         count: 135,
         // count: 6,
-        accountsBalance: '10000000000000000000',
+        accountsBalance: '110000000000000000000',
       },
       // gas: 1800000,
     },
