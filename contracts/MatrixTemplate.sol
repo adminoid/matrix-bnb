@@ -10,6 +10,7 @@ contract MatrixTemplate {
     uint matrixIndex;
     address CoreAddress;
 
+    // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory sixFounders) {
         // registration of first top six investors/maintainers without balances
         // sixFounders.length must be equal to 6
@@ -41,8 +42,29 @@ contract MatrixTemplate {
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
 
-        User memory user;
+        // calculate base user data
+        uint parentIndex;
+        uint plateau;
+        uint mod;
+        (parentIndex, plateau, mod) = calcUserData();
 
+        User memory user = User(Indices.length, parentIndex, false, plateau, true);
+        if (mod == 0) {
+            user.isRight = true;
+            if (parentIndex > 0) {
+                goUp(parentIndex);
+            }
+        }
+        Addresses[wallet] = user;
+        Indices.push(wallet);
+
+        address parentWallet = Indices[parentIndex];
+        Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
+    }
+
+    // parentIndex, plateau, mod
+    function calcUserData() private view
+    returns (uint, uint, uint) {
         // plateau number calculation (for current registration)
         uint plateau = log2(Indices.length + 2);
         uint subPreviousTotal;
@@ -69,19 +91,7 @@ contract MatrixTemplate {
             parentNum = parentNum + mod;
         }
         uint parentIndex = subPreviousTotal + parentNum - 1;
-        user = User(Indices.length, parentIndex, false, plateau, true);
-
-        if (mod == 0) {
-            if (parentIndex > 0) {
-                goUp(parentIndex);
-            }
-            user.isRight = true;
-        }
-        Addresses[wallet] = user;
-        Indices.push(wallet);
-
-        address parentWallet = Indices[parentIndex];
-        Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
+        return (parentIndex, plateau, mod);
     }
 
     function goUp(uint parentIndex) private {
