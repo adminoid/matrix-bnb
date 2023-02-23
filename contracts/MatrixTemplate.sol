@@ -15,7 +15,16 @@ contract MatrixTemplate {
         // registration of first top six investors/maintainers without balances
         // sixFounders.length must be equal to 6
         for (uint8 i = 0; i < 6; i++) {
-            Addresses[sixFounders[i]] = User(0, 0, false, 0, true);
+            // calculate base user data
+            uint parentIndex;
+            uint plateau;
+            uint mod;
+            (parentIndex, plateau, mod) = calcUserData();
+            User memory user = User(Indices.length, parentIndex, false, plateau, true);
+            if (mod == 0) {
+                user.isRight = true;
+            }
+            Addresses[sixFounders[i]] = user;
             Indices.push(sixFounders[i]);
         }
         // initiations

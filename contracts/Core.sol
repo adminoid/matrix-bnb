@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
-import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -34,7 +33,6 @@ contract Core {
         zeroWallet = sixFounders[0];
         // register in Core sixFounders
         for (uint i = 0; i < 6; i++) {
-            console.log("sp23-->", sixFounders[i]);
             address prevFounder;
             if (i <= 0) {
                 prevFounder = sixFounders[0];
@@ -54,6 +52,9 @@ contract Core {
     receive() external payable {
         matricesRegistration(msg.sender, msg.value);
     }
+
+    // stub to hide unrecognized-selector messages
+    fallback() external payable {}
 
     /*
         methods below is important interactions includes base logic
@@ -208,7 +209,6 @@ contract Core {
     // field: 0 - gifts, 1 - claims
     function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
         require(isMatrix(msg.sender), "access denied 01");
-
         uint amount = getLevelPrice(matrixIndex);
 
         // calculate newValue
@@ -231,7 +231,6 @@ contract Core {
 
     function sendHalf(address wallet, uint matrixIndex) external {
         require(isMatrix(msg.sender), "access denied for C::_sendHalf()");
-
         if (matrixIndex >= 19) {
             return;
         }
