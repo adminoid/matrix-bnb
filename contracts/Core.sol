@@ -35,7 +35,13 @@ contract Core {
         // register in Core sixFounders
         for (uint i = 0; i < 6; i++) {
             console.log("sp23-->", sixFounders[i]);
-            AddressesGlobal[sixFounders[i]] = UserGlobal(0, 0, maxLevel, sixFounders[i], true);
+            address prevFounder;
+            if (i <= 0) {
+                prevFounder = sixFounders[0];
+            } else {
+                prevFounder = sixFounders[i - 1];
+            }
+            AddressesGlobal[sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
         }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
