@@ -57,11 +57,13 @@ contract Core {
     function withdrawClaim(uint amount) external {
         if (AddressesGlobal[msg.sender].claims > amount) {
             AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(amount);
-            payable(msg.sender).transfer(amount);
+            (bool sent,) = payable(msg.sender).call{value: amount}("");
+            require(sent, "Failed to send BNB 1");
         } else {
             uint value = AddressesGlobal[msg.sender].claims;
             AddressesGlobal[msg.sender].claims = 0;
-            payable(msg.sender).transfer(value);
+            (bool sent,) = payable(msg.sender).call{value: value}("");
+            require(sent, "Failed to send BNB 2");
         }
     }
 
@@ -69,6 +71,9 @@ contract Core {
     function register(address whose) external payable {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
+
+        // 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+        // 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc
 
         uint change = 0;
         if (AddressesGlobal[whose].gifts < payUnit) {
@@ -92,7 +97,8 @@ contract Core {
 
         if (change > 0) {
             // transfer with change for full price
-            payable(msg.sender).transfer(change);
+            (bool sent,) = payable(msg.sender).call{value: change}("");
+            require(sent, "Failed to send BNB 3");
         }
     }
 
@@ -227,6 +233,6 @@ contract Core {
         uint amount = getLevelPrice(matrixIndex).div(2);
 
         (bool sent,) = payable(wallet).call{value: amount}("");
-        require(sent, "Failed to send BNB");
+        require(sent, "Failed to send BNB 4");
     }
 }
