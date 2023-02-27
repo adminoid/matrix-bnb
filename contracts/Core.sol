@@ -154,6 +154,7 @@ contract Core {
                     level = level.add(1);
                 }
             }
+            AddressesGlobal[wallet].claims = balance;
         }
 
     }
