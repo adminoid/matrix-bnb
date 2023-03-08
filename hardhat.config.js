@@ -46,7 +46,6 @@ module.exports = {
       chainId: 97,
       // gasPrice: 20000000000,
       gasPrice: 'auto',
-      // gas: 'auto', // added
       accounts: { mnemonic }
     },
     mainnet: {
