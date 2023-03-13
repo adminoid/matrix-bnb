@@ -26,12 +26,12 @@ contract Core {
 
     mapping(address => UserGlobal) AddressesGlobal;
 
-    bool locked;
+    uint locked = 1;
     modifier noReentrancy() {
-        require(!locked, "No reentrancy attack!");
-        locked = true;
+        require(locked == 1, "No reentrancy attack!");
+        locked = 2;
         _;
-        locked = false;
+        locked = 1;
     }
 
     event UserRegistered(address, uint);
