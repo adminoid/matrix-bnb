@@ -23,3 +23,16 @@ run tests:
 
 deploy (to testnet):  
 `npx hardhat run --network testnet scripts/deploy.js`  
+
+# Loop scheme
+```
+              .___________________________________________________________________________________________________.
+c.register -> | [mt.register:_2_] -> mt.goUp -> [c.updateUser:_1_]                                                |
+              |              \-> c.sendHalf:END               \-> [c.matricesRegistration:_3_ -> mt.register:_2_] |
+              |___________________________________________________________________________________________________|
+
+                                             .___________________________________________________________________________________________________.
+c.receive -> [c.matricesRegistration:_3_] -> | [mt.register:_2_] -> mt.goUp -> [c.updateUser:_1_]                                                |
+                                             |              \-> c.sendHalf:END               \-> [c.matricesRegistration:_3_ -> mt.register:_2_] |
+                                             |___________________________________________________________________________________________________|
+```

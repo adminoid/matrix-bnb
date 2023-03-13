@@ -50,13 +50,11 @@ contract MatrixTemplate {
     function register(address wallet) external {
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
-
         // calculate base user data
         uint parentIndex;
         uint plateau;
         uint mod;
         (parentIndex, plateau, mod) = calcUserData();
-
         User memory user = User(Indices.length, parentIndex, false, plateau, true);
         if (mod == 0) {
             user.isRight = true;
@@ -66,7 +64,6 @@ contract MatrixTemplate {
         }
         Addresses[wallet] = user;
         Indices.push(wallet);
-
         address parentWallet = Indices[parentIndex];
         Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
     }
@@ -110,9 +107,7 @@ contract MatrixTemplate {
             if (!nextUser.isRight) {
                 break;
             }
-
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
-
             if (i <= 3) {
                 if (matrixIndex == 0) {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts

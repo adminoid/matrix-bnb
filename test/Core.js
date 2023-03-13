@@ -44,6 +44,7 @@ const prepare = async () => {
     userWallet,
     testWallet,
     FirstLevelContract,
+    firstSix,
   }
 }
 
@@ -194,18 +195,31 @@ describe('practical testing interactions and that conclusions', async () => {
   let p, runRegistrations
   before(async () => {
     p = await prepare()
-    runRegistrations = async (total) => {
+    runRegistrations = async (total, isSpecial = false, amount = '0.1') => {
       const wallets = await getWallets(customWallets)
       let users = []
       for (const index in [...Array(total).keys()]) {
 
         if (wallets[index]) {
           let tx
+          if (!isSpecial) {
+            tx = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther(amount),
+            })
+          } else {
+            console.info("--------=--------")
+            console.info("index is ", index)
+            console.info("Whose", p.firstSix[5])
+            console.log("wallet is ", wallets[index].address)
+            console.log("p.CoreToken.address", p.CoreToken.address)
+            tx = await p.CoreToken
+              .connect(wallets[index])
+              .register(p.firstSix[5], {
+                value: ethers.utils.parseEther('0.1'),
+              })
+          }
           // debug_2
-          tx = await wallets[index].sendTransaction({
-            to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.1'),
-          })
 
           // example for check gas used
           const receipt = await tx.wait()
@@ -220,6 +234,23 @@ describe('practical testing interactions and that conclusions', async () => {
       return users
     }
   })
+
+
+  async function topUp(users, amount = '0.06') {
+    for (let i = 0; i < users.length; i++) {
+
+      console.log("--------!--------")
+      console.info("index is ", i)
+      console.log("users[i].wallet.address", users[i].wallet.address)
+
+      const tx = await users[i].wallet.sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther(amount),
+      })
+
+      await tx.wait()
+    }
+  }
 
   async function loopUsers(users) {
     console.info('=========wallets after all=========')
@@ -252,7 +283,9 @@ describe('practical testing interactions and that conclusions', async () => {
     console.log('core wallet:', p.CoreToken.address)
     console.info(ethers.utils.formatEther(coreBalance))
 
-    const specialUser = await p.FirstLevelContract.connect('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266').getUser('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+    const specialUser = await p.FirstLevelContract
+      .connect('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+      .getUser('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
     console.log('specialUser 0', specialUser)
 
     await expect(true).to.equal(true)
@@ -262,8 +295,18 @@ describe('practical testing interactions and that conclusions', async () => {
     console.log(p.testWallet.address)
   }).timeout(999999)
 
+  it('check whose top up, debugging', async () => {
+    const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.info("coreBalance0", coreBalance)
+    const users = await runRegistrations(9, true) // 6 (0-5) + 9 (6-14)
+    // const users = await runRegistrations(9) // 6 (0-5) + 9 (6-14)
+    console.info("coreBalance1", coreBalance)
+    await topUp(users)
+    console.info("coreBalance2", coreBalance)
+  }).timeout(999999)
+
   it('just deploy', async () => {
-    // p = await prepare()
+    p = await prepare()
   })
 
 })

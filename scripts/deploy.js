@@ -36,5 +36,4 @@ main()
 
 // Core deployed to: 0x0A22f5aa18c63669C027Be4a906d8BB29Eb265cD
 // latest contract:
-// https://testnet.bscscan.com/token/0x0A22f5aa18c63669C027Be4a906d8BB29Eb265cD
-
+// https://testnet.bscscan.com/address/0x0A22f5aa18c63669C027Be4a906d8BB29Eb265cD

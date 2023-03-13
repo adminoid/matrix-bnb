@@ -26,8 +26,17 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  solidity: {
+    version: "0.8.17",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1000
+      }
+    }
+  },
+  defaultNetwork: "localhost",
+  // defaultNetwork: "testnet",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545"
@@ -35,7 +44,8 @@ module.exports = {
     hardhat: {
       accounts: {
         // count: 200,
-        count: 135,
+        // count: 135,
+        count: 20,
         // count: 6,
         accountsBalance: '30000000000000000000000'
       }
@@ -53,14 +63,6 @@ module.exports = {
       chainId: 56,
       gasPrice: 20000000000,
       accounts: { mnemonic }
-    }
-  },
-  solidity: {
-    version: "0.8.17",
-    settings: {
-      optimizer: {
-        enabled: true
-      }
     }
   },
   paths: {

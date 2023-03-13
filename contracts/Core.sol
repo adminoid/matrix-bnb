@@ -26,6 +26,14 @@ contract Core {
 
     mapping(address => UserGlobal) AddressesGlobal;
 
+    bool locked;
+    modifier noReentrancy() {
+        require(!locked, "No reentrancy attack!");
+        locked = true;
+        _;
+        locked = false;
+    }
+
     event UserRegistered(address, uint);
     event UserUpdated(address, uint8, uint);
 
@@ -49,7 +57,7 @@ contract Core {
     }
 
     // proxy for registering wallet by simple payment to contract address
-    receive() external payable {
+    receive() external payable noReentrancy {
         matricesRegistration(msg.sender, msg.value);
     }
 
@@ -75,18 +83,13 @@ contract Core {
     }
 
     // register referral of whose
-    function register(address whose) external payable {
+    function register(address whose) external payable noReentrancy {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
-
-        // 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-        // 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc
-
         uint change = 0;
         if (AddressesGlobal[whose].gifts < payUnit) {
             // if payment less than register price (payUnit)
-            require(msg.value < payUnit.add(1), "you paid less than the cost of registration");
-
+            require(msg.value >= payUnit, "you paid less than the cost of registration");
             // there registration is paid
             if (msg.value > payUnit) {
                 change = msg.value.sub(payUnit);
@@ -97,11 +100,9 @@ contract Core {
             // there registration is free, sending payment back
             change = msg.value;
         }
-
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
         MatrixTemplate(Matrices[0]).register(msg.sender);
-
         if (change > 0) {
             // transfer with change for full price
             (bool sent,) = payable(msg.sender).call{value: change}("");
@@ -114,7 +115,6 @@ contract Core {
         uint balance;
         uint level;
         uint registerPrice;
-
         // compose data for user registration
         if (AddressesGlobal[wallet].isValue) {
             balance = transferredAmount.add(AddressesGlobal[wallet].claims);
@@ -132,10 +132,8 @@ contract Core {
                 if (level > 19) {
                     break;
                 }
-
                 // register in, decrease balance and increment level
                 // local Core registration in UserGlobal and matrix registration
-
                 if (AddressesGlobal[wallet].isValue) {
                     // set claims, level
                     AddressesGlobal[wallet].level = level;
@@ -144,10 +142,8 @@ contract Core {
                     // put zeroWallet to whose referral address
                     AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                 }
-
                 MatrixTemplate(Matrices[level]).register(wallet);
                 emit UserRegistered(wallet, level);
-
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
                     registerPrice = registerPrice.mul(2);
@@ -156,7 +152,6 @@ contract Core {
             }
             AddressesGlobal[wallet].claims = balance;
         }
-
     }
 
     /*
@@ -211,7 +206,6 @@ contract Core {
     function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
         require(isMatrix(msg.sender), "access denied 01");
         uint amount = getLevelPrice(matrixIndex);
-
         // calculate newValue
         if (field == 0) { // gifts
             AddressesGlobal[userAddress].gifts = AddressesGlobal[userAddress].gifts.add(amount);
@@ -220,9 +214,11 @@ contract Core {
             AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(amount);
         }
         else if (field == 2) { // update whose claims
-            AddressesGlobal[AddressesGlobal[userAddress].whose].claims.add(getLevelPrice(matrixIndex));
+            address whose = AddressesGlobal[userAddress].whose;
+            uint whoseClaims = AddressesGlobal[whose].claims;
+            uint levelPrice = getLevelPrice(matrixIndex);
+            AddressesGlobal[whose].claims = whoseClaims.add(levelPrice);
         }
-
         uint needValue = amount.mul(2);
         if (amount >= needValue && userAddress != zeroWallet && matrixIndex < 19) {
             matricesRegistration(userAddress, 0);
@@ -235,9 +231,7 @@ contract Core {
         if (matrixIndex >= 19) {
             return;
         }
-
         uint amount = getLevelPrice(matrixIndex).div(2);
-
         (bool sent,) = payable(wallet).call{value: amount}("");
         require(sent, "Failed to send BNB 4");
     }
