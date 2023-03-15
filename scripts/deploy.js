@@ -34,6 +34,6 @@ main()
     process.exit(1)
   })
 
-// Core deployed to: 0xa8f1e5760364CBEFd3f9E475c272e3fFA09A53ca
+// Core deployed to: 0x9cfE614c5f8b2B851afceaDDE43609AFd55f989a
 // latest contract:
-// https://testnet.bscscan.com/address/0xa8f1e5760364CBEFd3f9E475c272e3fFA09A53ca
+// https://testnet.bscscan.com/address/0x9cfE614c5f8b2B851afceaDDE43609AFd55f989a
