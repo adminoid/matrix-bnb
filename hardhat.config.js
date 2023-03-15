@@ -35,8 +35,8 @@ module.exports = {
       }
     }
   },
-  defaultNetwork: "localhost",
-  // defaultNetwork: "testnet",
+  // defaultNetwork: "localhost",
+  defaultNetwork: "testnet",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545"
