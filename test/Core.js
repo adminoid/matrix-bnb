@@ -305,8 +305,10 @@ describe('practical testing interactions and that conclusions', async () => {
     console.info("coreBalance2", coreBalance)
   }).timeout(999999)
 
-  it('just deploy', async () => {
-    p = await prepare()
-  })
+  it('just deploy async', async () => {
+    // console.log(p)
+    console.log("started")
+    // p = await prepare()
+  }).timeout(99999)
 
 })

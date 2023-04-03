@@ -37,21 +37,25 @@ contract Core {
     event UserRegistered(address, uint);
     event UserUpdated(address, uint8, uint);
 
-    constructor(address[6] memory sixFounders) payable {
-        zeroWallet = sixFounders[0];
-        // register in Core sixFounders
+    // todo: date spent calculations
+    // https://ethereum.stackexchange.com/questions/37026/how-to-calculate-with-time-and-dates
+    // https://ethereum.stackexchange.com/questions/35793/how-do-you-best-calculate-whole-years-gone-by-in-solidity
+    // https://ethereum.stackexchange.com/questions/132708/how-to-get-current-year-from-timestamp-solidity
+    constructor(address[6] memory _sixFounders) payable {
+        zeroWallet = _sixFounders[0];
+        // register in Core _sixFounders
         for (uint i = 0; i < 6; i++) {
             address prevFounder;
             if (i <= 0) {
-                prevFounder = sixFounders[0];
+                prevFounder = _sixFounders[0];
             } else {
-                prevFounder = sixFounders[i - 1];
+                prevFounder = _sixFounders[i - 1];
             }
-            AddressesGlobal[sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
+            AddressesGlobal[_sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
         }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
-            MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), sixFounders);
+            MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), _sixFounders);
             Matrices[i] = address(matrixInstance);
         }
     }
@@ -69,10 +73,10 @@ contract Core {
     */
 
     // withdrawing claims from balance in BNB
-    function withdrawClaim(uint amount) external {
-        if (AddressesGlobal[msg.sender].claims > amount) {
-            AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(amount);
-            (bool sent,) = payable(msg.sender).call{value: amount}("");
+    function withdrawClaim(uint _amount) external {
+        if (AddressesGlobal[msg.sender].claims > _amount) {
+            AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(_amount);
+            (bool sent,) = payable(msg.sender).call{value: _amount}("");
             require(sent, "Failed to send BNB 1");
         } else {
             uint value = AddressesGlobal[msg.sender].claims;
@@ -82,12 +86,20 @@ contract Core {
         }
     }
 
-    // register referral of whose
-    function register(address whose) external payable noReentrancy {
+    // register referral of _whose
+    function register(address _whose) external payable noReentrancy {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
+        // add check for _whose exist, if not - set up default
+        address whoseAddr;
+        if (AddressesGlobal[_whose].isValue) {
+            whoseAddr = _whose;
+        } else {
+            // get zeroWallet user
+            whoseAddr = zeroWallet;
+        }
         uint change = 0;
-        if (AddressesGlobal[whose].gifts < payUnit) {
+        if (AddressesGlobal[whoseAddr].gifts < payUnit) {
             // if payment less than register price (payUnit)
             require(msg.value >= payUnit, "you paid less than the cost of registration");
             // there registration is paid
@@ -96,12 +108,12 @@ contract Core {
             }
         } else {
             // updating gifts value
-            AddressesGlobal[whose].gifts = AddressesGlobal[whose].gifts.sub(payUnit);
+            AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts.sub(payUnit);
             // there registration is free, sending payment back
             change = msg.value;
         }
         // run register logic
-        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whose, true);
+        AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
         MatrixTemplate(Matrices[0]).register(msg.sender);
         if (change > 0) {
             // transfer with change for full price
@@ -111,17 +123,17 @@ contract Core {
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
-    function matricesRegistration(address wallet, uint transferredAmount) private {
+    function matricesRegistration(address _wallet, uint _transferredAmount) private {
         uint balance;
         uint level;
         uint registerPrice;
         // compose data for user registration
-        if (AddressesGlobal[wallet].isValue) {
-            balance = transferredAmount.add(AddressesGlobal[wallet].claims);
-            level = AddressesGlobal[wallet].level.add(1);
+        if (AddressesGlobal[_wallet].isValue) {
+            balance = _transferredAmount.add(AddressesGlobal[_wallet].claims);
+            level = AddressesGlobal[_wallet].level.add(1);
             registerPrice = getLevelPrice(level);
         } else {
-            balance = transferredAmount;
+            balance = _transferredAmount;
             level = 0;
             registerPrice = payUnit;
         }
@@ -134,23 +146,23 @@ contract Core {
                 }
                 // register in, decrease balance and increment level
                 // local Core registration in UserGlobal and matrix registration
-                if (AddressesGlobal[wallet].isValue) {
+                if (AddressesGlobal[_wallet].isValue) {
                     // set claims, level
-                    AddressesGlobal[wallet].level = level;
-                    AddressesGlobal[wallet].claims = balance;
+                    AddressesGlobal[_wallet].level = level;
+                    AddressesGlobal[_wallet].claims = balance;
                 } else {
                     // put zeroWallet to whose referral address
-                    AddressesGlobal[wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
+                    AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                 }
-                MatrixTemplate(Matrices[level]).register(wallet);
-                emit UserRegistered(wallet, level);
+                MatrixTemplate(Matrices[level]).register(_wallet);
+                emit UserRegistered(_wallet, level);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
                     registerPrice = registerPrice.mul(2);
                     level = level.add(1);
                 }
             }
-            AddressesGlobal[wallet].claims = balance;
+            AddressesGlobal[_wallet].claims = balance;
         }
     }
 
@@ -159,15 +171,15 @@ contract Core {
     */
 
     // service method for getting MatrixTemplate contract address of specific level
-    function getLevelContract(uint level) external view returns(address) {
-        return Matrices[level];
+    function getLevelContract(uint _level) external view returns(address) {
+        return Matrices[_level];
     }
 
     // getting price for registration in specific level
-    function getLevelPrice(uint level) private view returns(uint) {
+    function getLevelPrice(uint _level) private view returns(uint) {
         uint registerPrice = payUnit;
-        if (level > 0) {
-            for (uint i = 0; i < level; i++) {
+        if (_level > 0) {
+            for (uint i = 0; i < _level; i++) {
                 registerPrice = registerPrice.mul(2);
             }
         }
@@ -188,14 +200,14 @@ contract Core {
         methods below are only called by external for getting some information
     */
 
-    function getUserFromCore(address userAddress) external view
+    function getUserFromCore(address _userAddress) external view
     returns (UserGlobal memory user) {
-        user = AddressesGlobal[userAddress];
+        user = AddressesGlobal[_userAddress];
     }
 
-    function getUserFromMatrix(uint matrixIdx, address userWallet) external view
+    function getUserFromMatrix(uint _matrixIdx, address _userWallet) external view
     returns (MatrixTemplate.User memory user) {
-        user = MatrixTemplate(Matrices[matrixIdx]).getUser(userWallet);
+        user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
     }
 
     /*
@@ -203,36 +215,36 @@ contract Core {
     */
 
     // field: 0 - gifts, 1 - claims
-    function updateUser(address userAddress, uint matrixIndex, uint8 field) external {
+    function updateUser(address _userAddress, uint _matrixIndex, uint8 _field) external {
         require(isMatrix(msg.sender), "access denied 01");
-        uint amount = getLevelPrice(matrixIndex);
+        uint amount = getLevelPrice(_matrixIndex);
         // calculate newValue
-        if (field == 0) { // gifts
-            AddressesGlobal[userAddress].gifts = AddressesGlobal[userAddress].gifts.add(amount);
+        if (_field == 0) { // gifts
+            AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(amount);
         }
-        else if (field == 1) { // claims
-            AddressesGlobal[userAddress].claims = AddressesGlobal[userAddress].claims.add(amount);
+        else if (_field == 1) { // claims
+            AddressesGlobal[_userAddress].claims = AddressesGlobal[_userAddress].claims.add(amount);
         }
-        else if (field == 2) { // update whose claims
-            address whose = AddressesGlobal[userAddress].whose;
+        else if (_field == 2) { // update whose claims
+            address whose = AddressesGlobal[_userAddress].whose;
             uint whoseClaims = AddressesGlobal[whose].claims;
-            uint levelPrice = getLevelPrice(matrixIndex);
+            uint levelPrice = getLevelPrice(_matrixIndex);
             AddressesGlobal[whose].claims = whoseClaims.add(levelPrice);
         }
         uint needValue = amount.mul(2);
-        if (amount >= needValue && userAddress != zeroWallet && matrixIndex < 19) {
-            matricesRegistration(userAddress, 0);
+        if (amount >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
+            matricesRegistration(_userAddress, 0);
         }
-        emit UserUpdated(userAddress, field, needValue);
+        emit UserUpdated(_userAddress, _field, needValue);
     }
 
-    function sendHalf(address wallet, uint matrixIndex) external {
+    function sendHalf(address _wallet, uint _matrixIndex) external {
         require(isMatrix(msg.sender), "access denied for C::_sendHalf()");
-        if (matrixIndex >= 19) {
+        if (_matrixIndex >= 19) {
             return;
         }
-        uint amount = getLevelPrice(matrixIndex).div(2);
-        (bool sent,) = payable(wallet).call{value: amount}("");
+        uint amount = getLevelPrice(_matrixIndex).div(2);
+        (bool sent,) = payable(_wallet).call{value: amount}("");
         require(sent, "Failed to send BNB 4");
     }
 }

@@ -35,8 +35,8 @@ module.exports = {
       }
     }
   },
-  // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  defaultNetwork: "localhost",
+  // defaultNetwork: "testnet",
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545"
@@ -49,6 +49,8 @@ module.exports = {
         // count: 6,
         accountsBalance: '30000000000000000000000'
       }
+      // If there have got out of gas, increase gasLimit value
+      // gasLimit: 77000000
       // gas: 1800000,
     },
     testnet: {

@@ -11,9 +11,9 @@ contract MatrixTemplate {
     address CoreAddress;
 
     // todo: isRight, index(number), parent - don't set, make it set
-    constructor(uint _index, address _coreAddress, address[6] memory sixFounders) {
+    constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
         // registration of first top six investors/maintainers without balances
-        // sixFounders.length must be equal to 6
+        // _sixFounders.length must be equal to 6
         for (uint8 i = 0; i < 6; i++) {
             // calculate base user data
             uint parentIndex;
@@ -24,8 +24,8 @@ contract MatrixTemplate {
             if (mod == 0) {
                 user.isRight = true;
             }
-            Addresses[sixFounders[i]] = user;
-            Indices.push(sixFounders[i]);
+            Addresses[_sixFounders[i]] = user;
+            Indices.push(_sixFounders[i]);
         }
         // initiations
         matrixIndex = _index;
@@ -47,7 +47,7 @@ contract MatrixTemplate {
        methods below is important interactions includes base logic
     */
 
-    function register(address wallet) external {
+    function register(address _wallet) external {
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
         // calculate base user data
@@ -62,8 +62,8 @@ contract MatrixTemplate {
                 goUp(parentIndex);
             }
         }
-        Addresses[wallet] = user;
-        Indices.push(wallet);
+        Addresses[_wallet] = user;
+        Indices.push(_wallet);
         address parentWallet = Indices[parentIndex];
         Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
     }
@@ -100,8 +100,8 @@ contract MatrixTemplate {
         return (parentIndex, plateau, mod);
     }
 
-    function goUp(uint parentIndex) private {
-        address parentWallet = Indices[parentIndex];
+    function goUp(uint _parentIndex) private {
+        address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
         for (uint i = 2; i <= 5; i++) {
             if (!nextUser.isRight) {
@@ -133,8 +133,8 @@ contract MatrixTemplate {
         methods below is service ones
     */
 
-    function getUser(address wallet) view external returns(User memory user) {
-        user = Addresses[wallet];
+    function getUser(address _wallet) view external returns(User memory user) {
+        user = Addresses[_wallet];
         return user;
     }
 
