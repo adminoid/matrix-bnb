@@ -208,16 +208,15 @@ describe('practical testing interactions and that conclusions', async () => {
               value: ethers.utils.parseEther(amount),
             })
           } else {
-            console.info("--------=--------")
-            console.info("index is ", index)
-            console.info("Whose", p.firstSix[5])
-            console.log("wallet is ", wallets[index].address)
-            console.log("p.CoreToken.address", p.CoreToken.address)
             tx = await p.CoreToken
               .connect(wallets[index])
-              .register(p.firstSix[5], {
-                value: ethers.utils.parseEther('0.1'),
+              .register(p.firstSix[1], {
+                value: ethers.utils.parseEther(amount),
+                // gas: 300000,
               })
+              // .register(p.firstSix[5], {
+              //   value: ethers.utils.parseEther('0.1'),
+              // })
           }
           // debug_2
 
@@ -228,7 +227,6 @@ describe('practical testing interactions and that conclusions', async () => {
             wallet: wallets[index],
             gasUsed,
           }
-
         }
       }
       return users
@@ -296,13 +294,16 @@ describe('practical testing interactions and that conclusions', async () => {
   }).timeout(999999)
 
   it('check whose top up, debugging', async () => {
-    const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
-    console.info("coreBalance0", coreBalance)
-    const users = await runRegistrations(9, true) // 6 (0-5) + 9 (6-14)
+    const coreBalance0 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.info("coreBalance0", coreBalance0)
+    // const users = await runRegistrations(270) // 6 (0-5) + 9 (6-14)
+    const users = await runRegistrations(270, true) // 6 (0-5) + 9 (6-14)
     // const users = await runRegistrations(9) // 6 (0-5) + 9 (6-14)
-    console.info("coreBalance1", coreBalance)
-    await topUp(users)
-    console.info("coreBalance2", coreBalance)
+    // console.info("coreBalance:", p.CoreToken.getBalance());
+    // await topUp(users)
+    const coreBalance1 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    console.info("coreBalance1", coreBalance1)
+
   }).timeout(999999)
 
   it('just deploy async', async () => {

@@ -45,13 +45,17 @@ module.exports = {
       accounts: {
         // count: 200,
         // count: 135,
-        count: 20,
+        // count: 20,
+        count: 280,
         // count: 6,
-        accountsBalance: '30000000000000000000000'
-      }
+        accountsBalance: '3000000000000000000000'
+        // 1330000000000000000
+        // 1330000000000000000
+        // 3000000000000000000
+      },
       // If there have got out of gas, increase gasLimit value
       // gasLimit: 77000000
-      // gas: 1800000,
+      gas: 300000
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
