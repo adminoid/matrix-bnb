@@ -296,8 +296,8 @@ describe('practical testing interactions and that conclusions', async () => {
   it('check whose top up, debugging', async () => {
     const coreBalance0 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.info("coreBalance0", coreBalance0)
-    // const users = await runRegistrations(270) // 6 (0-5) + 9 (6-14)
-    const users = await runRegistrations(270, true) // 6 (0-5) + 9 (6-14)
+    // const users = await runRegistrations(270)
+    const users = await runRegistrations(270, true)
     // const users = await runRegistrations(9) // 6 (0-5) + 9 (6-14)
     // console.info("coreBalance:", p.CoreToken.getBalance());
     // await topUp(users)
