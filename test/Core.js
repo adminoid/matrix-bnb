@@ -7,6 +7,15 @@ const Core = require('../artifacts/contracts/Core.sol/Core.json')
 
 const customWallets = 9; // 3 system plus 6 maintainers
 
+// const Signers = await ethers.getSigners()
+// Signers.forEach(signer => {
+//   let orig = signer.sendTransaction;
+//   signer.sendTransaction = function(transaction) {
+//     transaction.gasLimit = BigNumber.from(gasLimit.toString());
+//     return orig.apply(signer, [transaction]);
+//   }
+// });
+
 const prepare = async () => {
   // so many that equal customWallets (see above)
   const allAddresses = await ethers.getSigners();
@@ -24,12 +33,25 @@ const prepare = async () => {
   console.log("firstSix:", firstSix.length, firstSix)
 
   console.log(ethers.utils.formatEther(await coreWallet.getBalance()))
+
+  // const gasPrice = await ERC20TokenFactory.signer.getGasPrice();
+  // const estimatedGas = await ERC20TokenFactory.signer.estimateGas(deployTx);
+  // console.log(gasPrice, estimatedGas)
+
   // fill addresses
   const CoreToken = await deployContract(
     coreWallet,
     Core,
     [firstSix],
+    // {value: 5_000_000_000_000_000}
+    {
+      gasLimit: 55_000_000,
+    }
   )
+
+  // 30_000_000
+  // Transaction gasPrice (992079520) is too low for the next block, which has a baseFeePerGas of 1015131892
+  // Transaction gasPrice (1015131892) is too low for the next block, which has a baseFeePerGas of 1015131892
 
   // getting contract instance through main contract
   const FirstLevelContractAddress = await CoreToken.getLevelContract(1)
@@ -195,7 +217,7 @@ describe('practical testing interactions and that conclusions', async () => {
   let p, runRegistrations
   before(async () => {
     p = await prepare()
-    runRegistrations = async (total, isSpecial = false, amount = '0.1') => {
+    runRegistrations = async (total, isSpecial = false, amount = '0.01') => {
       const wallets = await getWallets(customWallets)
       let users = []
       for (const index in [...Array(total).keys()]) {
@@ -206,11 +228,12 @@ describe('practical testing interactions and that conclusions', async () => {
             tx = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
               value: ethers.utils.parseEther(amount),
+              // gas: 300000,
             })
           } else {
             tx = await p.CoreToken
               .connect(wallets[index])
-              .register(p.firstSix[1], {
+              .register(p.firstSix[1], { // todo <-- maybe whose index is 0 ?
                 value: ethers.utils.parseEther(amount),
                 // gas: 300000,
               })
@@ -310,6 +333,6 @@ describe('practical testing interactions and that conclusions', async () => {
     // console.log(p)
     console.log("started")
     // p = await prepare()
-  }).timeout(99999)
+  }).timeout(999999)
 
 })

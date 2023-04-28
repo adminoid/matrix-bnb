@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
+import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -127,10 +128,18 @@ contract Core {
         uint balance;
         uint level;
         uint registerPrice;
+
+        console.log("matricesRegistration started");
+        console.log(_wallet);
+        console.log(AddressesGlobal[_wallet].isValue);
         // compose data for user registration
         if (AddressesGlobal[_wallet].isValue) {
             balance = _transferredAmount.add(AddressesGlobal[_wallet].claims);
             level = AddressesGlobal[_wallet].level.add(1);
+
+            // todo: not called, no one time !!!
+            console.log("level++", level);
+
             registerPrice = getLevelPrice(level);
         } else {
             balance = _transferredAmount;
@@ -141,9 +150,6 @@ contract Core {
         if (level <= 19) {
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
-                if (level > 19) {
-                    break;
-                }
                 // register in, decrease balance and increment level
                 // local Core registration in UserGlobal and matrix registration
                 if (AddressesGlobal[_wallet].isValue) {
@@ -155,6 +161,11 @@ contract Core {
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                 }
                 MatrixTemplate(Matrices[level]).register(_wallet);
+
+                // todo: not called, no one time !!!
+                console.log("matricesRegistration register next level matrix");
+                console.log(level, _wallet, _transferredAmount);
+
                 emit UserRegistered(_wallet, level);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
@@ -216,23 +227,41 @@ contract Core {
 
     // field: 0 - gifts, 1 - claims
     function updateUser(address _userAddress, uint _matrixIndex, uint8 _field) external {
+        console.log("updateUser started, field is ", _field);
+        console.log("_userAddress, _matrixIndex");
+        console.log(_userAddress, _matrixIndex);
+
         require(isMatrix(msg.sender), "access denied 01");
-        uint amount = getLevelPrice(_matrixIndex);
+
+        uint levelPayUnit = getLevelPrice(_matrixIndex);
+        uint newValue = 0;
         // calculate newValue
         if (_field == 0) { // gifts
-            AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(amount);
+            AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(levelPayUnit);
         }
         else if (_field == 1) { // claims
-            AddressesGlobal[_userAddress].claims = AddressesGlobal[_userAddress].claims.add(amount);
+            newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
+            AddressesGlobal[_userAddress].claims = newValue;
         }
         else if (_field == 2) { // update whose claims
             address whose = AddressesGlobal[_userAddress].whose;
-            uint whoseClaims = AddressesGlobal[whose].claims;
-            uint levelPrice = getLevelPrice(_matrixIndex);
-            AddressesGlobal[whose].claims = whoseClaims.add(levelPrice);
+            newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
+            AddressesGlobal[whose].claims = newValue;
         }
-        uint needValue = amount.mul(2);
-        if (amount >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
+        uint needValue = levelPayUnit.mul(2);
+
+        console.log("Core->updateUser()");
+
+        console.log("TODO:1");
+        console.log("needValue", needValue);
+        console.log("newValue", newValue);
+
+        // TODO: !!!!!!!!!!!!!!!!!!!!
+        if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
+
+            console.log("matricesRegistration.!?");
+            // todo: maybe need decrease claims balance
+
             matricesRegistration(_userAddress, 0);
         }
         emit UserUpdated(_userAddress, _field, needValue);

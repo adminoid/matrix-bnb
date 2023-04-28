@@ -37,9 +37,11 @@ module.exports = {
   },
   defaultNetwork: "localhost",
   // defaultNetwork: "testnet",
+  allowUnlimitedContractSize: true,
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545"
+      // gas: 600_000_000,
     },
     hardhat: {
       accounts: {
@@ -52,10 +54,12 @@ module.exports = {
         // 1330000000000000000
         // 1330000000000000000
         // 3000000000000000000
-      },
+      }
+      ,blockGasLimit: 126000000429720 // whatever you want here
       // If there have got out of gas, increase gasLimit value
-      // gasLimit: 77000000
-      gas: 300000
+      // ,gasLimit: 777_000_000
+      // ,gasPrice: 2_000_000_000
+      // ,gas: 300_000_000
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
