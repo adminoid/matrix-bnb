@@ -48,7 +48,8 @@ module.exports = {
         // count: 200,
         // count: 135,
         // count: 20,
-        count: 280,
+        count: 600,
+        // count: 60,
         // count: 6,
         accountsBalance: '3000000000000000000000'
         // 1330000000000000000

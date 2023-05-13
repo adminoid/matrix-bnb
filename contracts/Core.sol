@@ -27,6 +27,9 @@ contract Core {
 
     mapping(address => UserGlobal) AddressesGlobal;
 
+    // timestamp
+    uint lastUpdated;
+
     uint locked = 1;
     modifier noReentrancy() {
         require(locked == 1, "No reentrancy attack!");
@@ -59,6 +62,7 @@ contract Core {
             MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), _sixFounders);
             Matrices[i] = address(matrixInstance);
         }
+        lastUpdated = block.timestamp;
     }
 
     // proxy for registering wallet by simple payment to contract address
@@ -256,11 +260,9 @@ contract Core {
         console.log("needValue", needValue);
         console.log("newValue", newValue);
 
-        // TODO: !!!!!!!!!!!!!!!!!!!!
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
 
             console.log("matricesRegistration.!?");
-            // todo: maybe need decrease claims balance
 
             matricesRegistration(_userAddress, 0);
         }
@@ -275,5 +277,35 @@ contract Core {
         uint amount = getLevelPrice(_matrixIndex).div(2);
         (bool sent,) = payable(_wallet).call{value: amount}("");
         require(sent, "Failed to send BNB 4");
+    }
+
+    /*
+        methods below are only for id0 calls (main manager)
+    */
+
+    // withdraw 10% of the bank for once in a year
+    function getTenPercentOnceYear() external {
+        require(msg.sender == zeroWallet, "you haven't rights for withdraw");
+
+        uint balance = address(this).balance;
+        require(balance > 0, "balance is empty");
+
+        console.log("lastUpdated global: ", lastUpdated);
+        console.log("block.timestamp now: ", block.timestamp);
+
+        uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
+
+        require(daysDiff >= 365, "a year has not yet passed");
+
+        uint tenPart = balance.div(10);
+
+        (bool sent,) = payable(msg.sender).call{value: tenPart}("");
+        require(sent, "Failed to send BNB 5");
+
+        lastUpdated = block.timestamp;
+
+        console.log("daysDiff: ", daysDiff);
+        console.log("balance: ", balance);
+        console.log("1/10 balance: ", tenPart);
     }
 }

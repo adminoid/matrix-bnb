@@ -5,7 +5,7 @@ const { deployContract } = waffle
 // contract abi
 const Core = require('../artifacts/contracts/Core.sol/Core.json')
 
-const customWallets = 9; // 3 system plus 6 maintainers
+const customWallets = 10; // 1 system, 3 my, plus 6 maintainers
 
 // const Signers = await ethers.getSigners()
 // Signers.forEach(signer => {
@@ -22,14 +22,16 @@ const prepare = async () => {
   // console.log("all:", allAddresses.length, allAddresses.map(v => v.address))
   const [
     coreWallet,
-    userWallet,
-    testWallet,
+    myWallet1,
+    myWallet2,
+    myWallet3,
   ] = allAddresses
-  const firstSix = allAddresses.slice(3, 9).map(v => v.address)
+  const firstSix = allAddresses.slice(4, 10).map(v => v.address)
 
   console.log("coreWallet:", coreWallet.address)
-  console.log("userWallet:", userWallet.address)
-  console.log("testWallet:", testWallet.address)
+  console.log("myWallet1:", myWallet1.address)
+  console.log("myWallet2:", myWallet2.address)
+  console.log("myWallet3:", myWallet3.address)
   console.log("firstSix:", firstSix.length, firstSix)
 
   console.log(ethers.utils.formatEther(await coreWallet.getBalance()))
@@ -63,20 +65,23 @@ const prepare = async () => {
   return {
     coreWallet,
     CoreToken,
-    userWallet,
-    testWallet,
+    myWallet1,
+    myWallet2,
+    myWallet3,
     FirstLevelContract,
     firstSix,
   }
 }
 
 /**
- * @param start - skip amount wallets initialized in prepare function
  * @returns {Promise}
+ * @param padding
  */
-const getWallets = async (start) => {
+const getWallets = async (padding = customWallets) => {
+  console.info('customWallets---')
+  console.log(customWallets, padding)
   const signers = await ethers.getSigners()
-  return signers.slice(start)
+  return signers.slice(padding)
 }
 
 describe.skip('testing register method (by just transferring bnb', () => {
@@ -88,26 +93,26 @@ describe.skip('testing register method (by just transferring bnb', () => {
     })
 
     it('require error for over max transfer', async () => {
-      await expect(p.userWallet.sendTransaction({
+      await expect(p.myWallet1.sendTransaction({
         to: p.CoreToken.address,
         value: ethers.utils.parseEther('0.21'),
       })).to.be.revertedWith('min level is 0.01, max level is 20 (0.2 bnb)')
     })
 
     it('require error for not multiply of level multiplier', async () => {
-      await expect(p.userWallet.sendTransaction({
+      await expect(p.myWallet1.sendTransaction({
         to: p.CoreToken.address,
         value: ethers.utils.parseEther('0.011'),
       })).to.be.revertedWith('You must transfer multiple of 0.01 bnb')
     })
 
     it('check registered', async () => {
-      await p.userWallet.sendTransaction({
+      await p.myWallet1.sendTransaction({
         to: p.CoreToken.address,
         value: ethers.utils.parseEther('0.01'),
       })
 
-      const user = await p.FirstLevelContract.connect(p.userWallet).getUser(p.userWallet.address)
+      const user = await p.FirstLevelContract.connect(p.myWallet1).getUser(p.myWallet1.address)
       expect(user.index).equal(1) // (0 index = 1 number; +1 top registration while deploy MatrixTemplate)
     })
   })
@@ -116,7 +121,7 @@ describe.skip('testing register method (by just transferring bnb', () => {
 
     it('check multiple registrations length', async () => {
       const p = await prepare(),
-        wallets = await getWallets(customWallets)
+        wallets = await getWallets()
 
       for (const index in [...Array(5).keys()]) {
         await wallets[index].sendTransaction({
@@ -133,7 +138,7 @@ describe.skip('testing register method (by just transferring bnb', () => {
 
     it('check plateau (level in pyramid), parent and side', async () => {
       const p = await prepare(),
-        wallets = await getWallets(customWallets),
+        wallets = await getWallets(),
         users = []
 
       for (const index in [...Array(7).keys()]) {
@@ -184,25 +189,25 @@ describe.skip('testing register method (by just transferring bnb', () => {
     })
 
     it('check of attempt register in higher level without previous levels', async () => {
-      await p.userWallet.sendTransaction({
+      await p.myWallet1.sendTransaction({
         to: p.CoreToken.address,
         value: ethers.utils.parseEther('0.01'),
       })
 
-      expect(await p.userWallet.sendTransaction({
+      expect(await p.myWallet1.sendTransaction({
         to: p.CoreToken.address,
         value: ethers.utils.parseEther('0.02'),
       }))
 
       try {
-        expect(await p.userWallet.sendTransaction({
+        expect(await p.myWallet1.sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.04'),
         }))
           .to.be.revertedWith("You don't registered in previous level")
 
       } catch (e) {
-        expect(await p.userWallet.sendTransaction({
+        expect(await p.myWallet1.sendTransaction({
           to: p.CoreToken.address,
           value: ethers.utils.parseEther('0.03'),
         }))
@@ -218,7 +223,7 @@ describe('practical testing interactions and that conclusions', async () => {
   before(async () => {
     p = await prepare()
     runRegistrations = async (total, isSpecial = false, amount = '0.01') => {
-      const wallets = await getWallets(customWallets)
+      const wallets = await getWallets()
       let users = []
       for (const index in [...Array(total).keys()]) {
 
@@ -312,15 +317,16 @@ describe('practical testing interactions and that conclusions', async () => {
     await expect(true).to.equal(true)
 
     // todo: add one more wallet and top up it balance
-    console.info("p.testWallet.address:")
-    console.log(p.testWallet.address)
+    console.info("p.myWallet1.address:")
+    console.log(p.myWallet1.address)
   }).timeout(999999)
 
   it('check whose top up, debugging', async () => {
     const coreBalance0 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.info("coreBalance0", coreBalance0)
     // const users = await runRegistrations(270)
-    const users = await runRegistrations(270, true)
+    await runRegistrations(550, true)
+    // const users = await runRegistrations(50)
     // const users = await runRegistrations(9) // 6 (0-5) + 9 (6-14)
     // console.info("coreBalance:", p.CoreToken.getBalance());
     // await topUp(users)
