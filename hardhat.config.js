@@ -35,8 +35,8 @@ module.exports = {
       }
     }
   },
-  defaultNetwork: "localhost",
-  // defaultNetwork: "testnet",
+  // defaultNetwork: "localhost",
+  defaultNetwork: "testnet",
   allowUnlimitedContractSize: true,
   networks: {
     localhost: {
