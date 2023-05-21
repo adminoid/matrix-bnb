@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
-import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -133,17 +132,10 @@ contract Core {
         uint level;
         uint registerPrice;
 
-        console.log("matricesRegistration started");
-        console.log(_wallet);
-        console.log(AddressesGlobal[_wallet].isValue);
         // compose data for user registration
         if (AddressesGlobal[_wallet].isValue) {
             balance = _transferredAmount.add(AddressesGlobal[_wallet].claims);
             level = AddressesGlobal[_wallet].level.add(1);
-
-            // todo: not called, no one time !!!
-            console.log("level++", level);
-
             registerPrice = getLevelPrice(level);
         } else {
             balance = _transferredAmount;
@@ -165,11 +157,6 @@ contract Core {
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                 }
                 MatrixTemplate(Matrices[level]).register(_wallet);
-
-                // todo: not called, no one time !!!
-                console.log("matricesRegistration register next level matrix");
-                console.log(level, _wallet, _transferredAmount);
-
                 emit UserRegistered(_wallet, level);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
@@ -231,10 +218,6 @@ contract Core {
 
     // field: 0 - gifts, 1 - claims
     function updateUser(address _userAddress, uint _matrixIndex, uint8 _field) external {
-        console.log("updateUser started, field is ", _field);
-        console.log("_userAddress, _matrixIndex");
-        console.log(_userAddress, _matrixIndex);
-
         require(isMatrix(msg.sender), "access denied 01");
 
         uint levelPayUnit = getLevelPrice(_matrixIndex);
@@ -253,17 +236,7 @@ contract Core {
             AddressesGlobal[whose].claims = newValue;
         }
         uint needValue = levelPayUnit.mul(2);
-
-        console.log("Core->updateUser()");
-
-        console.log("TODO:1");
-        console.log("needValue", needValue);
-        console.log("newValue", newValue);
-
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
-
-            console.log("matricesRegistration.!?");
-
             matricesRegistration(_userAddress, 0);
         }
         emit UserUpdated(_userAddress, _field, needValue);
@@ -289,23 +262,11 @@ contract Core {
 
         uint balance = address(this).balance;
         require(balance > 0, "balance is empty");
-
-        console.log("lastUpdated global: ", lastUpdated);
-        console.log("block.timestamp now: ", block.timestamp);
-
         uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
-
         require(daysDiff >= 365, "a year has not yet passed");
-
         uint tenPart = balance.div(10);
-
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");
         require(sent, "Failed to send BNB 5");
-
         lastUpdated = block.timestamp;
-
-        console.log("daysDiff: ", daysDiff);
-        console.log("balance: ", balance);
-        console.log("1/10 balance: ", tenPart);
     }
 }

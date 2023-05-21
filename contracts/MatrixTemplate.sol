@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Core.sol";
-import "hardhat/console.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -13,9 +12,6 @@ contract MatrixTemplate {
 
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
-
-        console.log("MT:CONSTRUCTOR");
-
         // registration of first top six investors/maintainers without balances
         // _sixFounders.length must be equal to 6
         for (uint8 i = 0; i < 6; i++) {
@@ -23,9 +19,6 @@ contract MatrixTemplate {
             uint parentIndex;
             uint plateau;
             uint mod;
-
-            console.log("constructor calcUserData()");
-
             (parentIndex, plateau, mod) = calcUserData();
             User memory user = User(Indices.length, parentIndex, false, plateau, true);
             if (mod == 0) {
@@ -61,34 +54,10 @@ contract MatrixTemplate {
         uint parentIndex;
         uint plateau;
         uint mod;
-
-        console.log("MT:register() method");
-        console.log("_wallet:", _wallet);
-
-        if (Indices.length == 6) {
-            console.log("1special237|6");
-        } else if (Indices.length == 14) {
-            console.log("1special237|14");
-        } else if (Indices.length == 30) {
-            console.log("1special237|30");
-        } else if (Indices.length == 62) {
-            console.log("1special237|62");
-        } else if (Indices.length == 126) {
-            console.log("1special237|126");
-        } else if (Indices.length == 254) {
-            console.log("1special237|254");
-        }
-
-        console.log("register calcUserData()");
-
         (parentIndex, plateau, mod) = calcUserData();
         User memory user = User(Indices.length, parentIndex, false, plateau, true);
         if (mod == 0) {
             user.isRight = true;
-
-            console.log("register() -> mod", mod);
-            console.log(parentIndex);
-
             if (parentIndex > 0) {
                 goUp(parentIndex);
             }
@@ -102,10 +71,8 @@ contract MatrixTemplate {
     // parentIndex, plateau, mod
     function calcUserData() private view
     returns (uint, uint, uint) {
-
         // plateau number calculation (for current registration)
         uint plateau = log2(Indices.length.add(2));
-        console.log("plateau:", plateau);
         uint subPreviousTotal;
         if (plateau < 2) {
             subPreviousTotal = 0;
@@ -118,14 +85,8 @@ contract MatrixTemplate {
 
         // get total in start to sub previous plateau
         uint previousTotal = getSumOfPlateau(0, plateau.sub(1));
-
-        console.log("previousTotal is ", previousTotal);
-
         // get current number in current plateau
         uint currentNum = Indices.length - previousTotal + 1;
-        console.log("Indices.length:", Indices.length);
-        console.log("currentNum:", currentNum);
-
         // and check mod for detect left or right on parent
         uint mod = currentNum.mod(2);
         // detect parentNum
@@ -136,32 +97,19 @@ contract MatrixTemplate {
             parentNum = parentNum.add(mod);
         }
         uint parentIndex = subPreviousTotal.add(parentNum.sub(1));
-        console.log("parentIndex:", parentIndex);
         return (parentIndex, plateau, mod);
     }
 
     // todo: maybe instead in one turn need to be two turn up???
 
     function goUp(uint _parentIndex) private {
-
-        // todo: increment !!!
-        console.log("goUp._parentIndex:", _parentIndex);
-
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
         for (uint i = 2; i <= 5; i++) {
             if (!nextUser.isRight) {
                 break;
             }
-
-            console.log("goUp - isRight");
-            console.log("i is ", i);
-
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
-
-            console.log("updatedUserAddress is ", updatedUserAddress);
-            console.log("index in matrix is ", nextUser.parent);
-
             if (i <= 3) {
                 if (matrixIndex == 0) {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
@@ -174,10 +122,7 @@ contract MatrixTemplate {
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
-                console.log("last i = 4|5");
                 if (i == 5) {
-                    console.log("last i = 5");
-                    // TODO: CHECK THIS OUT - here going level up for user (break for loop)
                     break;
                 }
             }
