@@ -8,13 +8,13 @@ contract Core {
     using SafeMath for uint256;
 
     // settings
-    uint public payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint maxLevel = 19; // 0..19 (total 20)
+    uint private payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+    uint private maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
-    address[20] Matrices;
+    address[20] private Matrices;
 
-    address zeroWallet;
+    address private zeroWallet;
 
     struct UserGlobal {
         uint claims;
@@ -24,12 +24,12 @@ contract Core {
         bool isValue;
     }
 
-    mapping(address => UserGlobal) AddressesGlobal;
+    mapping(address => UserGlobal) private AddressesGlobal;
 
     // timestamp
-    uint lastUpdated;
+    uint private lastUpdated;
 
-    uint locked = 1;
+    uint private locked = 1;
     modifier noReentrancy() {
         require(locked == 1, "No reentrancy attack!");
         locked = 2;

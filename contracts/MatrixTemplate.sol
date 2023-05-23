@@ -7,8 +7,8 @@ import "./Core.sol";
 contract MatrixTemplate {
     using SafeMath for uint256;
 
-    uint matrixIndex;
-    address CoreAddress;
+    uint private matrixIndex;
+    address private CoreAddress;
 
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
@@ -40,8 +40,8 @@ contract MatrixTemplate {
         bool isValue;
     }
 
-    mapping(address => User) Addresses;
-    address[] Indices;
+    mapping(address => User) public Addresses;
+    address[] public Indices;
 
     /*
        methods below is important interactions includes base logic

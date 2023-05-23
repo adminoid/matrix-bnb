@@ -5,7 +5,9 @@ require("hardhat-gas-reporter");
 // const { task } = require("hardhat/config");
 // const { ethers } = require('hardhat')
 // const { mnemonic } = require('./secret/secret.json');
-const { mnemonic } = require('./secret/secret-igor.json');
+// const { mnemonic } = require('./secret/secret-igor.json');
+const { mnemonic } = require('./secret/workchain.json');
+// const mnemonic = '';
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -36,7 +38,8 @@ module.exports = {
     }
   },
   // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  // defaultNetwork: "testnet",
+  defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
     localhost: {
@@ -72,7 +75,7 @@ module.exports = {
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
-      gasPrice: 20000000000,
+      gasPrice: 'auto',
       accounts: { mnemonic }
     }
   },
