@@ -37,8 +37,8 @@ contract Core {
         locked = 1;
     }
 
-    event UserRegistered(address, uint);
-    event UserUpdated(address, uint8, uint);
+    event UserRegistered(address indexed, uint indexed);
+    event UserUpdated(address indexed, uint8 indexed, uint indexed);
 
     // todo: date spent calculations
     // https://ethereum.stackexchange.com/questions/37026/how-to-calculate-with-time-and-dates
@@ -178,7 +178,7 @@ contract Core {
     }
 
     // getting price for registration in specific level
-    function getLevelPrice(uint _level) private view returns(uint) {
+    function getLevelPrice(uint _level) private pure returns(uint) {
         uint registerPrice = payUnit;
         if (_level > 0) {
             for (uint i = 0; i < _level; i++) {
@@ -217,7 +217,11 @@ contract Core {
     */
 
     // field: 0 - gifts, 1 - claims
-    function updateUser(address _userAddress, uint _matrixIndex, uint8 _field) external {
+    function updateUser(
+        address _userAddress,
+        uint _matrixIndex,
+        uint8 _field
+    ) external {
         require(isMatrix(msg.sender), "access denied 01");
 
         uint levelPayUnit = getLevelPrice(_matrixIndex);
