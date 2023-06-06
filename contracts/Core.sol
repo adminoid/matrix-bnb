@@ -8,8 +8,8 @@ contract Core {
     using SafeMath for uint256;
 
     // settings
-    uint private immutable payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint private immutable maxLevel = 19; // 0..19 (total 20)
+    uint private constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+    uint private constant maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
     address[20] private Matrices;
