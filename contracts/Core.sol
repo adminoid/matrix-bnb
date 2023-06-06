@@ -8,13 +8,13 @@ contract Core {
     using SafeMath for uint256;
 
     // settings
-    uint private payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint private maxLevel = 19; // 0..19 (total 20)
+    uint private immutable payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+    uint private immutable maxLevel = 19; // 0..19 (total 20)
 
     // array of matrices (addresses)
     address[20] private Matrices;
 
-    address private zeroWallet;
+    address private immutable zeroWallet;
 
     struct UserGlobal {
         uint claims;

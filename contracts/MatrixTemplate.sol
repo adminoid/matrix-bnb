@@ -7,8 +7,8 @@ import "./Core.sol";
 contract MatrixTemplate {
     using SafeMath for uint256;
 
-    uint private matrixIndex;
-    address private CoreAddress;
+    uint private immutable matrixIndex;
+    address private immutable CoreAddress;
 
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
