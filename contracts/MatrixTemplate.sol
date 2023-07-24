@@ -10,6 +10,21 @@ contract MatrixTemplate {
     uint private immutable matrixIndex;
     address private immutable CoreAddress;
 
+    struct User {
+        uint index;
+        uint parent;
+        bool isRight;
+        uint plateau;
+        bool isValue;
+    }
+
+    mapping(address => User) public Addresses;
+
+    // todo: turn to mapping, need get address by index
+    // mapping(uint => address) public Indices
+    // Indices.length --> add var IndicesCounter++
+    address[] public Indices;
+
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
         // registration of first top six investors/maintainers without balances
@@ -32,19 +47,20 @@ contract MatrixTemplate {
         CoreAddress = _coreAddress;
     }
 
-    struct User {
-        uint index;
-        uint parent;
-        bool isRight;
-        uint plateau;
-        bool isValue;
-    }
-
-    mapping(address => User) public Addresses;
-    address[] public Indices;
+    /*
+        methods below is modern getters
+    */
+    // todo --
+//    function getUserByAddress(address _addr) view public returns (User user) {
+//        return Addresses[_addr];
+//    }
+//
+//    function getAddressByIndex(uint _index) view public returns (address) {
+//        return Indices[_index];
+//    }
 
     /*
-       methods below is important interactions includes base logic
+        methods below is important interactions includes base logic
     */
 
     function register(address _wallet) external {
@@ -100,8 +116,6 @@ contract MatrixTemplate {
         return (parentIndex, plateau, mod);
     }
 
-    // todo: maybe instead in one turn need to be two turn up???
-
     function goUp(uint _parentIndex) private {
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
@@ -134,12 +148,14 @@ contract MatrixTemplate {
         methods below is service ones
     */
 
-    function getUser(address _wallet) view external returns(User memory user) {
+    function getUser(address _wallet)
+    view external returns(User memory user) {
         user = Addresses[_wallet];
         return user;
     }
 
-    function getSumOfPlateau(uint _from, uint _to) private pure returns(uint sum) {
+    function getSumOfPlateau(uint _from, uint _to)
+    private pure returns(uint sum) {
         sum = 0;
         for (uint j = _from; j < _to; j++) {
             sum += 2 ** (j);

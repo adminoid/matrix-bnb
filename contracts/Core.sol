@@ -10,35 +10,34 @@ contract Core {
     // settings
     uint private constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
     uint private constant maxLevel = 19; // 0..19 (total 20)
+    uint private lastUpdated; // timestamp
+    uint private locked = 1; // reentrancy prevention
 
     // array of matrices (addresses)
-    address[20] private Matrices;
+    address[20] private Matrices; // todo - can be turn to mapping(index => address)
 
     address private immutable zeroWallet;
 
     struct UserGlobal {
         uint claims;
         uint gifts;
-        uint level;
+        uint level; // max/last registered matrix level, 0..19
         address whose; // whose referral is user
         bool isValue;
     }
 
     mapping(address => UserGlobal) private AddressesGlobal;
 
-    // timestamp
-    uint private lastUpdated;
-
-    uint private locked = 1;
+    // todo: consider rewrite as function to minimize bytecode
     modifier noReentrancy() {
-        require(locked == 1, "No reentrancy attack!");
+        require(locked == 1, "No reentrancy");
         locked = 2;
         _;
         locked = 1;
     }
 
     event UserRegistered(address indexed, uint indexed);
-    event UserUpdated(address indexed, uint8 indexed, uint indexed);
+    event UserUpdated(address indexed, uint indexed, uint indexed);
 
     // todo: date spent calculations
     // https://ethereum.stackexchange.com/questions/37026/how-to-calculate-with-time-and-dates
@@ -81,12 +80,12 @@ contract Core {
         if (AddressesGlobal[msg.sender].claims > _amount) {
             AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(_amount);
             (bool sent,) = payable(msg.sender).call{value: _amount}("");
-            require(sent, "Failed to send BNB 1");
+            require(sent, "Sending err 1");
         } else {
             uint value = AddressesGlobal[msg.sender].claims;
             AddressesGlobal[msg.sender].claims = 0;
             (bool sent,) = payable(msg.sender).call{value: value}("");
-            require(sent, "Failed to send BNB 2");
+            require(sent, "Sending err 2");
         }
     }
 
@@ -105,7 +104,7 @@ contract Core {
         uint change = 0;
         if (AddressesGlobal[whoseAddr].gifts < payUnit) {
             // if payment less than register price (payUnit)
-            require(msg.value >= payUnit, "you paid less than the cost of registration");
+            require(msg.value >= payUnit, "not enough amount");
             // there registration is paid
             if (msg.value > payUnit) {
                 change = msg.value.sub(payUnit);
@@ -122,7 +121,7 @@ contract Core {
         if (change > 0) {
             // transfer with change for full price
             (bool sent,) = payable(msg.sender).call{value: change}("");
-            require(sent, "Failed to send BNB 3");
+            require(sent, "Sending err 3");
         }
     }
 
@@ -144,6 +143,7 @@ contract Core {
         }
         // already have register data: balance, level, registerPrice
         if (level <= 19) {
+            // todo: consider that it while loop can be refactored with caching vars
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
                 // register in, decrease balance and increment level
@@ -179,6 +179,7 @@ contract Core {
 
     // getting price for registration in specific level
     function getLevelPrice(uint _level) private pure returns(uint) {
+        // todo: protect from big _level value
         uint registerPrice = payUnit;
         if (_level > 0) {
             for (uint i = 0; i < _level; i++) {
@@ -212,6 +213,12 @@ contract Core {
         user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
     }
 
+    // todo --
+//    function getUserFromMatrixByIndex(uint _matrixIdx, uint _userIdx) external view
+//    returns (MatrixTemplate.User memory user) {
+//        user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
+//    }
+
     /*
         methods below are only called by MatrixTemplate contract
     */
@@ -220,9 +227,9 @@ contract Core {
     function updateUser(
         address _userAddress,
         uint _matrixIndex,
-        uint8 _field
+        uint _field
     ) external {
-        require(isMatrix(msg.sender), "access denied 01");
+        require(isMatrix(msg.sender), "access denied 1");
 
         uint levelPayUnit = getLevelPrice(_matrixIndex);
         uint newValue = 0;
@@ -247,13 +254,13 @@ contract Core {
     }
 
     function sendHalf(address _wallet, uint _matrixIndex) external {
-        require(isMatrix(msg.sender), "access denied for C::_sendHalf()");
+        require(isMatrix(msg.sender), "access denied 2");
         if (_matrixIndex >= 19) {
             return;
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
         (bool sent,) = payable(_wallet).call{value: amount}("");
-        require(sent, "Failed to send BNB 4");
+        require(sent, "Sending err 4");
     }
 
     /*
@@ -262,15 +269,15 @@ contract Core {
 
     // withdraw 10% of the bank for once in a year
     function getTenPercentOnceYear() external {
-        require(msg.sender == zeroWallet, "you haven't rights for withdraw");
+        require(msg.sender == zeroWallet, "access denied 3");
 
         uint balance = address(this).balance;
         require(balance > 0, "balance is empty");
         uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
-        require(daysDiff >= 365, "a year has not yet passed");
+        require(daysDiff >= 365, "year not passed");
         uint tenPart = balance.div(10);
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");
-        require(sent, "Failed to send BNB 5");
+        require(sent, "Sending err 5");
         lastUpdated = block.timestamp;
     }
 }
