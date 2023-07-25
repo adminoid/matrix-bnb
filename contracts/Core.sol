@@ -172,13 +172,6 @@ contract Core {
         methods below called only internal for some information
     */
 
-    // getting user by matrix id and user id in matrix
-    function getMatrixUserByIndex(uint _matrixIndex, uint _userIndex)
-    external view returns (MatrixTemplate.User)
-    {
-        return Matrices[_matrixIndex].getUserByIndex(_userIndex);
-    }
-
     // service method for getting MatrixTemplate contract address of specific level
     function getLevelContract(uint _level)
     external view returns(address){
@@ -222,11 +215,12 @@ contract Core {
         user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
     }
 
-    // todo --
-//    function getUserFromMatrixByIndex(uint _matrixIdx, uint _userIdx) external view
-//    returns (MatrixTemplate.User memory user) {
-//        user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
-//    }
+    // getting user by matrix id and user id in matrix
+    function getMatrixUserByIndex(uint _matrixIndex, uint _userIndex)
+    external view returns (MatrixTemplate.User memory)
+    {
+        return MatrixTemplate(Matrices[_matrixIndex]).getUserByIndex(_userIndex);
+    }
 
     /*
         methods below are only called by MatrixTemplate contract

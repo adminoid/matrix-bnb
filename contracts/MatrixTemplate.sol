@@ -53,7 +53,7 @@ contract MatrixTemplate {
 
     // getting user by his index (0..n) in matrix
     function getUserByIndex(uint _index)
-    view public returns (User) {
+    view public returns(User memory) {
         return Addresses[Indices[_index]];
     }
 
