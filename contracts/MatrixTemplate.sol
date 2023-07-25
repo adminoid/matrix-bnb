@@ -50,14 +50,12 @@ contract MatrixTemplate {
     /*
         methods below is modern getters
     */
-    // todo --
-//    function getUserByAddress(address _addr) view public returns (User user) {
-//        return Addresses[_addr];
-//    }
-//
-//    function getAddressByIndex(uint _index) view public returns (address) {
-//        return Indices[_index];
-//    }
+
+    // getting user by his index (0..n) in matrix
+    function getUserByIndex(uint _index)
+    view public returns (User) {
+        return Addresses[Indices[_index]];
+    }
 
     /*
         methods below is important interactions includes base logic
@@ -85,8 +83,8 @@ contract MatrixTemplate {
     }
 
     // parentIndex, plateau, mod
-    function calcUserData() private view
-    returns (uint, uint, uint) {
+    function calcUserData()
+    private view returns (uint, uint, uint) {
         // plateau number calculation (for current registration)
         uint plateau = log2(Indices.length.add(2));
         uint subPreviousTotal;
@@ -148,6 +146,7 @@ contract MatrixTemplate {
         methods below is service ones
     */
 
+    // todo: check if needed
     function getUser(address _wallet)
     view external returns(User memory user) {
         user = Addresses[_wallet];
@@ -162,7 +161,8 @@ contract MatrixTemplate {
         }
     }
 
-    function log2(uint x) private pure returns(uint y) {
+    function log2(uint x)
+    private pure returns(uint y) {
         assembly {
             let arg := x
             x := sub(x,1)

@@ -172,13 +172,22 @@ contract Core {
         methods below called only internal for some information
     */
 
+    // getting user by matrix id and user id in matrix
+    function getMatrixUserByIndex(uint _matrixIndex, uint _userIndex)
+    external view returns (MatrixTemplate.User)
+    {
+        return Matrices[_matrixIndex].getUserByIndex(_userIndex);
+    }
+
     // service method for getting MatrixTemplate contract address of specific level
-    function getLevelContract(uint _level) external view returns(address) {
+    function getLevelContract(uint _level)
+    external view returns(address){
         return Matrices[_level];
     }
 
     // getting price for registration in specific level
-    function getLevelPrice(uint _level) private pure returns(uint) {
+    function getLevelPrice(uint _level)
+    private pure returns(uint) {
         // todo: protect from big _level value
         uint registerPrice = payUnit;
         if (_level > 0) {
