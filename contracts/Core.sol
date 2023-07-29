@@ -205,21 +205,22 @@ contract Core {
         methods below are only called by external for getting some information
     */
 
-    function getUserFromCore(address _userAddress) external view
-    returns (UserGlobal memory user) {
+    function getUserFromCore(address _userAddress)
+    public view returns (UserGlobal memory user) {
         user = AddressesGlobal[_userAddress];
     }
 
-    function getUserFromMatrix(uint _matrixIdx, address _userWallet) external view
-    returns (MatrixTemplate.User memory user) {
+    function getUserFromMatrix(uint _matrixIdx, address _userWallet)
+    external view returns (MatrixTemplate.User memory user) {
         user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
     }
 
-    // getting user by matrix id and user id in matrix
-    function getMatrixUserByIndex(uint _matrixIndex, uint _userIndex)
-    external view returns (MatrixTemplate.User memory)
+    // getting user by matrix id and user number in matrix
+    function getCoreUserByMatrixPosition(uint _matrixIndex, uint _userIndex)
+    external view returns (address userAddress, UserGlobal memory user)
     {
-        return MatrixTemplate(Matrices[_matrixIndex]).getUserByIndex(_userIndex);
+        userAddress = MatrixTemplate(Matrices[_matrixIndex]).getUserAddressByIndex(_userIndex);
+        user = AddressesGlobal[userAddress];
     }
 
     /*

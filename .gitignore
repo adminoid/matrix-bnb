@@ -2,8 +2,9 @@ node_modules/
 private/
 cache/
 artifacts/
-/**/secret.json
-secret/**/*
+/secret
 
 **/.DS_Store
 .idea/
+
+/update-abi.sh

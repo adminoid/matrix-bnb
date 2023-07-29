@@ -325,8 +325,9 @@ describe('practical testing interactions and that conclusions', async () => {
     const coreBalance0 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.info("coreBalance0", coreBalance0)
     // const users = await runRegistrations(270)
+    await runRegistrations(530, true)
     // await runRegistrations(550, true)
-    await runRegistrations(10, false, '0.1')
+    // await runRegistrations(10, false, '0.1')
     // await runRegistrations(10, true)
     // await runRegistrations(10)
     // const users = await runRegistrations(50)
@@ -336,6 +337,10 @@ describe('practical testing interactions and that conclusions', async () => {
     const coreBalance1 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.info("coreBalance1", coreBalance1)
 
+  }).timeout(999999)
+
+  it('quick check', async () => {
+    await runRegistrations(30, true)
   }).timeout(999999)
 
   it('just deploy async', async () => {
