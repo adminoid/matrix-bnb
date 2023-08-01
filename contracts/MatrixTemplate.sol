@@ -7,8 +7,8 @@ import "./Core.sol";
 contract MatrixTemplate {
     using SafeMath for uint256;
 
-    uint private immutable matrixIndex;
-    address private immutable CoreAddress;
+    uint public immutable matrixIndex;
+    address public immutable CoreAddress;
 
     struct User {
         uint index;
@@ -21,9 +21,8 @@ contract MatrixTemplate {
     mapping(address => User) public Addresses;
 
     // todo: turn to mapping, need get address by index
-    // mapping(uint => address) public Indices
-    // Indices.length --> add var IndicesCounter++
-    address[] public Indices;
+    mapping(uint => address) public Indices;
+    uint public IndicesTotal;
 
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
@@ -35,12 +34,13 @@ contract MatrixTemplate {
             uint plateau;
             uint mod;
             (parentIndex, plateau, mod) = calcUserData();
-            User memory user = User(Indices.length, parentIndex, false, plateau, true);
+            User memory user = User(IndicesTotal, parentIndex, false, plateau, true);
             if (mod == 0) {
                 user.isRight = true;
             }
             Addresses[_sixFounders[i]] = user;
-            Indices.push(_sixFounders[i]);
+            Indices[i] = _sixFounders[i];
+            IndicesTotal = IndicesTotal.add(1);
         }
         // initiations
         matrixIndex = _index;
@@ -54,6 +54,7 @@ contract MatrixTemplate {
     // getting user by his index (0..n) in matrix
     function getUserAddressByIndex(uint _index)
     view public returns(address) {
+        // _index is 0 for first user
         return Indices[_index];
     }
 
@@ -69,7 +70,7 @@ contract MatrixTemplate {
         uint plateau;
         uint mod;
         (parentIndex, plateau, mod) = calcUserData();
-        User memory user = User(Indices.length, parentIndex, false, plateau, true);
+        User memory user = User(IndicesTotal, parentIndex, false, plateau, true);
         if (mod == 0) {
             user.isRight = true;
             if (parentIndex > 0) {
@@ -77,7 +78,8 @@ contract MatrixTemplate {
             }
         }
         Addresses[_wallet] = user;
-        Indices.push(_wallet);
+        addUser(_wallet);
+
         address parentWallet = Indices[parentIndex];
         Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
     }
@@ -86,7 +88,8 @@ contract MatrixTemplate {
     function calcUserData()
     private view returns (uint, uint, uint) {
         // plateau number calculation (for current registration)
-        uint plateau = log2(Indices.length.add(2));
+        uint plateau = log2(IndicesTotal.add(2));
+
         uint subPreviousTotal;
         if (plateau < 2) {
             subPreviousTotal = 0;
@@ -100,7 +103,7 @@ contract MatrixTemplate {
         // get total in start to sub previous plateau
         uint previousTotal = getSumOfPlateau(0, plateau.sub(1));
         // get current number in current plateau
-        uint currentNum = Indices.length - previousTotal + 1;
+        uint currentNum = IndicesTotal - previousTotal + 1;
         // and check mod for detect left or right on parent
         uint mod = currentNum.mod(2);
         // detect parentNum
@@ -145,6 +148,12 @@ contract MatrixTemplate {
     /*
         methods below is service ones
     */
+
+    function addUser(address _userAddress)
+    private {
+        Indices[IndicesTotal] = _userAddress;
+        IndicesTotal = IndicesTotal.add(1);
+    }
 
     // todo: check if needed
     function getUser(address _wallet)

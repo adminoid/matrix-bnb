@@ -175,6 +175,7 @@ contract Core {
     // service method for getting MatrixTemplate contract address of specific level
     function getLevelContract(uint _level)
     external view returns(address){
+        require(_level <= maxLevel, "_level exceeds maximum");
         return Matrices[_level];
     }
 
@@ -219,6 +220,7 @@ contract Core {
     function getCoreUserByMatrixPosition(uint _matrixIndex, uint _userIndex)
     external view returns (address userAddress, UserGlobal memory user)
     {
+        // first user _userIndex is 0
         userAddress = MatrixTemplate(Matrices[_matrixIndex]).getUserAddressByIndex(_userIndex);
         user = AddressesGlobal[userAddress];
     }

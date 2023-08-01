@@ -325,7 +325,11 @@ describe('practical testing interactions and that conclusions', async () => {
     const coreBalance0 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.info("coreBalance0", coreBalance0)
     // const users = await runRegistrations(270)
-    await runRegistrations(530, true)
+    await runRegistrations(530, true) // have got error in the past, but now is ok
+    // await runRegistrations(530) // no error
+    // await runRegistrations(130, true) // no error
+    // await runRegistrations(330) // no error
+    // await runRegistrations(330, true) // no error
     // await runRegistrations(550, true)
     // await runRegistrations(10, false, '0.1')
     // await runRegistrations(10, true)
