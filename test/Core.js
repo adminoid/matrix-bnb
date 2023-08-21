@@ -349,8 +349,12 @@ describe('practical testing interactions and that conclusions', async () => {
     await runRegistrations(25)
 
     // uint public AddressesGlobalTotal;
-    let AddressesGlobalTotal = await p.CoreToken.AddressesGlobalTotal()
-    console.log("! ", AddressesGlobalTotal.toNumber())
+    // let AddressesGlobalTotal = await p.CoreToken.AddressesGlobalTotal()
+    // console.log("! ", AddressesGlobalTotal.toNumber())
+
+    let balance = await p.CoreToken.getBalance()
+    console.log("! ", ethers.utils.formatEther(balance))
+
   }).timeout(999999)
 
   it('just deploy async', async () => {

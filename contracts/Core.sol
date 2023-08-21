@@ -212,6 +212,11 @@ contract Core {
         methods below are only called by external for getting some information
     */
 
+    function getBalance()
+    external view returns (uint){
+        return address(this).balance;
+    }
+
     function getUserFromCore(address _userAddress)
     public view returns (UserGlobal memory user) {
         user = AddressesGlobal[_userAddress];
