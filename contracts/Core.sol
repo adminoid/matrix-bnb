@@ -8,9 +8,9 @@ contract Core {
     using SafeMath for uint256;
 
     // settings
-    uint private constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
-    uint private constant maxLevel = 19; // 0..19 (total 20)
-    uint private lastUpdated; // timestamp
+    uint public constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+    uint public constant maxLevel = 19; // 0..19 (total 20)
+    uint public lastUpdated; // timestamp
     uint private locked = 1; // reentrancy prevention
 
     // array of matrices (addresses)
@@ -27,6 +27,9 @@ contract Core {
     }
 
     mapping(address => UserGlobal) private AddressesGlobal;
+
+    // total users value property, increment in all places where new element adds
+    uint public AddressesGlobalTotal = 0;
 
     // todo: consider rewrite as function to minimize bytecode
     modifier noReentrancy() {
@@ -54,6 +57,8 @@ contract Core {
                 prevFounder = _sixFounders[i - 1];
             }
             AddressesGlobal[_sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
+            // todo: add total users value property, increment in all places where new element adds
+            AddressesGlobalTotal = AddressesGlobalTotal.add(1);
         }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
@@ -117,7 +122,7 @@ contract Core {
         }
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
-        MatrixTemplate(Matrices[0]).register(msg.sender);
+        MatrixTemplate(payable(Matrices[0])).register(msg.sender);
         if (change > 0) {
             // transfer with change for full price
             (bool sent,) = payable(msg.sender).call{value: change}("");
@@ -155,8 +160,9 @@ contract Core {
                 } else {
                     // put zeroWallet to whose referral address
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
+                    AddressesGlobalTotal = AddressesGlobalTotal.add(1);
                 }
-                MatrixTemplate(Matrices[level]).register(_wallet);
+                MatrixTemplate(payable(Matrices[level])).register(_wallet);
                 emit UserRegistered(_wallet, level);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
@@ -213,7 +219,7 @@ contract Core {
 
     function getUserFromMatrix(uint _matrixIdx, address _userWallet)
     external view returns (MatrixTemplate.User memory user) {
-        user = MatrixTemplate(Matrices[_matrixIdx]).getUser(_userWallet);
+        user = MatrixTemplate(payable(Matrices[_matrixIdx])).getUser(_userWallet);
     }
 
     // getting user by matrix id and user number in matrix
@@ -221,7 +227,7 @@ contract Core {
     external view returns (address userAddress, UserGlobal memory user)
     {
         // first user _userIndex is 0
-        userAddress = MatrixTemplate(Matrices[_matrixIndex]).getUserAddressByIndex(_userIndex);
+        userAddress = MatrixTemplate(payable(Matrices[_matrixIndex])).getUserAddressByIndex(_userIndex);
         user = AddressesGlobal[userAddress];
     }
 
@@ -265,7 +271,14 @@ contract Core {
             return;
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
-        (bool sent,) = payable(_wallet).call{value: amount}("");
+
+        // TODO: replace call to transfer, because of _wallet shouldn't pay for transaction
+//        (bool sent,) = payable(_wallet).call{value: amount}(""); // not payable _wallet arg
+//        (bool sent,) = _wallet.call{value: amount}(""); // payable
+//        require(sent, "Sending err 4");
+//        _wallet.transfer(amount);
+
+        bool sent = payable(_wallet).send(amount);
         require(sent, "Sending err 4");
     }
 

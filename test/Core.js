@@ -343,8 +343,14 @@ describe('practical testing interactions and that conclusions', async () => {
 
   }).timeout(999999)
 
-  it('quick check', async () => {
-    await runRegistrations(30, true)
+  it('quick check total wallets registered', async () => {
+    // await runRegistrations(30, true)
+    // await runRegistrations(30)
+    await runRegistrations(25)
+
+    // uint public AddressesGlobalTotal;
+    let AddressesGlobalTotal = await p.CoreToken.AddressesGlobalTotal()
+    console.log("! ", AddressesGlobalTotal.toNumber())
   }).timeout(999999)
 
   it('just deploy async', async () => {

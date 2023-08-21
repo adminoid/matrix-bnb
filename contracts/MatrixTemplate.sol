@@ -47,6 +47,10 @@ contract MatrixTemplate {
         CoreAddress = _coreAddress;
     }
 
+    // stubs to hide unrecognized-selector messages
+    receive() external payable {}
+    fallback() external payable {}
+
     /*
         methods below is modern getters
     */
