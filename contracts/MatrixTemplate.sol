@@ -134,6 +134,7 @@ contract MatrixTemplate {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
                 } else {
                     if (i == 2) {
+                        // todo -- 15 row, here updates balance of whose by referral descendant
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
                     } else { // i == 3
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims

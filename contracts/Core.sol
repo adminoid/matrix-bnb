@@ -39,7 +39,12 @@ contract Core {
         locked = 1;
     }
 
+    // for count all referrals for the user
+    event WhoseRegistered(address indexed, address indexed, uint indexed);
+
+    // todo -- maybe remove this event?
     event UserRegistered(address indexed, uint indexed);
+    // todo -- maybe remove this event?
     event UserUpdated(address indexed, uint indexed, uint indexed);
 
     // todo: date spent calculations
@@ -109,12 +114,13 @@ contract Core {
         uint change = 0;
         if (AddressesGlobal[whoseAddr].gifts < payUnit) {
             // if payment less than register price (payUnit)
-            require(msg.value >= payUnit, "not enough amount");
+            require(msg.value >= payUnit, "not enough funds");
             // there registration is paid
             if (msg.value > payUnit) {
                 change = msg.value.sub(payUnit);
             }
         } else {
+            // todo --
             // updating gifts value
             AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts.sub(payUnit);
             // there registration is free, sending payment back
@@ -123,6 +129,8 @@ contract Core {
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
         MatrixTemplate(payable(Matrices[0])).register(msg.sender);
+        // row, here set whose for user
+        emit WhoseRegistered(msg.sender, whoseAddr, change);
         if (change > 0) {
             // transfer with change for full price
             (bool sent,) = payable(msg.sender).call{value: change}("");
@@ -259,6 +267,7 @@ contract Core {
             AddressesGlobal[_userAddress].claims = newValue;
         }
         else if (_field == 2) { // update whose claims
+            // todo -- 15 row, here updates balance of whose by referral descendant
             address whose = AddressesGlobal[_userAddress].whose;
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
             AddressesGlobal[whose].claims = newValue;
