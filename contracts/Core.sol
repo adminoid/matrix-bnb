@@ -40,7 +40,10 @@ contract Core {
     }
 
     // for count all referrals for the user
-    event WhoseRegistered(address indexed, address indexed, uint indexed);
+    event WhoseRegistered(address indexed user, address indexed whose, uint change);
+
+    // for count earn money due referrals
+    event ReferralEarning(address indexed whose, uint indexed amount);
 
     // todo -- maybe remove this event?
     event UserRegistered(address indexed, uint indexed);
@@ -267,10 +270,11 @@ contract Core {
             AddressesGlobal[_userAddress].claims = newValue;
         }
         else if (_field == 2) { // update whose claims
-            // todo -- 15 row, here updates balance of whose by referral descendant
             address whose = AddressesGlobal[_userAddress].whose;
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
+            // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
+            emit ReferralEarning(whose, newValue);
         }
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
