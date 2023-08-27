@@ -45,6 +45,9 @@ contract Core {
     // for count earn money due referrals
     event ReferralEarning(address indexed whose, uint indexed amount);
 
+    // for check the user has gifts
+    event AddedGifts(address indexed user, uint indexed amount);
+
     // todo -- maybe remove this event?
     event UserRegistered(address indexed, uint indexed);
     // todo -- maybe remove this event?
@@ -251,7 +254,7 @@ contract Core {
         methods below are only called by MatrixTemplate contract
     */
 
-    // field: 0 - gifts, 1 - claims
+    // field: 0 - gifts, 1 - claims, 2 - whose
     function updateUser(
         address _userAddress,
         uint _matrixIndex,
@@ -264,6 +267,8 @@ contract Core {
         // calculate newValue
         if (_field == 0) { // gifts
             AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(levelPayUnit);
+            // todo -- here updates gifts field of parent ancestors
+            emit AddedGifts(_userAddress, levelPayUnit);
         }
         else if (_field == 1) { // claims
             newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
