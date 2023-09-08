@@ -24,6 +24,9 @@ contract MatrixTemplate {
     mapping(uint => address) public Indices;
     uint public IndicesTotal;
 
+    // for logging native send to up one
+    event SentHalf(address indexed sender, address indexed receiver, uint indexed matrixIndex);
+
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
         // registration of first top six investors/maintainers without balances
@@ -86,6 +89,10 @@ contract MatrixTemplate {
 
         address parentWallet = Indices[parentIndex];
         Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
+
+        // todo: check this event happens!!!
+        // logging for send half to up one
+        emit SentHalf(_wallet, parentWallet, matrixIndex);
     }
 
     // parentIndex, plateau, mod
