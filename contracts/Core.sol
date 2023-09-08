@@ -43,15 +43,18 @@ contract Core {
     event WhoseRegistered(address indexed user, address indexed whose, uint change);
 
     // for count earn money due referrals
-    event ReferralEarning(address indexed whose, uint indexed amount);
+    event ReferralEarn(address indexed whose, uint amount);
 
     // for check the user has gifts
-    event AddedGifts(address indexed user, uint indexed amount);
+    event GiftAppear(address indexed user, uint amount);
+
+    // for logging gift spending
+    event GiftSpent(address indexed giftOwner, address indexed giftSpender);
 
     // todo -- maybe remove this event?
-    event UserRegistered(address indexed, uint indexed);
+//    event UserRegistered(address indexed, uint indexed);
     // todo -- maybe remove this event?
-    event UserUpdated(address indexed, uint indexed, uint indexed);
+//    event UserUpdated(address indexed, uint indexed, uint indexed);
 
     // todo: date spent calculations
     // https://ethereum.stackexchange.com/questions/37026/how-to-calculate-with-time-and-dates
@@ -126,22 +129,22 @@ contract Core {
                 change = msg.value.sub(payUnit);
             }
         } else {
-            // todo --
             // updating gifts value
             AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts.sub(payUnit);
             // there registration is free, sending payment back
             change = msg.value;
+            emit GiftSpent(_whose, msg.sender);
         }
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
         MatrixTemplate(payable(Matrices[0])).register(msg.sender);
         // row, here set whose for user
-        emit WhoseRegistered(msg.sender, whoseAddr, change);
         if (change > 0) {
             // transfer with change for full price
             (bool sent,) = payable(msg.sender).call{value: change}("");
             require(sent, "Sending err 3");
         }
+        emit WhoseRegistered(msg.sender, whoseAddr, change);
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
@@ -177,7 +180,7 @@ contract Core {
                     AddressesGlobalTotal = AddressesGlobalTotal.add(1);
                 }
                 MatrixTemplate(payable(Matrices[level])).register(_wallet);
-                emit UserRegistered(_wallet, level);
+//                emit UserRegistered(_wallet, level);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
                     registerPrice = registerPrice.mul(2);
@@ -268,7 +271,7 @@ contract Core {
         if (_field == 0) { // gifts
             AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(levelPayUnit);
             // todo -- here updates gifts field of parent ancestors
-            emit AddedGifts(_userAddress, levelPayUnit);
+            emit GiftAppear(_userAddress, levelPayUnit);
         }
         else if (_field == 1) { // claims
             newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
@@ -279,13 +282,13 @@ contract Core {
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
             // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
-            emit ReferralEarning(whose, newValue);
+            emit ReferralEarn(whose, newValue);
         }
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
             matricesRegistration(_userAddress, 0);
         }
-        emit UserUpdated(_userAddress, _field, needValue);
+//        emit UserUpdated(_userAddress, _field, needValue);
     }
 
     function sendHalf(address _wallet, uint _matrixIndex) external {
