@@ -343,17 +343,30 @@ describe('practical testing interactions and that conclusions', async () => {
 
   }).timeout(999999)
 
-  it('quick check total wallets registered', async () => {
+  it('quick check events', async () => {
     // await runRegistrations(30, true)
     // await runRegistrations(30)
-    await runRegistrations(25)
+    await runRegistrations(55)
 
     // uint public AddressesGlobalTotal;
     // let AddressesGlobalTotal = await p.CoreToken.AddressesGlobalTotal()
-    // console.log("! ", AddressesGlobalTotal.toNumber())
+    // console.log("AddressesGlobalTotal:", AddressesGlobalTotal.toNumber())
 
     let balance = await p.CoreToken.getBalance()
-    console.log("! ", ethers.utils.formatEther(balance))
+    console.log("formatted balance:", ethers.utils.formatEther(balance))
+
+    const MTContractAddress0 = await p.CoreToken.getLevelContract(0)
+    console.log('MTContractAddress0', MTContractAddress0)
+
+    const MTContractAddress1 = await p.CoreToken.getLevelContract(1)
+    console.log('MTContractAddress1', MTContractAddress1)
+
+    const MTContract = await ethers.getContractFactory("MatrixTemplate")
+    const MTContractInstance = await MTContract.attach(
+        MTContractAddress0
+    );
+
+    console.log(MTContractInstance.interface.events)
 
   }).timeout(999999)
 

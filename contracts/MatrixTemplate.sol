@@ -91,8 +91,7 @@ contract MatrixTemplate {
         address parentWallet = Indices[parentIndex];
         Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex);
 
-        // todo: check this event happens!!!
-        // logging for send half to up one
+        // logging for send half to an up one
         emit SentHalf(_wallet, parentWallet, matrixIndex);
     }
 

@@ -196,7 +196,7 @@ contract Core {
     */
 
     // service method for getting MatrixTemplate contract address of specific level
-    function getLevelContract(uint _level)
+    function getLevelContract(uint _level) // level is 0..19
     external view returns(address){
         require(_level <= maxLevel, "_level exceeds maximum");
         return Matrices[_level];
