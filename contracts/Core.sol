@@ -240,8 +240,8 @@ contract Core {
     }
 
     function getUserFromMatrix(uint _matrixIdx, address _userWallet)
-    external view returns (MatrixTemplate.User memory user) {
-        user = MatrixTemplate(payable(Matrices[_matrixIdx])).getUser(_userWallet);
+    external view returns (MatrixTemplate.User memory user, uint total) {
+        (user, total) = MatrixTemplate(payable(Matrices[_matrixIdx])).getUser(_userWallet);
     }
 
     // getting user by matrix id and user number in matrix

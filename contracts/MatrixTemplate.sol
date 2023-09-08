@@ -18,10 +18,11 @@ contract MatrixTemplate {
         bool isValue;
     }
 
+    // getting user by address
     mapping(address => User) public Addresses;
-
-    // todo: turn to mapping, need get address by index
+    // getting address by index
     mapping(uint => address) public Indices;
+    // total registered in matrix
     uint public IndicesTotal;
 
     // for logging native send to up one
@@ -168,9 +169,9 @@ contract MatrixTemplate {
 
     // todo: check if needed
     function getUser(address _wallet)
-    view external returns(User memory user) {
+    view external returns(User memory user, uint total) {
         user = Addresses[_wallet];
-        return user;
+        total = IndicesTotal;
     }
 
     function getSumOfPlateau(uint _from, uint _to)
