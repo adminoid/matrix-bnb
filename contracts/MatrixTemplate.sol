@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Core.sol";
 
+//import "hardhat/console.sol";
+
 contract MatrixTemplate {
     using SafeMath for uint256;
 
@@ -27,6 +29,9 @@ contract MatrixTemplate {
 
     // for logging native send to up one
     event SentHalf(address indexed sender, address indexed receiver, uint indexed matrixIndex);
+
+    // for logging claims from descendants in each matrix
+    event SentClaims(address indexed sender, address indexed receiver, uint indexed matrixIndex);
 
     // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
@@ -82,7 +87,7 @@ contract MatrixTemplate {
         if (mod == 0) {
             user.isRight = true;
             if (parentIndex > 0) {
-                goUp(parentIndex);
+                goUp(parentIndex, _wallet);
             }
         }
         Addresses[_wallet] = user;
@@ -93,6 +98,9 @@ contract MatrixTemplate {
 
         // logging for send half to an up one
         emit SentHalf(_wallet, parentWallet, matrixIndex);
+//        console.log("SentHalf");
+//        console.log(_wallet, parentWallet, matrixIndex);
+//        console.log(parentIndex);
     }
 
     // parentIndex, plateau, mod
@@ -128,7 +136,7 @@ contract MatrixTemplate {
         return (parentIndex, plateau, mod);
     }
 
-    function goUp(uint _parentIndex) private {
+    function goUp(uint _parentIndex, address registeredWallet) private {
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
         for (uint i = 2; i <= 5; i++) {
@@ -144,11 +152,17 @@ contract MatrixTemplate {
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
                     } else { // i == 3
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+                        emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
+//                        console.log("SentClaims");
+//                        console.log(registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
-                if (i == 5) {
+                emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
+//                console.log("SentClaims");
+//                console.log(registeredWallet, updatedUserAddress, matrixIndex);
+            if (i == 5) {
                     break;
                 }
             }
