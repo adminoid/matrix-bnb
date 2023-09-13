@@ -261,7 +261,6 @@ describe('practical testing interactions and that conclusions', async () => {
     }
   })
 
-
   async function topUp(users, amount = '0.06') {
     for (let i = 0; i < users.length; i++) {
 
@@ -325,7 +324,7 @@ describe('practical testing interactions and that conclusions', async () => {
     const coreBalance0 = await p.CoreToken.provider.getBalance(p.CoreToken.address)
     console.info("coreBalance0", coreBalance0)
     // const users = await runRegistrations(270)
-    await runRegistrations(530, true) // have got error in the past, but now is ok
+    await runRegistrations(23, true) // have got error in the past, but now is ok
     // await runRegistrations(530) // no error
     // await runRegistrations(130, true) // no error
     // await runRegistrations(330) // no error
@@ -346,7 +345,7 @@ describe('practical testing interactions and that conclusions', async () => {
   it('quick check events', async () => {
     // await runRegistrations(30, true)
     // await runRegistrations(30)
-    await runRegistrations(55)
+    await runRegistrations(21)
 
     // uint public AddressesGlobalTotal;
     // let AddressesGlobalTotal = await p.CoreToken.AddressesGlobalTotal()

@@ -56,10 +56,6 @@ contract Core {
     // todo -- maybe remove this event?
 //    event UserUpdated(address indexed, uint indexed, uint indexed);
 
-    // todo: date spent calculations
-    // https://ethereum.stackexchange.com/questions/37026/how-to-calculate-with-time-and-dates
-    // https://ethereum.stackexchange.com/questions/35793/how-do-you-best-calculate-whole-years-gone-by-in-solidity
-    // https://ethereum.stackexchange.com/questions/132708/how-to-get-current-year-from-timestamp-solidity
     constructor(address[6] memory _sixFounders) payable {
         zeroWallet = _sixFounders[0];
         // register in Core _sixFounders
