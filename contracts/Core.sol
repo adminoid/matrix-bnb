@@ -51,6 +51,7 @@ contract Core {
     // for logging gift spending
     event GiftSpent(address indexed giftOwner, address indexed giftSpender);
 
+    event ClaimsSpent(address indexed owner, uint indexed value, uint newLevel);
     // todo -- maybe remove this event?
 //    event UserRegistered(address indexed, uint indexed);
     // todo -- maybe remove this event?
@@ -149,9 +150,17 @@ contract Core {
         uint level;
         uint registerPrice;
 
+        uint currentClaims;
         // compose data for user registration
         if (AddressesGlobal[_wallet].isValue) {
-            balance = _transferredAmount.add(AddressesGlobal[_wallet].claims);
+            // todo -- get claims if not zero, it will be spend
+            currentClaims = AddressesGlobal[_wallet].claims;
+            if (currentClaims > 0) {
+                balance = _transferredAmount.add(currentClaims);
+            } else {
+                balance = _transferredAmount;
+            }
+
             level = AddressesGlobal[_wallet].level.add(1);
             registerPrice = getLevelPrice(level);
         } else {
@@ -169,6 +178,17 @@ contract Core {
                 if (AddressesGlobal[_wallet].isValue) {
                     // set claims, level
                     AddressesGlobal[_wallet].level = level;
+                    // todo -- there is a new claims value
+                    if (currentClaims > 0 && balance < currentClaims) {
+                        // todo -- there is claims value
+                        uint diff = currentClaims.sub(balance);
+                        emit ClaimsSpent(
+                            _wallet,
+                            diff,
+                            level
+                        );
+                    }
+                    currentClaims = balance;
                     AddressesGlobal[_wallet].claims = balance;
                 } else {
                     // put zeroWallet to whose referral address
@@ -183,6 +203,7 @@ contract Core {
                     level = level.add(1);
                 }
             }
+            // todo -- there is final claims value
             AddressesGlobal[_wallet].claims = balance;
         }
     }
@@ -311,7 +332,6 @@ contract Core {
     // withdraw 10% of the bank for once in a year
     function getTenPercentOnceYear() external {
         require(msg.sender == zeroWallet, "access denied 3");
-
         uint balance = address(this).balance;
         require(balance > 0, "balance is empty");
         uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
