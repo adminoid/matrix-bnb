@@ -230,11 +230,28 @@ describe('practical testing interactions and that conclusions', async () => {
         if (wallets[index]) {
           let tx
           if (!isSpecial) {
-            tx = await wallets[index].sendTransaction({
-              to: p.CoreToken.address,
-              value: ethers.utils.parseEther(amount),
-              // gas: 300000,
-            })
+            if (index == 599 || index == 699 || index == 990) {
+
+              // console.info("!!!!!!!!!!!!!!!!!!")
+              // console.log(wallets[index]) // 0x7Ebb637fd68c523613bE51aad27C35C4DB199B9c
+
+              console.log("referrals...........")
+              console.log(wallets[index].address)
+
+              tx = await p.CoreToken
+                  .connect(wallets[index])
+                  // .register("0xbcd4042de499d14e55001ccbb24a551f3b954096", {
+                  .register("0x15d34aaf54267db7d7c367839aaf71a00a2c6a65", {
+                    value: ethers.utils.parseEther(amount),
+                    // gas: 300000,
+                  })
+            } else {
+              tx = await wallets[index].sendTransaction({
+                to: p.CoreToken.address,
+                value: ethers.utils.parseEther(amount),
+                // gas: 300000,
+              })
+            }
           } else {
             tx = await p.CoreToken
               .connect(wallets[index])
@@ -299,7 +316,7 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(126)
+    const users = await runRegistrations(999)
 
     await loopUsers(users)
 
@@ -345,8 +362,7 @@ describe('practical testing interactions and that conclusions', async () => {
   it('quick check events', async () => {
     // await runRegistrations(30, true)
     // await runRegistrations(30)
-    await runRegistrations(21)
-
+    await runRegistrations(21, true)
     // uint public AddressesGlobalTotal;
     // let AddressesGlobalTotal = await p.CoreToken.AddressesGlobalTotal()
     // console.log("AddressesGlobalTotal:", AddressesGlobalTotal.toNumber())
@@ -367,7 +383,7 @@ describe('practical testing interactions and that conclusions', async () => {
 
     console.log(MTContractInstance.interface.events)
 
-  }).timeout(999999)
+  }).timeout(1999999)
 
   it('just deploy async', async () => {
     // console.log(p)

@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
+import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -39,18 +40,15 @@ contract Core {
         locked = 1;
     }
 
-    // for count all referrals for the user
+    // for count all referrals of the user
     event WhoseRegistered(address indexed user, address indexed whose, uint change);
-
     // for count earn money due referrals
-    event ReferralEarn(address indexed whose, uint amount);
-
+    event ReferralEarn(address indexed user, uint amount, address indexed whose);
     // for check the user has gifts
-    event GiftAppear(address indexed user, uint amount);
-
+    event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
-    event GiftSpent(address indexed giftOwner, address indexed giftSpender);
-
+    event GiftSpent(address indexed spender, address indexed owner, uint amount);
+    // for logging claim spending
     event ClaimsSpent(address indexed owner, uint indexed value, uint newLevel);
     // todo -- maybe remove this event?
 //    event UserRegistered(address indexed, uint indexed);
@@ -69,7 +67,8 @@ contract Core {
             }
             AddressesGlobal[_sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
             // todo: add total users value property, increment in all places where new element adds
-            AddressesGlobalTotal = AddressesGlobalTotal.add(1);
+//            AddressesGlobalTotal = AddressesGlobalTotal.add(1);
+            AddressesGlobalTotal = i;
         }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
@@ -130,10 +129,11 @@ contract Core {
             AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts.sub(payUnit);
             // there registration is free, sending payment back
             change = msg.value;
-            emit GiftSpent(_whose, msg.sender);
+            emit GiftSpent(msg.sender, whoseAddr, payUnit);
         }
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
+        AddressesGlobalTotal = AddressesGlobalTotal.add(1);
         MatrixTemplate(payable(Matrices[0])).register(msg.sender);
         // row, here set whose for user
         if (change > 0) {
@@ -178,9 +178,9 @@ contract Core {
                 if (AddressesGlobal[_wallet].isValue) {
                     // set claims, level
                     AddressesGlobal[_wallet].level = level;
-                    // todo -- there is a new claims value
+                    // there is a new claims value
                     if (currentClaims > 0 && balance < currentClaims) {
-                        // todo -- there is claims value
+                        // there is a claims value
                         uint diff = currentClaims.sub(balance);
                         emit ClaimsSpent(
                             _wallet,
@@ -287,19 +287,26 @@ contract Core {
         // calculate newValue
         if (_field == 0) { // gifts
             AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(levelPayUnit);
-            // todo -- here updates gifts field of parent ancestors
-            emit GiftAppear(_userAddress, levelPayUnit);
+            // here updates gifts field of parent ancestors
+            emit GiftAppear(_userAddress, _matrixIndex, levelPayUnit);
         }
         else if (_field == 1) { // claims
             newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
             AddressesGlobal[_userAddress].claims = newValue;
         }
         else if (_field == 2) { // update whose claims
+
+            console.log("emit_ReferralEarn");
+
             address whose = AddressesGlobal[_userAddress].whose;
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
             // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
-            emit ReferralEarn(whose, newValue);
+
+            console.log(whose);
+            console.log(_userAddress);
+
+            emit ReferralEarn(_userAddress, newValue, whose);
         }
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {

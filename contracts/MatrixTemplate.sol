@@ -4,7 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Core.sol";
 
-//import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -149,6 +149,8 @@ contract MatrixTemplate {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
                 } else {
                     if (i == 2) {
+                        console.log("update whose from MatrixTemplate.sol");
+                        console.log(updatedUserAddress);
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
                     } else { // i == 3
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
