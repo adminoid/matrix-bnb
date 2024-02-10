@@ -48,8 +48,10 @@ contract Core {
     event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
     event GiftSpent(address indexed spender, address indexed owner, uint amount);
+    // for logging claim gaining
+    event ClaimsAppear(address indexed owner, uint indexed levelPrice, uint newValue);
     // for logging claim spending
-    event ClaimsSpent(address indexed owner, uint indexed value, uint newLevel);
+    event ClaimsSpent(address indexed owner, uint indexed value, uint indexed newLevel);
     // todo -- maybe remove this event?
 //    event UserRegistered(address indexed, uint indexed);
     // todo -- maybe remove this event?
@@ -60,14 +62,13 @@ contract Core {
         // register in Core _sixFounders
         for (uint i = 0; i < 6; i++) {
             address prevFounder;
-            if (i <= 0) {
+            if (i == 0) {
                 prevFounder = _sixFounders[0];
             } else {
                 prevFounder = _sixFounders[i - 1];
             }
             AddressesGlobal[_sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
-            // todo: add total users value property, increment in all places where new element adds
-//            AddressesGlobalTotal = AddressesGlobalTotal.add(1);
+            // add total users value property, increment in all places where new element adds
             AddressesGlobalTotal = i;
         }
         // initialize 20 matrices
@@ -135,12 +136,23 @@ contract Core {
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
         AddressesGlobalTotal = AddressesGlobalTotal.add(1);
         MatrixTemplate(payable(Matrices[0])).register(msg.sender);
+
+        console.log("WhoseRegistered12322");
+
         // row, here set whose for user
         if (change > 0) {
-            // transfer with change for full price
-            (bool sent,) = payable(msg.sender).call{value: change}("");
-            require(sent, "Sending err 3");
+            if (change >= payUnit) {
+                matricesRegistration(msg.sender, change);
+            } else {
+                // transfer with change for full price
+                (bool sent,) = payable(msg.sender).call{value: change}("");
+                require(sent, "Sending err 3");
+            }
         }
+
+        console.log("WhoseRegistered.!-+");
+        console.log(msg.sender, whoseAddr, change);
+
         emit WhoseRegistered(msg.sender, whoseAddr, change);
     }
 
@@ -256,6 +268,11 @@ contract Core {
         user = AddressesGlobal[_userAddress];
     }
 
+    function getWalletByIndexFromMatrix(uint level, uint index)
+    public view returns (address userAddress) {
+        userAddress = MatrixTemplate(payable(Matrices[level])).getUserAddressByIndex(index);
+    }
+
     function getUserFromMatrix(uint _matrixIdx, address _userWallet)
     external view returns (MatrixTemplate.User memory user, uint total) {
         (user, total) = MatrixTemplate(payable(Matrices[_matrixIdx])).getUser(_userWallet);
@@ -293,6 +310,9 @@ contract Core {
         else if (_field == 1) { // claims
             newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
             AddressesGlobal[_userAddress].claims = newValue;
+            console.log("---ClaimsAppear---");
+            console.log(_userAddress, levelPayUnit, newValue);
+            emit ClaimsAppear(_userAddress, levelPayUnit, newValue);
         }
         else if (_field == 2) { // update whose claims
 
