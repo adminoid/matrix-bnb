@@ -109,6 +109,9 @@ contract Core {
     function register(address _whose) external payable noReentrancy {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
+
+        console.log("is register meth...|");
+
         // add check for _whose exist, if not - set up default
         address whoseAddr;
         if (AddressesGlobal[_whose].isValue) {

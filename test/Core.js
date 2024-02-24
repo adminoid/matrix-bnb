@@ -222,23 +222,27 @@ describe('practical testing interactions and that conclusions', async () => {
   let p, runRegistrations
   before(async () => {
     p = await prepare()
-    runRegistrations = async (total, isSpecial = false, amount = '0.033') => {
+    runRegistrations = async (total, isSpecial = false, amount = '0.011') => {
+      console.info("runRegistrations start")
       const wallets = await getWallets()
       let users = []
       // todo: set nextWallet to id0 or id6
-      let nextWallet = '0xa0Ee7A142d267C1f36714E4a8F75612F20a79720'
+      let nextWallet = '0xBcd4042DE499D14e55001CcbB24a551F3b954096'
       for (const index in [...Array(total).keys()]) {
+        console.info(`w ${index} -> `, wallets[index].address)
         if (wallets[index]) {
           let tx
           if (!isSpecial) {
-            // if (index == 599 || index == 699 || index == 990) {
+            console.info("not isSpecial here")
+            // if (index == 39 || index == 49 || index == 93) {
             // if (true) {
 
               // console.info("!!!!!!!!!!!!!!!!!!")
               // console.log(wallets[index]) // 0x7Ebb637fd68c523613bE51aad27C35C4DB199B9c
 
-              // console.log("referrals...........")
-              // console.log(wallets[index].address)
+              console.log("referrals...........")
+              console.log(index)
+              console.log(wallets[index].address)
 
               tx = await p.CoreToken
                   .connect(wallets[index])
@@ -250,13 +254,14 @@ describe('practical testing interactions and that conclusions', async () => {
                   })
             // }
             // else {
-            //   tx = await wallets[index].sendTransaction({
-            //     to: p.CoreToken.address,
-            //     value: ethers.utils.parseEther(amount),
-            //     // gas: 300000,
-            //   })
+              tx = await wallets[index].sendTransaction({
+                to: p.CoreToken.address,
+                value: ethers.utils.parseEther(amount),
+                // gas: 300000,
+              })
             // }
           } else {
+            console.info("otherwise")
             tx = await p.CoreToken
               .connect(wallets[index])
               .register(p.firstSix[1], { // todo <-- maybe whose index is 0 ?
@@ -322,25 +327,25 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(61) // (19) regs -> 24 real
+    const users = await runRegistrations(101) // (19) regs -> 24 real
     // const users = await runRegistrations(1050) // (19) regs -> 24 real
     // 63 real -5 = 58
     // 62
 
-    await loopUsers(users)
+    // await loopUsers(users)
 
     // console.info('=========core balance after all=========')
-    const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
-    console.log('core wallet:', p.CoreToken.address)
-    console.info("BaLaNcE:")
-    console.info(ethers.utils.formatEther(coreBalance))
+    // const coreBalance = await p.CoreToken.provider.getBalance(p.CoreToken.address)
+    // console.log('core wallet:', p.CoreToken.address)
+    // console.info("BaLaNcE:")
+    // console.info(ethers.utils.formatEther(coreBalance))
 
-    const specialUser = await p.FirstLevelContract
-      .connect('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
-      .getUser('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+    // const specialUser = await p.FirstLevelContract
+    //   .connect('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
+    //   .getUser('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')
     // console.log('specialUser 0', specialUser)
 
-    await expect(true).to.equal(true)
+    // await expect(true).to.equal(true)
 
     // todo: add one more wallet and top up it balance
     // console.info("p.myWallet1.address:")
