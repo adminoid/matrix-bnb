@@ -237,32 +237,32 @@ describe('practical testing interactions and that conclusions', async () => {
           if (!isSpecial) {
             console.info("not isSpecial here")
 
-            if (index == 39 || index == 49 || index == 93) {
-            // if (true) {
-
-              // console.info("!!!!!!!!!!!!!!!!!!")
-              // console.log(wallets[index]) // 0x7Ebb637fd68c523613bE51aad27C35C4DB199B9c
-
-              console.log("referrals...........")
-              console.log(index)
-              console.log(wallets[index].address)
-
-              tx = await p.CoreToken
-                  .connect(wallets[index])
-                  // .register("0xbcd4042de499d14e55001ccbb24a551f3b954096", {
-                  .register("0x71bE63f3384f5fb98995898A86B02Fb2426c5788", {
-                  // .register(nextWallet, {
-                    value: ethers.utils.parseEther(amount),
-                    // gas: 300000,
-                  })
-            }
-            else {
+            // if (index == 39 || index == 49 || index == 93) {
+            // // if (true) {
+            //
+            //   // console.info("!!!!!!!!!!!!!!!!!!")
+            //   // console.log(wallets[index]) // 0x7Ebb637fd68c523613bE51aad27C35C4DB199B9c
+            //
+            //   console.log("referrals...........")
+            //   console.log(index)
+            //   console.log(wallets[index].address)
+            //
+            //   tx = await p.CoreToken
+            //       .connect(wallets[index])
+            //       // .register("0xbcd4042de499d14e55001ccbb24a551f3b954096", {
+            //       .register("0x71bE63f3384f5fb98995898A86B02Fb2426c5788", {
+            //       // .register(nextWallet, {
+            //         value: ethers.utils.parseEther(amount),
+            //         // gas: 300000,
+            //       })
+            // }
+            // else {
               tx = await wallets[index].sendTransaction({
                 to: p.CoreToken.address,
                 value: ethers.utils.parseEther(amount),
                 // gas: 300000,
               })
-            }
+            // }
           } else {
             console.info("otherwise")
             tx = await p.CoreToken
@@ -330,7 +330,7 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(74) // (19) regs -> 24 real
+    const users = await runRegistrations(44) // (19) regs -> 24 real
     // const users = await runRegistrations(1050) // (19) regs -> 24 real
     // 63 real -5 = 58
     // 62
