@@ -229,12 +229,15 @@ describe('practical testing interactions and that conclusions', async () => {
       // todo: set nextWallet to id0 or id6
       let nextWallet = '0xBcd4042DE499D14e55001CcbB24a551F3b954096'
       for (const index in [...Array(total).keys()]) {
+
         console.info(`w ${index} -> `, wallets[index].address)
+
         if (wallets[index]) {
           let tx
           if (!isSpecial) {
             console.info("not isSpecial here")
-            // if (index == 39 || index == 49 || index == 93) {
+
+            if (index == 39 || index == 49 || index == 93) {
             // if (true) {
 
               // console.info("!!!!!!!!!!!!!!!!!!")
@@ -247,19 +250,19 @@ describe('practical testing interactions and that conclusions', async () => {
               tx = await p.CoreToken
                   .connect(wallets[index])
                   // .register("0xbcd4042de499d14e55001ccbb24a551f3b954096", {
-                  // .register("0x71bE63f3384f5fb98995898A86B02Fb2426c5788", {
-                  .register(nextWallet, {
+                  .register("0x71bE63f3384f5fb98995898A86B02Fb2426c5788", {
+                  // .register(nextWallet, {
                     value: ethers.utils.parseEther(amount),
                     // gas: 300000,
                   })
-            // }
-            // else {
+            }
+            else {
               tx = await wallets[index].sendTransaction({
                 to: p.CoreToken.address,
                 value: ethers.utils.parseEther(amount),
                 // gas: 300000,
               })
-            // }
+            }
           } else {
             console.info("otherwise")
             tx = await p.CoreToken
@@ -327,7 +330,7 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(101) // (19) regs -> 24 real
+    const users = await runRegistrations(301) // (19) regs -> 24 real
     // const users = await runRegistrations(1050) // (19) regs -> 24 real
     // 63 real -5 = 58
     // 62
@@ -353,6 +356,13 @@ describe('practical testing interactions and that conclusions', async () => {
 
     const { firstSix } = await prepare()
     console.log(firstSix)
+
+    // index == 39 || index == 49 || index == 93
+    console.group("refs")
+    console.log("39:", users[39])
+    console.log("49:", users[49])
+    console.log("93:", users[93])
+    console.groupEnd()
 
   }).timeout(9999999999999)
 
