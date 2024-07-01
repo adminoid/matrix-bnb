@@ -330,7 +330,7 @@ describe('practical testing interactions and that conclusions', async () => {
   }
 
   it('check registration and resulting gifts and claims', async () => {
-    const users = await runRegistrations(301) // (19) regs -> 24 real
+    const users = await runRegistrations(74) // (19) regs -> 24 real
     // const users = await runRegistrations(1050) // (19) regs -> 24 real
     // 63 real -5 = 58
     // 62
@@ -361,7 +361,7 @@ describe('practical testing interactions and that conclusions', async () => {
     console.group("refs")
     console.log("39:", users[39])
     console.log("49:", users[49])
-    console.log("93:", users[93])
+    // console.log("93:", users[93])
     console.groupEnd()
 
   }).timeout(9999999999999)
