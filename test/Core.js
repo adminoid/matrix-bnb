@@ -335,6 +335,13 @@ describe('practical testing interactions and that conclusions', async () => {
     // 63 real -5 = 58
     // 62
 
+    // index == 39 || index == 49 || index == 93
+    console.group("refs")
+    console.log("39:", users[39])
+    console.log("49:", users[49])
+    // console.log("93:", users[93])
+    console.groupEnd()
+
     // await loopUsers(users)
 
     // console.info('=========core balance after all=========')
@@ -354,15 +361,8 @@ describe('practical testing interactions and that conclusions', async () => {
     // console.info("p.myWallet1.address:")
     // console.log(p.myWallet1.address)
 
-    const { firstSix } = await prepare()
-    console.log(firstSix)
-
-    // index == 39 || index == 49 || index == 93
-    console.group("refs")
-    console.log("39:", users[39])
-    console.log("49:", users[49])
-    // console.log("93:", users[93])
-    console.groupEnd()
+    // const { firstSix } = await prepare()
+    // console.log(firstSix)
 
   }).timeout(9999999999999)
 

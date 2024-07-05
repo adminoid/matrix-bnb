@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
 import "hardhat/console.sol";
 
 contract Core {
-    using SafeMath for uint256;
 
     // settings
     uint public constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
@@ -94,7 +92,7 @@ contract Core {
     // withdrawing claims from balance in BNB
     function withdrawClaim(uint _amount) external {
         if (AddressesGlobal[msg.sender].claims > _amount) {
-            AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(_amount);
+            AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims - _amount;
             (bool sent,) = payable(msg.sender).call{value: _amount}("");
             require(sent, "Sending err 1");
         } else {
@@ -126,18 +124,18 @@ contract Core {
             require(msg.value >= payUnit, "not enough funds");
             // there registration is paid
             if (msg.value > payUnit) {
-                change = msg.value.sub(payUnit);
+                change = msg.value - payUnit;
             }
         } else {
             // updating gifts value
-            AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts.sub(payUnit);
+            AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts - payUnit;
             // there registration is free, sending payment back
             change = msg.value;
             emit GiftSpent(msg.sender, whoseAddr, payUnit);
         }
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
-        AddressesGlobalTotal = AddressesGlobalTotal.add(1);
+        AddressesGlobalTotal = AddressesGlobalTotal + 1;
         MatrixTemplate(payable(Matrices[0])).register(msg.sender);
 
         console.log("WhoseRegistered12322");
@@ -171,12 +169,12 @@ contract Core {
             // todo -- get claims if not zero, it will be spend
             currentClaims = AddressesGlobal[_wallet].claims;
             if (currentClaims > 0) {
-                balance = _transferredAmount.add(currentClaims);
+                balance = _transferredAmount + currentClaims;
             } else {
                 balance = _transferredAmount;
             }
 
-            level = AddressesGlobal[_wallet].level.add(1);
+            level = AddressesGlobal[_wallet].level + 1;
             registerPrice = getLevelPrice(level);
         } else {
             balance = _transferredAmount;
@@ -196,7 +194,7 @@ contract Core {
                     // there is a new claims value
                     if (currentClaims > 0 && balance < currentClaims) {
                         // there is a claims value
-                        uint diff = currentClaims.sub(balance);
+                        uint diff = currentClaims - balance;
                         emit ClaimsSpent(
                             _wallet,
                             diff,
@@ -208,14 +206,14 @@ contract Core {
                 } else {
                     // put zeroWallet to whose referral address
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
-                    AddressesGlobalTotal = AddressesGlobalTotal.add(1);
+                    AddressesGlobalTotal = AddressesGlobalTotal + 1;
                 }
                 MatrixTemplate(payable(Matrices[level])).register(_wallet);
 //                emit UserRegistered(_wallet, level);
                 if (balance > 0) {
-                    balance = balance.sub(registerPrice);
-                    registerPrice = registerPrice.mul(2);
-                    level = level.add(1);
+                    balance = balance - registerPrice;
+                    registerPrice = registerPrice * 2;
+                    level = level + 1;
                 }
             }
             // todo -- there is final claims value
@@ -241,7 +239,7 @@ contract Core {
         uint registerPrice = payUnit;
         if (_level > 0) {
             for (uint i = 0; i < _level; i++) {
-                registerPrice = registerPrice.mul(2);
+                registerPrice = registerPrice * 2;
             }
         }
         return registerPrice;
@@ -306,12 +304,12 @@ contract Core {
         uint newValue = 0;
         // calculate newValue
         if (_field == 0) { // gifts
-            AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(levelPayUnit);
+            AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts + levelPayUnit;
             // here updates gifts field of parent ancestors
             emit GiftAppear(_userAddress, _matrixIndex, levelPayUnit);
         }
         else if (_field == 1) { // claims
-            newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
+            newValue = AddressesGlobal[_userAddress].claims + levelPayUnit;
             AddressesGlobal[_userAddress].claims = newValue;
             console.log("---ClaimsAppear---");
             console.log(_userAddress, levelPayUnit, newValue);
@@ -322,7 +320,7 @@ contract Core {
             console.log("emit_ReferralEarn");
 
             address whose = AddressesGlobal[_userAddress].whose;
-            newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
+            newValue = AddressesGlobal[whose].claims + levelPayUnit;
             // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
 
@@ -331,7 +329,7 @@ contract Core {
 
             emit ReferralEarn(_userAddress, newValue, whose);
         }
-        uint needValue = levelPayUnit.mul(2);
+        uint needValue = levelPayUnit * 2;
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
             matricesRegistration(_userAddress, 0);
         }
@@ -343,7 +341,7 @@ contract Core {
         if (_matrixIndex >= 19) {
             return;
         }
-        uint amount = getLevelPrice(_matrixIndex).div(2);
+        uint amount = getLevelPrice(_matrixIndex) / 2;
 
         // TODO: replace call to transfer, because of _wallet shouldn't pay for transaction
 //        (bool sent,) = payable(_wallet).call{value: amount}(""); // not payable _wallet arg
@@ -364,9 +362,10 @@ contract Core {
         require(msg.sender == zeroWallet, "access denied 3");
         uint balance = address(this).balance;
         require(balance > 0, "balance is empty");
-        uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
+//        uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
+        uint daysDiff = (block.timestamp - lastUpdated) / 60 / 60 / 24; // days
         require(daysDiff >= 365, "year not passed");
-        uint tenPart = balance.div(10);
+        uint tenPart = balance / 10;
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");
         require(sent, "Sending err 5");
         lastUpdated = block.timestamp;
