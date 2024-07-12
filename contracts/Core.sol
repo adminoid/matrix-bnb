@@ -45,7 +45,7 @@ contract Core {
     // for count earn money due referrals
     event ReferralEarn(address indexed user, uint amount, address indexed whose);
     // for check the user has gifts
-    event GiftAppear(address indexed user, uint amount);
+    event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
     event GiftSpent(address indexed spender, address indexed owner, uint amount);
     // for logging claim gaining
@@ -308,7 +308,7 @@ contract Core {
         if (_field == 0) { // gifts
             AddressesGlobal[_userAddress].gifts = AddressesGlobal[_userAddress].gifts.add(levelPayUnit);
             // here updates gifts field of parent ancestors
-            emit GiftAppear(_userAddress, levelPayUnit);
+            emit GiftAppear(_userAddress, _matrixIndex, levelPayUnit);
         }
         else if (_field == 1) { // claims
             newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
