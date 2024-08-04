@@ -42,20 +42,20 @@ contract Core {
 
     // for count all referrals of the user
     event WhoseRegistered(address indexed user, address indexed whose, uint change);
-    // for count earn money due referrals
+    // for count earn money due referrals (claims)
     event ReferralEarn(address indexed user, uint amount, address indexed whose);
     // for check the user has gifts
     event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
     event GiftSpent(address indexed spender, address indexed owner, uint amount);
-    // for logging claim gaining
+    // for logging claim gaining (claims except referrals)
     event ClaimsAppear(address indexed owner, uint indexed levelPrice, uint newValue);
     // for logging claim spending
     event ClaimsSpent(address indexed owner, uint indexed value, uint indexed newLevel);
-    // todo -- maybe remove this event?
-//    event UserRegistered(address indexed, uint indexed);
-    // todo -- maybe remove this event?
-//    event UserUpdated(address indexed, uint indexed, uint indexed);
+    // for logging transfers from below two wallets
+    event BelowTwoAppear(address indexed receiver, uint amount, uint indexed matrixIndex);
+    // for each withdrawing from claim balance
+    event ClaimsWithdraw(address indexed owner, uint amount);
 
     constructor(address[6] memory _sixFounders) payable {
         zeroWallet = _sixFounders[0];
@@ -97,11 +97,13 @@ contract Core {
             AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(_amount);
             (bool sent,) = payable(msg.sender).call{value: _amount}("");
             require(sent, "Sending err 1");
+            emit ClaimsWithdraw(msg.sender, _amount);
         } else {
             uint value = AddressesGlobal[msg.sender].claims;
             AddressesGlobal[msg.sender].claims = 0;
             (bool sent,) = payable(msg.sender).call{value: value}("");
             require(sent, "Sending err 2");
+            emit ClaimsWithdraw(msg.sender, value);
         }
     }
 
@@ -353,6 +355,11 @@ contract Core {
 
         bool sent = payable(_wallet).send(amount);
         require(sent, "Sending err 4");
+        emit BelowTwoAppear(
+            _wallet,
+            amount,
+            _matrixIndex
+        );
     }
 
     /*
