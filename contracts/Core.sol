@@ -362,6 +362,11 @@ contract Core {
         );
     }
 
+    function getTotalFromMatrix(uint _matrixIdx)
+    external view returns (uint total) {
+        total = MatrixTemplate(payable(Matrices[_matrixIdx])).IndicesTotal();
+    }
+
     /*
         methods below are only for id0 calls (main manager)
     */
