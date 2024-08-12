@@ -56,6 +56,8 @@ contract Core {
     event BelowTwoAppear(address indexed receiver, uint amount, uint indexed matrixIndex);
     // for each withdrawing from claim balance
     event ClaimsWithdraw(address indexed owner, uint amount);
+    // for transfers all bnb to contract address
+    event DirectTransfer(address indexed sender, uint amount);
 
     constructor(address[6] memory _sixFounders) payable {
         zeroWallet = _sixFounders[0];
@@ -81,6 +83,8 @@ contract Core {
 
     // proxy for registering wallet by simple payment to contract address
     receive() external payable noReentrancy {
+        // todo: add event for all direct transfers
+        emit DirectTransfer(msg.sender, msg.value);
         matricesRegistration(msg.sender, msg.value);
     }
 

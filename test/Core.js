@@ -222,7 +222,7 @@ describe('practical testing interactions and that conclusions', async () => {
   let p, runRegistrations
   before(async () => {
     p = await prepare()
-    runRegistrations = async (total, isSpecial = false, amount = '0.1') => {
+    runRegistrations = async (total, isSpecial = false, amount = '0.5') => {
       console.info("runRegistrations start")
       const wallets = await getWallets()
       let users = []
