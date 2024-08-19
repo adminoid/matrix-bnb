@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
-import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -43,7 +42,7 @@ contract Core {
     // for count all referrals of the user
     event WhoseRegistered(address indexed user, address indexed whose, uint change);
     // for count earn money due referrals (claims)
-    event ReferralEarn(address indexed user, uint amount, address indexed whose);
+    event ReferralEarn(address indexed user, uint newValue, address indexed whose);
     // for check the user has gifts
     event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
@@ -116,8 +115,6 @@ contract Core {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
 
-        console.log("is register meth...|");
-
         // add check for _whose exist, if not - set up default
         address whoseAddr;
         if (AddressesGlobal[_whose].isValue) {
@@ -146,8 +143,6 @@ contract Core {
         AddressesGlobalTotal = AddressesGlobalTotal.add(1);
         MatrixTemplate(payable(Matrices[0])).register(msg.sender);
 
-        console.log("WhoseRegistered12322");
-
         // row, here set whose for user
         if (change > 0) {
             if (change >= payUnit) {
@@ -158,9 +153,6 @@ contract Core {
                 require(sent, "Sending err 3");
             }
         }
-
-        console.log("WhoseRegistered.!-+");
-        console.log(msg.sender, whoseAddr, change);
 
         emit WhoseRegistered(msg.sender, whoseAddr, change);
     }
@@ -174,7 +166,7 @@ contract Core {
         uint currentClaims;
         // compose data for user registration
         if (AddressesGlobal[_wallet].isValue) {
-            // todo -- get claims if not zero, it will be spend
+            // get claims if not zero, it will be spend
             currentClaims = AddressesGlobal[_wallet].claims;
             if (currentClaims > 0) {
                 balance = _transferredAmount.add(currentClaims);
@@ -191,7 +183,6 @@ contract Core {
         }
         // already have register data: balance, level, registerPrice
         if (level <= 19) {
-            // todo: consider that it while loop can be refactored with caching vars
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
                 // register in, decrease balance and increment level
@@ -217,14 +208,13 @@ contract Core {
                     AddressesGlobalTotal = AddressesGlobalTotal.add(1);
                 }
                 MatrixTemplate(payable(Matrices[level])).register(_wallet);
-//                emit UserRegistered(_wallet, level);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
                     registerPrice = registerPrice.mul(2);
                     level = level.add(1);
                 }
             }
-            // todo -- there is final claims value
+            // there is final claims value
             AddressesGlobal[_wallet].claims = balance;
         }
     }
@@ -236,14 +226,15 @@ contract Core {
     // service method for getting MatrixTemplate contract address of specific level
     function getLevelContract(uint _level) // level is 0..19
     external view returns(address){
-        require(_level <= maxLevel, "_level exceeds maximum");
+        require(_level <= maxLevel, "_level exceeds maximum (0)");
         return Matrices[_level];
     }
 
     // getting price for registration in specific level
     function getLevelPrice(uint _level)
     private pure returns(uint) {
-        // todo: protect from big _level value
+        // protect from big _level value
+        require(_level < 20, "_level exceeds maximum (1)");
         uint registerPrice = payUnit;
         if (_level > 0) {
             for (uint i = 0; i < _level; i++) {
@@ -319,29 +310,19 @@ contract Core {
         else if (_field == 1) { // claims
             newValue = AddressesGlobal[_userAddress].claims.add(levelPayUnit);
             AddressesGlobal[_userAddress].claims = newValue;
-            console.log("---ClaimsAppear---");
-            console.log(_userAddress, levelPayUnit, newValue);
             emit ClaimsAppear(_userAddress, levelPayUnit, newValue);
         }
         else if (_field == 2) { // update whose claims
-
-            console.log("emit_ReferralEarn");
-
             address whose = AddressesGlobal[_userAddress].whose;
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
             // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
-
-            console.log(whose);
-            console.log(_userAddress);
-
             emit ReferralEarn(_userAddress, newValue, whose);
         }
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
             matricesRegistration(_userAddress, 0);
         }
-//        emit UserUpdated(_userAddress, _field, needValue);
     }
 
     function sendHalf(address _wallet, uint _matrixIndex) external {
@@ -350,13 +331,6 @@ contract Core {
             return;
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
-
-        // TODO: replace call to transfer, because of _wallet shouldn't pay for transaction
-//        (bool sent,) = payable(_wallet).call{value: amount}(""); // not payable _wallet arg
-//        (bool sent,) = _wallet.call{value: amount}(""); // payable
-//        require(sent, "Sending err 4");
-//        _wallet.transfer(amount);
-
         bool sent = payable(_wallet).send(amount);
         require(sent, "Sending err 4");
         emit BelowTwoAppear(

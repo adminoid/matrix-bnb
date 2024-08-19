@@ -4,8 +4,6 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Core.sol";
 
-import "hardhat/console.sol";
-
 contract MatrixTemplate {
     using SafeMath for uint256;
 
@@ -33,7 +31,6 @@ contract MatrixTemplate {
     // for logging claims from descendants in each matrix
     event SentClaims(address indexed sender, address indexed receiver, uint indexed matrixIndex);
 
-    // todo: isRight, index(number), parent - don't set, make it set
     constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
         // registration of first top six investors/maintainers without balances
         // _sixFounders.length must be equal to 6
@@ -98,9 +95,6 @@ contract MatrixTemplate {
 
         // logging for send half to an up one
         emit SentHalf(_wallet, parentWallet, matrixIndex);
-//        console.log("SentHalf");
-//        console.log(_wallet, parentWallet, matrixIndex);
-//        console.log(parentIndex);
     }
 
     // parentIndex, plateau, mod
@@ -149,21 +143,15 @@ contract MatrixTemplate {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
                 } else {
                     if (i == 2) {
-                        console.log("update whose from MatrixTemplate.sol");
-                        console.log(updatedUserAddress);
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
                     } else { // i == 3
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                         emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
-//                        console.log("SentClaims");
-//                        console.log(registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                 emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
-//                console.log("SentClaims");
-//                console.log(registeredWallet, updatedUserAddress, matrixIndex);
                 if (i == 5) {
                     break;
                 }
@@ -182,7 +170,6 @@ contract MatrixTemplate {
         IndicesTotal = IndicesTotal.add(1);
     }
 
-    // todo: check if needed
     function getUser(address _wallet)
     view external returns(User memory user, uint total) {
         user = Addresses[_wallet];
