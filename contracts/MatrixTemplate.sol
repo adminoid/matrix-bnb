@@ -31,10 +31,10 @@ contract MatrixTemplate {
     // for logging claims from descendants in each matrix
     event SentClaims(address indexed sender, address indexed receiver, uint indexed matrixIndex);
 
-    constructor(uint _index, address _coreAddress, address[6] memory _sixFounders) {
-        // registration of first top six investors/maintainers without balances
-        // _sixFounders.length must be equal to 6
-        for (uint8 i = 0; i < 6; i++) {
+    constructor(uint _index, address _coreAddress, address[5] memory _fiveFounders) {
+        // registration of first top five investors/maintainers without balances
+        // _fiveFounders.length must be equal to 5
+        for (uint8 i = 0; i < 5; i++) {
             // calculate base user data
             uint parentIndex;
             uint plateau;
@@ -44,8 +44,8 @@ contract MatrixTemplate {
             if (mod == 0) {
                 user.isRight = true;
             }
-            Addresses[_sixFounders[i]] = user;
-            Indices[i] = _sixFounders[i];
+            Addresses[_fiveFounders[i]] = user;
+            Indices[i] = _fiveFounders[i];
             IndicesTotal = IndicesTotal.add(1);
         }
         // initiations

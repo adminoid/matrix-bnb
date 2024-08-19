@@ -14,7 +14,7 @@ contract Core {
     uint private locked = 1; // reentrancy prevention
 
     // array of matrices (addresses)
-    address[20] private Matrices; // todo - can be turn to mapping(index => address)
+    address[20] private Matrices;
 
     address private immutable zeroWallet;
 
@@ -31,7 +31,6 @@ contract Core {
     // total users value property, increment in all places where new element adds
     uint public AddressesGlobalTotal = 0;
 
-    // todo: consider rewrite as function to minimize bytecode
     modifier noReentrancy() {
         require(locked == 1, "No reentrancy");
         locked = 2;
@@ -58,23 +57,23 @@ contract Core {
     // for transfers all bnb to contract address
     event DirectTransfer(address indexed sender, uint amount);
 
-    constructor(address[6] memory _sixFounders) payable {
-        zeroWallet = _sixFounders[0];
-        // register in Core _sixFounders
-        for (uint i = 0; i < 6; i++) {
+    constructor(address[5] memory _fiveFounders) payable {
+        zeroWallet = _fiveFounders[0];
+        // register in Core _fiveFounders
+        for (uint i = 0; i < 5; i++) {
             address prevFounder;
             if (i == 0) {
-                prevFounder = _sixFounders[0];
+                prevFounder = _fiveFounders[0];
             } else {
-                prevFounder = _sixFounders[i - 1];
+                prevFounder = _fiveFounders[i - 1];
             }
-            AddressesGlobal[_sixFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
+            AddressesGlobal[_fiveFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
             // add total users value property, increment in all places where new element adds
             AddressesGlobalTotal = i;
         }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
-            MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), _sixFounders);
+            MatrixTemplate matrixInstance = new MatrixTemplate(i, address(this), _fiveFounders);
             Matrices[i] = address(matrixInstance);
         }
         lastUpdated = block.timestamp;
@@ -82,7 +81,6 @@ contract Core {
 
     // proxy for registering wallet by simple payment to contract address
     receive() external payable noReentrancy {
-        // todo: add event for all direct transfers
         emit DirectTransfer(msg.sender, msg.value);
         matricesRegistration(msg.sender, msg.value);
     }
@@ -182,7 +180,7 @@ contract Core {
             registerPrice = payUnit;
         }
         // already have register data: balance, level, registerPrice
-        if (level <= 19) {
+        if (level <= maxLevel) {
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
                 // register in, decrease balance and increment level
@@ -320,14 +318,14 @@ contract Core {
             emit ReferralEarn(_userAddress, newValue, whose);
         }
         uint needValue = levelPayUnit.mul(2);
-        if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < 19) {
+        if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < maxLevel) {
             matricesRegistration(_userAddress, 0);
         }
     }
 
     function sendHalf(address _wallet, uint _matrixIndex) external {
         require(isMatrix(msg.sender), "access denied 2");
-        if (_matrixIndex >= 19) {
+        if (_matrixIndex >= maxLevel) {
             return;
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
