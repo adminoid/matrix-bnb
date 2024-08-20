@@ -171,11 +171,13 @@ contract Core {
             } else {
                 balance = _transferredAmount;
             }
-            if (level >= maxLevel) {
-                return;
-            }
             level = AddressesGlobal[_wallet].level.add(1);
-            registerPrice = getLevelPrice(level);
+            if (level <= maxLevel) {
+                registerPrice = getLevelPrice(level);
+            } else {
+                // this is a thin place, because registerPrice generally don't need in this case
+                registerPrice = 0;
+            }
         } else {
             balance = _transferredAmount;
             level = 0;
