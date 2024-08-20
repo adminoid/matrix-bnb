@@ -171,7 +171,9 @@ contract Core {
             } else {
                 balance = _transferredAmount;
             }
-
+            if (level >= maxLevel) {
+                return;
+            }
             level = AddressesGlobal[_wallet].level.add(1);
             registerPrice = getLevelPrice(level);
         } else {
@@ -232,7 +234,7 @@ contract Core {
     function getLevelPrice(uint _level)
     private pure returns(uint) {
         // protect from big _level value
-        require(_level < 20, "_level exceeds maximum (1)");
+        require(_level <= maxLevel, "_level exceeds maximum (1)");
         uint registerPrice = payUnit;
         if (_level > 0) {
             for (uint i = 0; i < _level; i++) {

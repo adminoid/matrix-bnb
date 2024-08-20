@@ -5,7 +5,7 @@ const { deployContract } = waffle
 // contract abi
 const Core = require('../artifacts/contracts/Core.sol/Core.json')
 
-const customWallets = 10; // 1 system, 3 my, plus 6 maintainers
+const customWallets = 9; // 1 system, 3 my, plus 5 maintainers
 
 // const Signers = await ethers.getSigners()
 // Signers.forEach(signer => {
@@ -26,13 +26,13 @@ const prepare = async () => {
     myWallet2,
     myWallet3,
   ] = allAddresses
-  const firstSix = allAddresses.slice(4, 10).map(v => v.address)
+  const firstFive = allAddresses.slice(4, customWallets).map(v => v.address)
 
   console.log("coreWallet:", coreWallet.address)
   console.log("myWallet1:", myWallet1.address)
   console.log("myWallet2:", myWallet2.address)
   console.log("myWallet3:", myWallet3.address)
-  console.log("firstSix:", firstSix.length, firstSix)
+  console.log("firstFive:", firstFive.length, firstFive)
 
   console.log(ethers.utils.formatEther(await coreWallet.getBalance()))
 
@@ -44,7 +44,7 @@ const prepare = async () => {
   const CoreToken = await deployContract(
     coreWallet,
     Core,
-    [firstSix],
+    [firstFive],
     // {value: 5_000_000_000_000_000}
     {
       gasLimit: 55_000_000,
@@ -69,7 +69,7 @@ const prepare = async () => {
     myWallet2,
     myWallet3,
     FirstLevelContract,
-    firstSix,
+    firstFive,
   }
 }
 
@@ -253,7 +253,7 @@ describe('practical testing interactions and that conclusions', async () => {
                   .register("0x71bE63f3384f5fb98995898A86B02Fb2426c5788", {
                   // .register(nextWallet, {
                     value: ethers.utils.parseEther(amount),
-                    // gas: 300000,
+                    // gas: 3000000,
                   })
             }
             else {
@@ -267,11 +267,11 @@ describe('practical testing interactions and that conclusions', async () => {
             console.info("otherwise")
             tx = await p.CoreToken
               .connect(wallets[index])
-              .register(p.firstSix[1], { // todo <-- maybe whose index is 0 ?
+              .register(p.firstFive[1], { // todo <-- maybe whose index is 0 ?
                 value: ethers.utils.parseEther(amount),
                 // gas: 300000,
               })
-              // .register(p.firstSix[5], {
+              // .register(p.firstFive[4], {
               //   value: ethers.utils.parseEther('0.1'),
               // })
           }
