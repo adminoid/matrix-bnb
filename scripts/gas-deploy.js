@@ -8,12 +8,11 @@ exports.getGasInfo = async (Token) => {
   console.log(`Current gas price: ${gasPrice}`);
   const estimatedGas = await Token.signer.estimateGas(
     Token.getDeployTransaction([
-      '0x3019145a5c3B3e1871e4Ac12A5f21b6A1b0968AD',
-      '0x985D1eeb73aF5dc0191789d7055Dd919066BeaEc',
-      '0xD17AFF79e2C4214f7e27e3CF3827f2E4Dc297D17',
-      '0x4580dB10cE8F1b6e5e424D2C5C04fCD5F74A325A',
-      '0x03F08bc6054C21Deb4828D196086Dc4b3fb64A22',
-      '0x66057282C4eD1102410DD90A670206DCDa9001F2',
+      '0xC8Ed245e8014bcB2416B69440c34c492acd24Ff3',
+      '0x1b20c0CFf884c91F6429f25ceD5a72aE63A9B65a',
+      '0x597205b3EC3B95Cc77BEfd22cf190bD6DD8e8A69',
+      '0xD9a7Ec49E4EC186C093e630240c87b970a413A00',
+      '0xCEe63383AeF505A1D3e1B240F02252D3559f39eC',
     ]),
   );
   console.log(`Estimated gas: ${estimatedGas}`);

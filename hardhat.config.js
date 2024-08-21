@@ -4,10 +4,10 @@ require("@nomiclabs/hardhat-web3");
 require("hardhat-gas-reporter");
 // const { task } = require("hardhat/config");
 // const { ethers } = require('hardhat')
-// const { mnemonic } = require('./secret/secret.json');
-// const { mnemonic } = require('./secret/secret-igor.json');
+const { mnemonic } = require('./secret/secret.json'); // 0xE2496514F6a3B1aCC3BB903EC2458810F2B48076
+// const { mnemonic } = require('./secret/secret-igor.json'); // 0x3019145a5c3B3e1871e4Ac12A5f21b6A1b0968AD
 // const { mnemonic } = require('./secret/workchain.json');
-const mnemonic = '';
+// const mnemonic = '';
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

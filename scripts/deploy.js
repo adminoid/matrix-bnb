@@ -15,21 +15,20 @@ async function main() {
   await getGasInfo(Token);
 
   /**
-   * 0x52Df967dcA772D99c8798B3d5415EE694B2EeCBF - id0
-   * 0xc1B031361a230c76D10317F57AE6312d84Ec25fa - id1
-   * 0x1b20c0CFf884c91F6429f25ceD5a72aE63A9B65a - id2
-   * 0x4C5e3352278eCE5df2581090A4dE535156104b31 - id3
-   * 0x597205b3EC3B95Cc77BEfd22cf190bD6DD8e8A69 - id4
+   * 0xC8Ed245e8014bcB2416B69440c34c492acd24Ff3 - id0
+   * 0x1b20c0CFf884c91F6429f25ceD5a72aE63A9B65a - id1
+   * 0x597205b3EC3B95Cc77BEfd22cf190bD6DD8e8A69 - id2
+   * 0xD9a7Ec49E4EC186C093e630240c87b970a413A00 - id3
+   * 0xCEe63383AeF505A1D3e1B240F02252D3559f39eC - id4
    * @type {Contract}
    */
   // const token = await Token.deploy()
   const token = await Token.deploy([
-    '0x52Df967dcA772D99c8798B3d5415EE694B2EeCBF',
-    '0xc1B031361a230c76D10317F57AE6312d84Ec25fa',
+    '0xC8Ed245e8014bcB2416B69440c34c492acd24Ff3',
     '0x1b20c0CFf884c91F6429f25ceD5a72aE63A9B65a',
-    '0x4C5e3352278eCE5df2581090A4dE535156104b31',
     '0x597205b3EC3B95Cc77BEfd22cf190bD6DD8e8A69',
-    '0x85C70Ac7f7B74730BDF32406E646250ac18D3C8e',
+    '0xD9a7Ec49E4EC186C093e630240c87b970a413A00',
+    '0xCEe63383AeF505A1D3e1B240F02252D3559f39eC',
   ])
 
   console.log(`${contractName} deployed to: `, token.address)
@@ -42,12 +41,13 @@ main()
     process.exit(1)
   })
 
-// Core deployed to: 0x9cfE614c5f8b2B851afceaDDE43609AFd55f989a
+// Core deployed to: 0x04574b9eB65bc14F5E2280D05883d9EA70B9Bb38
 // latest contract:
-// https://testnet.bscscan.com/address/0x9cfE614c5f8b2B851afceaDDE43609AFd55f989a
+// https://testnet.bscscan.com/address/0x04574b9eB65bc14F5E2280D05883d9EA70B9Bb38
 
-// Current gas price: 3000000000
-// Estimated gas: 29638741
-// Deployer balance:  0.224506049
-// Deployment price:  0.088916223
-// Core deployed to:  0x259F513E624E9EB168e6979E2E0117475Af50Ca6
+// hh run --network testnet scripts/deploy.js (logs)
+// Current gas price: 5000000000
+// Estimated gas: 30969056
+// Deployer balance:  1.05482498
+// Deployment price:  0.15484528
+// Core deployed to:  0x04574b9eB65bc14F5E2280D05883d9EA70B9Bb38
