@@ -216,9 +216,9 @@ contract Core {
                     level = level.add(1);
                 }
             }
-            // there is final claims value
-            AddressesGlobal[_wallet].claims = balance;
         }
+        // there is final claims value
+        AddressesGlobal[_wallet].claims = balance;
     }
 
     /*

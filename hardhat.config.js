@@ -43,13 +43,17 @@ module.exports = {
   allowUnlimitedContractSize: true,
   networks: {
     localhost: {
-      url: "http://127.0.0.1:8545"
+      url: "http://127.0.0.1:8545",
       // gas: 600_000_000,
+      gas: "auto",
+      blockGasLimit: 999000000,
     },
     hardhat: {
+      allowUnlimitedContractSize: true,
       accounts: {
         // count: 1350,
-        count: 135,
+        // count: 535,
+        count: 160,
         // count: 20,
         // count: 290,
         // count: 1100,
@@ -59,12 +63,14 @@ module.exports = {
         // accountsBalance: '3000000000000000000000',
         accountsBalance: '30000000000000000000001111',
       },
-      blockGasLimit: 126000000429720 // whatever you want here
+      // blockGasLimit: 126000000429720, // whatever you want here
       // blockGasLimit: 600_000_000, // whatever you want here
       // If there have got out of gas, increase gasLimit value
       // gasLimit: 55_000_000,
       // gasPrice: 2_000_000,
       // gas: 300_000_000
+      gas: "auto",
+      blockGasLimit: 999000000,
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
@@ -89,4 +95,4 @@ module.exports = {
   mocha: {
     timeout: 20000
   }
-};
+}
