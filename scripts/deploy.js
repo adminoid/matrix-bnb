@@ -41,13 +41,13 @@ main()
     process.exit(1)
   })
 
-// Core deployed to: 0xd022A72a9778CBed6Bce895EA9a0AB5a8641a8A9
+// Core deployed to: 0xef9E7081dB0F2Bca4f5742E936ba60E3E840eEEa
 // latest contract:
-// https://testnet.bscscan.com/address/0xd022A72a9778CBed6Bce895EA9a0AB5a8641a8A9
+// https://testnet.bscscan.com/address/0xef9E7081dB0F2Bca4f5742E936ba60E3E840eEEa
 
 // hh run --network testnet scripts/deploy.js (logs)
-// Current gas price: 8328799328
+// Current gas price: 10816000000
 // Estimated gas: 30970595
-// Deployer balance:  0.8999797
-// Deployment price:  0.25794787082376016
-// Core deployed to:  0xd022A72a9778CBed6Bce895EA9a0AB5a8641a8A9
+// Deployer balance:  0.615674727665589347
+// Deployment price:  0.33497795552
+// Core deployed to:  0xef9E7081dB0F2Bca4f5742E936ba60E3E840eEEa
