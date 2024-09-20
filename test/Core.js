@@ -222,7 +222,7 @@ describe('practical testing interactions and that conclusions', async () => {
   let p, runRegistrations
   before(async () => {
     p = await prepare()
-    runRegistrations = async (total, isSpecial = false, amount = '0.5') => {
+    runRegistrations = async (total, isSpecial = false, amount = '3.5') => {
       console.info("runRegistrations start")
       const wallets = await getWallets()
       let users = []
@@ -332,8 +332,8 @@ describe('practical testing interactions and that conclusions', async () => {
   it('check registration and resulting gifts and claims', async () => {
     // const users = await runRegistrations(44) // (19) regs -> 24 real
     // const users = await runRegistrations(74) // (19) regs -> 24 real
-    const users = await runRegistrations(150) // (19) regs -> 24 real
-    // const users = await runRegistrations(512) // (19) regs -> 24 real
+    // const users = await runRegistrations(150) // (19) regs -> 24 real
+    const users = await runRegistrations(512) // (19) regs -> 24 real
     // 63 real -5 = 58
     // 62
 

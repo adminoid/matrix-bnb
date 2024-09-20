@@ -52,16 +52,16 @@ module.exports = {
       allowUnlimitedContractSize: true,
       accounts: {
         // count: 1350,
-        // count: 535,
-        count: 160,
+        count: 535,
+        // count: 160,
         // count: 20,
         // count: 290,
         // count: 1100,
         // count: 600,
         // count: 60,
         // count: 6,
-        // accountsBalance: '3000000000000000000000',
-        accountsBalance: '30000000000000000000001111',
+        accountsBalance: '3000000000000000000000',
+        // accountsBalance: '300000000000000000000011112222222221212',
       },
       // blockGasLimit: 126000000429720, // whatever you want here
       // blockGasLimit: 600_000_000, // whatever you want here
