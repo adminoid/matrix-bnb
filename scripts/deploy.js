@@ -43,7 +43,7 @@ main()
 
 // Core deployed to: 0xef9E7081dB0F2Bca4f5742E936ba60E3E840eEEa
 // latest contract:
-// https://testnet.bscscan.com/address/0xef9E7081dB0F2Bca4f5742E936ba60E3E840eEEa
+// https://testnet.bscscan.com/address/0xE5A4b5B6Ca6EEd303800093e72d54468b1486300
 
 // hh run --network testnet scripts/deploy.js (logs)
 // Current gas price: 10816000000

@@ -45,7 +45,7 @@ contract Core {
     // for check the user has gifts
     event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
-    event GiftSpent(address indexed spender, address indexed owner, uint amount);
+    event GiftSpent(address indexed owner, address indexed spender, uint amount);
     // for logging claim gaining (claims except referrals)
     event ClaimsAppear(address indexed owner, uint indexed levelPrice, uint newValue);
     // for logging claim spending
@@ -134,7 +134,7 @@ contract Core {
             AddressesGlobal[whoseAddr].gifts = AddressesGlobal[whoseAddr].gifts.sub(payUnit);
             // there registration is free, sending payment back
             change = msg.value;
-            emit GiftSpent(msg.sender, whoseAddr, payUnit);
+            emit GiftSpent(whoseAddr, msg.sender, payUnit);
         }
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
