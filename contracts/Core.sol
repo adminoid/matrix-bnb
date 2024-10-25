@@ -113,6 +113,9 @@ contract Core {
         // check user is not registered
         require(!AddressesGlobal[msg.sender].isValue, "user already registered");
 
+        // add checking for whose user existed
+        require(AddressesGlobal[_whose].isValue, "whose user is not registered");
+
         // add check for _whose exist, if not - set up default
         address whoseAddr;
         if (AddressesGlobal[_whose].isValue) {
