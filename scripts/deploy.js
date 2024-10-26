@@ -13,6 +13,7 @@ async function main() {
   const Token = await ethers.getContractFactory(contractName)
 
   await getGasInfo(Token);
+  // return;
 
   /**
    * 0xC8Ed245e8014bcB2416B69440c34c492acd24Ff3 - id0
@@ -46,8 +47,9 @@ main()
 // https://testnet.bscscan.com/address/0x18284dC6191586204b057bCbd99EB8FcCAabE5EC
 
 // hh run --network testnet scripts/deploy.js (logs)
-// Current gas price: 11801533153
-// Estimated gas: 30968864
-// Deployer balance:  1.804862858100149859
-// Deployment price:  0.365480075206748192
-// Core deployed to:  0x18284dC6191586204b057bCbd99EB8FcCAabE5EC
+
+// Current gas price: 339477658
+// Estimated gas: 30993446
+// Deployer balance:  1.170343199241264483
+// Deployment price:  0.000000003
+// Core deployed to:  0x56C6437611493315A1708Cf1c1C3B2aE46C60833

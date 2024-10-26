@@ -73,11 +73,12 @@ module.exports = {
       blockGasLimit: 999000000,
     },
     testnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      url: "https://data-seed-prebsc-1-s2.binance.org:8545/",
       chainId: 97,
-      // gasPrice: 20000000000,
-      gasPrice: 'auto',
-      accounts: { mnemonic }
+      // gasPrice: 200_000_000,
+      // gasPrice: 'auto',
+      gas: "auto",
+      accounts: { mnemonic },
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
