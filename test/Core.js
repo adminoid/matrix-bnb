@@ -436,7 +436,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
       console.info("runRegistrations start", total)
       console.log([...Array(total).keys()])
 
-      const wallets = await getWallets()
+      let wallets = await getWallets()
       let users = []
 
       // loop 1
@@ -501,13 +501,24 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
           gasUsed = receipt2.gasUsed.toNumber()
 
           console.info(2,`w ${index} -> `, wallets[index].address)
+
+          if (index === 30) console.warn(30, index)
+
+          users[index] = {
+            wallet: wallets[index],
+            gasUsed,
+          }
         }
       }
 
       // loop 2
       for (let index in [...Array(total).keys()]) {
         index = Number(index)
-        if (index > 5 && index <= 30) {
+        // if (index > 5 && index <= 30) {
+        if (index > 5 && index <= 29) {
+
+          console.log('wallets[30].address 111', wallets[30].address)
+
           const tx3 = await wallets[index].sendTransaction({
             to: p.CoreToken.address,
             value: ethers.utils.parseEther('0.04'),
@@ -515,6 +526,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
           await tx3.wait()
 
           console.info(3,`w ${index} -> `, wallets[index].address)
+
         }
       }
 
@@ -523,12 +535,47 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
   })
 
   it('check 31 user registrations with 31 user going to third matrix', async () => {
-    const users = await runRegistrations(37) // 31 regs -> 36 real
+
+    // TODO: get info before tx
+    const userCoreBefore = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
+    console.log('Before:', userCoreBefore)
+
+    await runRegistrations(37) // 31 regs -> 36 real
+
+    // TODO: get info after tx
+    const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
+    console.log('After:', userCoreAfter)
+  }).timeout(999999)
+
+  it('should run last operation', async () => {
+
+    let wallets = await getWallets()
+
+    // TODO: get info before tx
+    const userCoreBefore = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
+    console.log('Before:', userCoreBefore)
+
+    // console.log('p.CoreToken.address', p.CoreToken.address)
+    console.log('wallets[30].address 222', wallets[30].address)
+
+    const tx4 = await wallets[30].sendTransaction({ // from: 0x7d86687f980a56b832e9378952b738b614a99dc6
+      to: p.CoreToken.address,
+      value: ethers.utils.parseEther('0.88'),
+    })
+    await tx4.wait()
+
+    console.info(3,`w ${30} -> `, wallets[30].address)
+
+    // TODO: get info after tx
+    const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
+    console.log('After:', userCoreAfter)
+
   }).timeout(999999)
 
   // 0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097 - id5, level 0 and level 1, total 32 (31 last)
-  // 0xcd3B766CCDd6AE721141F452C550Ca635964ce71 - id6 under id5
+  // 0xcd3B766CCDd6AE721141F452C550Ca635964ce71 - id6 ref of id5
   // 0x9eF6c02FB2ECc446146E05F1fF687a788a8BF76d - id31
+  // 0x7D86687F980A56b832e9378952B738b614A99dc6 - id30
 
   /**
    * 1) надо послать на контракт от id5 до id30 по 0.03 tbnb (0.01+0.02)
