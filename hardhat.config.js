@@ -46,13 +46,13 @@ module.exports = {
       url: "http://127.0.0.1:8545",
       // gas: 600_000_000,
       gas: "auto",
-      blockGasLimit: 999000000,
+      // blockGasLimit: 999000000,
     },
     hardhat: {
       allowUnlimitedContractSize: true,
       accounts: {
         // count: 1350,
-        count: 535,
+        count: 41,
         // count: 160,
         // count: 20,
         // count: 290,

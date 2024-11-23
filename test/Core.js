@@ -424,3 +424,117 @@ describe('practical testing interactions and that conclusions', async () => {
   }).timeout(999999)
 
 })
+
+
+
+describe('specific test suit for testing 31 user going to 3 level', async () => {
+  let p, runRegistrations
+  before(async () => {
+    p = await prepare()
+    runRegistrations = async (total) => {
+
+      console.info("runRegistrations start", total)
+      console.log([...Array(total).keys()])
+
+      const wallets = await getWallets()
+      let users = []
+
+      // loop 1
+      for (let index in [...Array(total).keys()]) {
+
+        index = Number(index)
+
+        // console.log(typeof index, index)
+
+        let gasUsed
+        if (index > 4 && index <= 30 && wallets[index]) {
+          if (index === 6) {
+            const tx1 = await p.CoreToken
+                .connect(wallets[index]) // todo <-- id6
+                .register(wallets[index - 1].address, { // todo <-- set wallet id5
+                  value: ethers.utils.parseEther('0.01'),
+                })
+            const receipt1 = await tx1.wait()
+            gasUsed = receipt1.gasUsed.toNumber()
+
+            const tx2 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.02'),
+            })
+            const receipt2 = await tx2.wait()
+            gasUsed += receipt2.gasUsed.toNumber()
+          }
+          else {
+            const tx1 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.03'),
+            })
+            const receipt1 = await tx1.wait()
+            gasUsed = receipt1.gasUsed.toNumber()
+          }
+
+          users[index] = {
+            wallet: wallets[index],
+            gasUsed,
+          }
+
+          console.info(1,`w ${index} -> `, wallets[index].address)
+
+        } else if (index === 31) {
+
+          console.info('index == 31')
+          // console.log(wallets[index])
+
+          // const tx1 = await p.CoreToken
+          //     .connect(wallets[index]) // todo <-- id6
+          //     .register(wallets[index - 1].address, { // todo <-- set wallet id5
+          //       value: ethers.utils.parseEther('0.01'),
+          //     })
+          // const receipt1 = await tx1.wait()
+          // gasUsed = receipt1.gasUsed.toNumber()
+
+          const tx2 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.07'),
+          })
+          const receipt2 = await tx2.wait()
+          gasUsed = receipt2.gasUsed.toNumber()
+
+          console.info(2,`w ${index} -> `, wallets[index].address)
+        }
+      }
+
+      // loop 2
+      for (let index in [...Array(total).keys()]) {
+        index = Number(index)
+        if (index > 5 && index <= 30) {
+          const tx3 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.04'),
+          })
+          await tx3.wait()
+
+          console.info(3,`w ${index} -> `, wallets[index].address)
+        }
+      }
+
+      return users
+    }
+  })
+
+  it('check 31 user registrations with 31 user going to third matrix', async () => {
+    const users = await runRegistrations(37) // 31 regs -> 36 real
+  }).timeout(999999)
+
+  // 0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097 - id5, level 0 and level 1, total 32 (31 last)
+  // 0xcd3B766CCDd6AE721141F452C550Ca635964ce71 - id6 under id5
+  // 0x9eF6c02FB2ECc446146E05F1fF687a788a8BF76d - id31
+
+  /**
+   * 1) надо послать на контракт от id5 до id30 по 0.03 tbnb (0.01+0.02)
+   * 2) надо послать id31 (по счету это 32й) на контракт 0.07 tbnb (0.01+0.02+0.04)
+   * 3) надо послать на контракт c id6 по id30 еще по 0.04
+   * Главное чтоб id6 был рефералом id5, т.е. регистрируешь id6 под id5
+   */
+
+})
