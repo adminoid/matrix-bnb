@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Core.sol";
-import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -81,21 +80,10 @@ contract MatrixTemplate {
         uint plateau;
         uint mod;
         (parentIndex, plateau, mod) = calcUserData();
-
-        console.log("parentIndex, plateau, mod");
-        console.log("parentIndex", parentIndex);
-        console.log("plateau", plateau);
-        console.log("mod", mod);
-
         User memory user = User(IndicesTotal, parentIndex, false, plateau, true);
         if (mod == 0) {
             user.isRight = true;
             if (parentIndex > 0) {
-
-                console.log("going up");
-                console.log("parentIndex", parentIndex);
-                console.log("_wallet mt", _wallet);
-
                 goUp(parentIndex, _wallet);
             }
         }
@@ -150,22 +138,11 @@ contract MatrixTemplate {
                 break;
             }
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
-
-            console.log("goUp");
-            console.log("i", i);
-            console.log("matrixIndex", matrixIndex);
-            console.log("updatedUserAddress", updatedUserAddress);
-
             if (i <= 3) {
                 if (matrixIndex == 0) {
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
                 } else {
                     if (i == 2) {
-
-                        console.log("going to Core.updateUser back");
-                        console.log("CoreAddress", CoreAddress);
-                        console.log("updatedUserAddress", updatedUserAddress);
-
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
                     } else { // i == 3
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
