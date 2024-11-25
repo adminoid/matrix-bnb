@@ -433,8 +433,8 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
     p = await prepare()
     runRegistrations = async (total) => {
 
-      console.info("runRegistrations start", total)
-      console.log([...Array(total).keys()])
+      // console.info("runRegistrations start", total)
+      // console.log([...Array(total).keys()])
 
       let wallets = await getWallets()
       let users = []
@@ -514,15 +514,25 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
       // loop 2
       for (let index in [...Array(total).keys()]) {
         index = Number(index)
-        // if (index > 5 && index <= 30) {
-        if (index > 5 && index <= 29) {
+        if (index > 5 && index <= 30) {
+        // if (index > 5 && index <= 29) {
 
-          console.log('wallets[30].address 111', wallets[30].address)
+          // console.log('wallets[30].address 111', wallets[30].address)
 
-          const tx3 = await wallets[index].sendTransaction({
-            to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.04'),
-          })
+          let tx3
+          if (index === 30) {
+            console.log('wallets[30].address 111', wallets[30].address)
+            tx3 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.04001'),
+            })
+            console.log('wallets[30].address 222', wallets[30].address)
+          } else {
+            tx3 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.04'),
+            })
+          }
           await tx3.wait()
 
           console.info(3,`w ${index} -> `, wallets[index].address)
@@ -536,14 +546,16 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
 
   it('check 31 user registrations with 31 user going to third matrix', async () => {
 
+    let wallets = await getWallets()
+
     // TODO: get info before tx
-    const userCoreBefore = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
+    const userCoreBefore = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[5].address);
     console.log('Before:', userCoreBefore)
 
     await runRegistrations(37) // 31 regs -> 36 real
 
     // TODO: get info after tx
-    const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
+    const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[5].address);
     console.log('After:', userCoreAfter)
   }).timeout(999999)
 
@@ -569,10 +581,10 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
     // TODO: get info after tx
     const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
     console.log('After:', userCoreAfter)
-
+    // address(bytes20(bytes("0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097")))
   }).timeout(999999)
 
-  // 0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097 - id5, level 0 and level 1, total 32 (31 last)
+  // 0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097 - id5, level 0 and level 1, total 32 (31 last)
   // 0xcd3B766CCDd6AE721141F452C550Ca635964ce71 - id6 ref of id5
   // 0x9eF6c02FB2ECc446146E05F1fF687a788a8BF76d - id31
   // 0x7D86687F980A56b832e9378952B738b614A99dc6 - id30

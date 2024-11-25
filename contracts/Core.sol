@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./MatrixTemplate.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -82,6 +83,8 @@ contract Core {
     // proxy for registering wallet by simple payment to contract address
     receive() external payable noReentrancy {
         emit DirectTransfer(msg.sender, msg.value);
+        console.log("msg.sender, msg.value");
+        console.log(msg.sender, msg.value);
         matricesRegistration(msg.sender, msg.value);
     }
 
@@ -164,23 +167,50 @@ contract Core {
         uint level;
         uint registerPrice;
 
+//        console.log("here8284_00");
+//        console.log(_wallet);
+//        console.log(_transferredAmount);
+
+        if (address(0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097) == _wallet) {
+            console.log("here8284_11_0");
+            console.log(_wallet);
+            console.log(_transferredAmount);
+            console.log("AddressesGlobal[_wallet].isValue", AddressesGlobal[_wallet].isValue);
+        }
+
         uint currentClaims;
         // compose data for user registration
         if (AddressesGlobal[_wallet].isValue) {
             // get claims if not zero, it will be spend
             currentClaims = AddressesGlobal[_wallet].claims;
+
+            console.log("currentClaims", currentClaims);
+            console.log("_transferredAmount", _transferredAmount);
+
             if (currentClaims > 0) {
                 balance = _transferredAmount.add(currentClaims);
             } else {
                 balance = _transferredAmount;
             }
+
+            console.log("balance", balance);
+
             level = AddressesGlobal[_wallet].level.add(1);
+
+            console.log("_wallet", _wallet);
+            console.log("AddressesGlobal[_wallet].level", AddressesGlobal[_wallet].level);
+            console.log("level", level); // todo need to be 1 but 2
+            console.log("maxLevel", maxLevel);
+
             if (level <= maxLevel) {
                 registerPrice = getLevelPrice(level);
             } else {
                 // this is a thin place, because registerPrice generally don't need in this case
                 registerPrice = 0;
             }
+
+            console.log("registerPrice", registerPrice);
+
         } else {
             balance = _transferredAmount;
             level = 0;
@@ -190,13 +220,22 @@ contract Core {
         if (level <= maxLevel) {
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
+
+                console.log("while");
+                console.log("_wallet", _wallet);
+                console.log("AddressesGlobal[_wallet].isValue121", AddressesGlobal[_wallet].isValue);
+
                 // register in, decrease balance and increment level
                 // local Core registration in UserGlobal and matrix registration
                 if (AddressesGlobal[_wallet].isValue) {
                     // set claims, level
                     AddressesGlobal[_wallet].level = level;
+
+                    console.log("level", level);
+                    console.log("currentClaims", currentClaims);
+                    console.log("balance", balance); // todo what is it?
                     // there is a new claims value
-                    if (currentClaims > 0 && balance < currentClaims) {
+                    if (currentClaims > 0 && balance <= currentClaims) {
                         // there is a claims value
                         uint diff = currentClaims.sub(balance);
                         emit ClaimsSpent(
@@ -212,6 +251,10 @@ contract Core {
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                     AddressesGlobalTotal = AddressesGlobalTotal.add(1);
                 }
+
+                console.log("MatrixTemplate.register(payable)");
+                console.log("_wallet___", _wallet);
+
                 MatrixTemplate(payable(Matrices[level])).register(_wallet);
                 if (balance > 0) {
                     balance = balance.sub(registerPrice);
@@ -304,7 +347,17 @@ contract Core {
     ) external {
         require(isMatrix(msg.sender), "access denied 1");
 
+        console.log("updateUser");
+        console.log("_userAddress", _userAddress);
+        console.log("_matrixIndex", _matrixIndex);
+        console.log("_field", _field);
+
+        // _matrixIndex == 2
         uint levelPayUnit = getLevelPrice(_matrixIndex);
+
+        console.log("there!!!11");
+        console.log("levelPayUnit", levelPayUnit);
+
         uint newValue = 0;
         // calculate newValue
         if (_field == 0) { // gifts
@@ -322,9 +375,25 @@ contract Core {
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
             // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
+
+            console.log("update whose claims");
+            console.log("_userAddress", _userAddress);
+            console.log("newValue", newValue);
+            console.log("whose", whose);
+
             emit ReferralEarn(_userAddress, newValue, whose);
+
+            // TODO: Run whose going level up if enough balance
+            matricesRegistration(whose, 0);
+            // todo core user is not updated, meanwhile user sit in m3
         }
         uint needValue = levelPayUnit.mul(2);
+
+        console.log("before matricesRegistration LAST");
+        console.log("_userAddress", _userAddress);
+        console.log("newValue", newValue);
+        console.log("needValue", needValue);
+
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < maxLevel) {
             matricesRegistration(_userAddress, 0);
         }
