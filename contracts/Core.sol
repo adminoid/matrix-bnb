@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./MatrixTemplate.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+//import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -70,6 +71,7 @@ contract Core {
             AddressesGlobal[_fiveFounders[i]] = UserGlobal(0, 0, maxLevel, prevFounder, true);
             // add total users value property, increment in all places where new element adds
             AddressesGlobalTotal = i;
+            emit WhoseRegistered(_fiveFounders[i], prevFounder, 0);
         }
         // initialize 20 matrices
         for (uint i = 0; i <= maxLevel; i++) {
@@ -83,6 +85,7 @@ contract Core {
     receive() external payable noReentrancy {
         emit DirectTransfer(msg.sender, msg.value);
         matricesRegistration(msg.sender, msg.value);
+        emit WhoseRegistered(msg.sender, zeroWallet, 0);
     }
 
     // stub to hide unrecognized-selector messages
