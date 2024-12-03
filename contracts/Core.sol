@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "./MatrixTemplate.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-//import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -202,6 +201,7 @@ contract Core {
                     if (currentClaims > 0 && balance <= currentClaims) {
                         // there is a claims value
                         uint diff = currentClaims.sub(balance);
+                        // it is the event for claims spending to next level counting
                         emit ClaimsSpent(
                             _wallet,
                             diff,
