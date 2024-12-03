@@ -84,7 +84,6 @@ contract Core {
     receive() external payable noReentrancy {
         emit DirectTransfer(msg.sender, msg.value);
         matricesRegistration(msg.sender, msg.value);
-        emit WhoseRegistered(msg.sender, zeroWallet, 0);
     }
 
     // stub to hide unrecognized-selector messages
@@ -214,6 +213,7 @@ contract Core {
                     // put zeroWallet to whose referral address
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                     AddressesGlobalTotal = AddressesGlobalTotal.add(1);
+                    emit WhoseRegistered(_wallet, zeroWallet, balance);
                 }
                 MatrixTemplate(payable(Matrices[level])).register(_wallet);
                 if (balance > 0) {
