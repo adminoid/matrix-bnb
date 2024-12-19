@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./MatrixTemplate.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -206,6 +207,13 @@ contract Core {
                             diff,
                             level
                         );
+
+                        console.log("2_ClaimsSpent__2_ClaimsSpent");
+                        console.log(_wallet);
+                        console.log(level);
+                        console.log(currentClaims);
+                        console.log(diff);
+
                     }
                     currentClaims = balance;
                     AddressesGlobal[_wallet].claims = balance;

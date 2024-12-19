@@ -37,8 +37,8 @@ module.exports = {
       }
     }
   },
-  // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  defaultNetwork: "localhost",
+  // defaultNetwork: "testnet",
   // defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
@@ -52,7 +52,8 @@ module.exports = {
       allowUnlimitedContractSize: true,
       accounts: {
         // count: 1350,
-        count: 41,
+        // count: 41,
+        count: 50,
         // count: 160,
         // count: 20,
         // count: 290,

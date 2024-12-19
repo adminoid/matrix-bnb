@@ -433,8 +433,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
     p = await prepare()
     runRegistrations = async (total) => {
 
-      // console.info("runRegistrations start", total)
-      // console.log([...Array(total).keys()])
+      // console.log(p.CoreToken.address)
 
       let wallets = await getWallets()
       let users = []
@@ -444,11 +443,39 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
 
         index = Number(index)
 
-        // console.log(typeof index, index)
+        console.log('idx_!', index)
+        console.log(wallets[index].address)
 
+        // todo -- id5 до id30
         let gasUsed
-        if (index > 4 && index <= 30 && wallets[index]) {
-          if (index === 6) {
+        if (index >= 5 && index <= 30 && wallets[index]) {
+          if (index === 5) {
+
+            console.log('whose1', wallets[index - 1].address) // 0x1CBd3b2770909D4e10f157cABC84C7264073C9Ec
+
+            // todo -- id5 под id4
+
+            const tx1 = await p.CoreToken
+                .connect(wallets[index]) // todo <-- id5
+                .register('0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', { // todo <-- set wallet id4
+                  value: ethers.utils.parseEther('0.01'),
+                })
+            const receipt1 = await tx1.wait()
+            gasUsed = receipt1.gasUsed.toNumber()
+
+            // const tx2 = await wallets[index].sendTransaction({
+            //   to: p.CoreToken.address,
+            //   value: ethers.utils.parseEther('0.02'),
+            // })
+            // const receipt2 = await tx2.wait()
+            // gasUsed += receipt2.gasUsed.toNumber()
+          }
+          else if (index === 6) {
+
+            console.log('whose2', wallets[index - 1].address)
+
+            // todo -- id6 под id5
+
             const tx1 = await p.CoreToken
                 .connect(wallets[index]) // todo <-- id6
                 .register(wallets[index - 1].address, { // todo <-- set wallet id5
@@ -456,15 +483,12 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
                 })
             const receipt1 = await tx1.wait()
             gasUsed = receipt1.gasUsed.toNumber()
-
-            const tx2 = await wallets[index].sendTransaction({
-              to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.02'),
-            })
-            const receipt2 = await tx2.wait()
-            gasUsed += receipt2.gasUsed.toNumber()
           }
           else {
+
+            console.log('whose3', wallets[index - 1].address)
+
+            // todo -- id5 до id30 // сразу можно по 0,03 отправить
             const tx1 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
               value: ethers.utils.parseEther('0.03'),
@@ -480,9 +504,10 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
 
           console.info(1,`w ${index} -> `, wallets[index].address)
 
-        } else if (index === 31) {
+        }
+        else if (index === 31) {
 
-          console.info('index == 31')
+          console.info('index == 31 !+^')
           // console.log(wallets[index])
 
           // const tx1 = await p.CoreToken
@@ -493,16 +518,20 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
           // const receipt1 = await tx1.wait()
           // gasUsed = receipt1.gasUsed.toNumber()
 
+          console.log('whose4', wallets[index - 1].address)
+
+          // todo -- от id31 отправить 0,07
+
           const tx2 = await wallets[index].sendTransaction({
             to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.07'),
+            value: ethers.utils.parseEther('0.0700007'),
           })
           const receipt2 = await tx2.wait()
           gasUsed = receipt2.gasUsed.toNumber()
 
           console.info(2,`w ${index} -> `, wallets[index].address)
 
-          if (index === 30) console.warn(30, index)
+          // if (index === 30) console.warn(30, index)
 
           users[index] = {
             wallet: wallets[index],
@@ -510,35 +539,62 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
           }
         }
       }
+      // end of loop 1
+
+      // послал на контракт от id5 до id30 еще по 0.02 tbnb через сайт;
+
+      // 3) послал на контракт от id31 номер кошелька 0x3C91f186d667b4Ec812E09392680b3e83cBAB4b7 (по счету это 32й) через сайт на контракт 0.02 tbnb (0,01 ушел на регистрацию + 0,01 упал на claim), послал на контракт еще 0,01 tbnb (этот 0,01 упал на claim), произошло списание с claim 0,02 tbnb и произошел автопереход id31 с матрицы 1 на матрицу 2 – этот автопереход произошел правильно, потом отправил на контракт 0,04 tbnb и id31 перешел на матрицу3;
+
+      // console.log('wallets[31].address 111', wallets[31].address)
+      // const tx4 = await wallets[31].sendTransaction({
+      //   to: p.CoreToken.address,
+      //   value: ethers.utils.parseEther('0.020002'),
+      // })
+      // await tx4.wait()
+      //
+      // const tx5 = await wallets[31].sendTransaction({
+      //   to: p.CoreToken.address,
+      //   value: ethers.utils.parseEther('0.010003'),
+      // })
+      // await tx5.wait()
+      //
+      // const tx6 = await wallets[31].sendTransaction({
+      //   to: p.CoreToken.address,
+      //   value: ethers.utils.parseEther('0.040004'),
+      // })
+      // await tx6.wait()
+
+      // 4) послал на контракт c id6 по id30 еще по 0.04 tbnb в итоге все эти id, кроме id5 перешли на матрицу 3, в момент, когда id30 отправляет 0,04 tbnb id5 должен получить от своего реферала id6 на claim 0,04 tbnb, в это же время должен был произойти автопереход и id5 должен был перейти на матрицу 3, но тут произошла ошибка и id5 перешел на матрицу4 вместо матрицы3
 
       // loop 2
       for (let index in [...Array(total).keys()]) {
         index = Number(index)
-        if (index > 5 && index <= 30) {
-        // if (index > 5 && index <= 29) {
-
-          // console.log('wallets[30].address 111', wallets[30].address)
-
-          let tx3
-          if (index === 30) {
-            console.log('wallets[30].address 111', wallets[30].address)
-            tx3 = await wallets[index].sendTransaction({
-              to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.04001'),
-            })
-            console.log('wallets[30].address 222', wallets[30].address)
-          } else {
-            tx3 = await wallets[index].sendTransaction({
+        if (index >= 6 && index <= 30) {
+          if (index !== 30) {
+            const tx7 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
               value: ethers.utils.parseEther('0.04'),
             })
+            await tx7.wait()
           }
-          await tx3.wait()
+          else { // id == 30
 
-          console.info(3,`w ${index} -> `, wallets[index].address)
+            console.info('index == 30')
+            console.log('когда id30 отправляет 0,04 tbnb id5 должен получить от своего реферала id6 на claim 0,04 tbnb, в это же время должен был произойти автопереход и id5 должен был перейти на матрицу 3, но тут произошла ошибка и id5 перешел на матрицу4 вместо матрицы3')
+
+            const tx7 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.040004'),
+            })
+            await tx7.wait()
+
+          }
+
+          console.info(7,`w ${index} -> `, wallets[index].address)
 
         }
       }
+      // end of loop 2
 
       return users
     }
@@ -549,39 +605,14 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
     let wallets = await getWallets()
 
     // TODO: get info before tx
-    const userCoreBefore = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[5].address);
+    const userCoreBefore = await p.CoreToken.connect(wallets[31].address).getUserFromCore(wallets[5].address);
     console.log('Before:', userCoreBefore)
 
     await runRegistrations(37) // 31 regs -> 36 real
 
     // TODO: get info after tx
-    const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[5].address);
+    const userCoreAfter = await p.CoreToken.connect(wallets[31].address).getUserFromCore(wallets[5].address);
     console.log('After:', userCoreAfter)
-  }).timeout(999999)
-
-  it('should run last operation', async () => {
-
-    let wallets = await getWallets()
-
-    // TODO: get info before tx
-    const userCoreBefore = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
-    console.log('Before:', userCoreBefore)
-
-    // console.log('p.CoreToken.address', p.CoreToken.address)
-    console.log('wallets[30].address 222', wallets[30].address)
-
-    const tx4 = await wallets[30].sendTransaction({ // from: 0x7d86687f980a56b832e9378952b738b614a99dc6
-      to: p.CoreToken.address,
-      value: ethers.utils.parseEther('0.88'),
-    })
-    await tx4.wait()
-
-    console.info(3,`w ${30} -> `, wallets[30].address)
-
-    // TODO: get info after tx
-    const userCoreAfter = await p.CoreToken.connect(wallets[30].address).getUserFromCore(wallets[30].address);
-    console.log('After:', userCoreAfter)
-    // address(bytes20(bytes("0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097")))
   }).timeout(999999)
 
   // 0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097 - id5, level 0 and level 1, total 32 (31 last)
@@ -596,4 +627,28 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
    * Главное чтоб id6 был рефералом id5, т.е. регистрируешь id6 под id5
    */
 
+  /**
+   * 1)  Я зарегистрировал по 0,01 tbnb через сайт id5 номер кошелька 0x2F9e33197Df28AAe0fB29Bec7EcFE08e8f03Bee3 под рефовода id4, id6 номер кошелька 0x9897D2737a4c19b55D429794ad48E062bC7f9b1d под рефовода id5, и еще несколько id зарегистрировал также;
+   *
+   + * // id5 под id4 // id6 под id5
+   *
+   * 2)  послал на контракт от id5 до id30 еще по 0.02 tbnb через сайт;
+   *
+   * // сразу можно по 0,03 отправить по 0,02 (+0,01 регистрация)
+   *
+   * 3)  послал на контракт от id31 номер кошелька 0x3C91f186d667b4Ec812E09392680b3e83cBAB4b7 (по счету это 32й) через сайт на контракт 0.02 tbnb (0,01 ушел на регистрацию + 0,01 упал на claim), послал на контракт еще 0,01 tbnb (этот 0,01 упал на claim), произошло списание с claim 0,02 tbnb и произошел автопереход id31 с матрицы 1 на матрицу 2 – этот автопереход произошел правильно, потом отправил на контракт 0,04 tbnb и id31 перешел на матрицу3;
+   *
+   * // от id31 отправить 0,07
+   *
+   * // с id6 по id30 по 0,04 (when id30 send, id5 must got 0,04 to claim
+   * // 0,04 должно списаться на level 2 (3 по счету)
+   *
+   * 4)  послал на контракт c id6 по id30 еще по 0.04 tbnb в итоге все эти id, кроме id5 перешли на матрицу 3, в момент, когда id30 отправляет 0,04 tbnb id5 должен получить от своего реферала id6 на claim 0,04 tbnb, в это же время должен был произойти автопереход и id5 должен был перейти на матрицу 3, но тут произошла ошибка и id5 перешел на матрицу4 вместо матрицы3
+   */
+
+  it('just deploy async', async () => {
+    // console.log(p)
+    console.log("started")
+    // p = await prepare()
+  }).timeout(999999)
 })
