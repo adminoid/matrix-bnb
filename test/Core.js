@@ -463,12 +463,12 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
             const receipt1 = await tx1.wait()
             gasUsed = receipt1.gasUsed.toNumber()
 
-            // const tx2 = await wallets[index].sendTransaction({
-            //   to: p.CoreToken.address,
-            //   value: ethers.utils.parseEther('0.02'),
-            // })
-            // const receipt2 = await tx2.wait()
-            // gasUsed += receipt2.gasUsed.toNumber()
+            const tx2 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.02'),
+            })
+            const receipt2 = await tx2.wait()
+            gasUsed += receipt2.gasUsed.toNumber()
           }
           else if (index === 6) {
 
@@ -483,6 +483,13 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
                 })
             const receipt1 = await tx1.wait()
             gasUsed = receipt1.gasUsed.toNumber()
+
+            const tx2 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.02'),
+            })
+            const receipt2 = await tx2.wait()
+            gasUsed += receipt2.gasUsed.toNumber()
           }
           else {
 
@@ -540,6 +547,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
         }
       }
       // end of loop 1
+      // ошибок нет??
 
       // послал на контракт от id5 до id30 еще по 0.02 tbnb через сайт;
 
@@ -577,6 +585,9 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
             })
             await tx7.wait()
           }
+
+          // TODO: here is error !!!
+
           else { // id == 30
 
             console.info('index == 30')
@@ -584,7 +595,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
 
             const tx7 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.040004'),
+              value: ethers.utils.parseEther('0.04000101'),
             })
             await tx7.wait()
 
