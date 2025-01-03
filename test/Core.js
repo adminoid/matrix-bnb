@@ -619,7 +619,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
 
             const tx7 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.0414'),
+              value: ethers.utils.parseEther('0.0413'),
             })
             await tx7.wait()
 

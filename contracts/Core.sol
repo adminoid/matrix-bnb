@@ -180,7 +180,10 @@ contract Core {
         uint nexLevel = 0;
         uint8 levelOverflow = 0;
 
-        console.log("<Core.matricesRegistration() 1.0>");
+        console.log("");
+        console.log("<Core.matricesRegistration() 1.0 before all>");
+        console.log("");
+
         console.log("~_transferredAmount first before", _transferredAmount);
         console.log("~CLAIMS first before", AddressesGlobal[_wallet].claims);
         console.log("_wallet", _wallet);
@@ -206,7 +209,10 @@ contract Core {
             balance = balance.add(_transferredAmount);
         }
 
-        console.log("<Core.matricesRegistration() 1.1>");
+        console.log("");
+        console.log("<Core.matricesRegistration() 1.1 after initial values>");
+        console.log("");
+
         console.log("~~balance first before", balance);
         console.log("~~registerPrice first before", registerPrice);
         console.log("~~nexLevel after prepare", nexLevel);
@@ -222,7 +228,10 @@ contract Core {
                     // set claims, level
                     AddressesGlobal[_wallet].level = nexLevel;
 
-                    console.log("<Core.matricesRegistration() 1.2>");
+                    console.log("");
+                    console.log("<Core.matricesRegistration() 1.2 if-while-if is-value>");
+                    console.log("");
+
                     console.log("-------000_ClaimsSpent");
                     console.log("--_wallet", _wallet);
                     console.log("--balance", balance);
@@ -244,13 +253,16 @@ contract Core {
                 }
 
                 balance = balance.sub(registerPrice);
+
+                // todo -- not saved there, can be used intermediate variable
                 AddressesGlobal[_wallet].claims = balance;
 
-                console.log("<Core.matricesRegistration() 1.2>");
+                console.log("");
+                console.log("<Core.matricesRegistration() 1.3 while after if>");
                 console.log("");
 
-                console.log("New claims !! AddressesGlobal[_wallet].claims", AddressesGlobal[_wallet].claims);
                 console.log("_wallet", _wallet);
+                console.log("New claims !! AddressesGlobal[_wallet].claims", AddressesGlobal[_wallet].claims);
                 console.log("balance", balance);
                 console.log("New claims !! AddressesGlobal[_wallet].gifts", AddressesGlobal[_wallet].gifts);
                 console.log("New claims !! AddressesGlobal[_wallet].level", AddressesGlobal[_wallet].level);
@@ -258,6 +270,7 @@ contract Core {
 
                 MatrixTemplate(payable(Matrices[nexLevel])).register(_wallet);
 
+                console.log("");
                 console.log("<Core.matricesRegistration() 1.3> after mt.register()");
                 console.log("");
 
@@ -381,12 +394,13 @@ contract Core {
             AddressesGlobal[whose].claims = newValue;
             emit ReferralEarn(_userAddress, newValue, whose);
 
-            console.log("<Core.updateUser() 1.0>");
+            console.log("");
+            console.log("<Core.updateUser() 1.0 whose>");
             console.log("");
 
             console.log("==|before matricesRegistration 2 ------->");
-            console.log("<updateUser whose 2> update by whose", whose);
-            console.log("");
+            console.log(whose);
+            console.log(AddressesGlobal[whose].claims);
 
             // run whose going level up if enough balance
             matricesRegistration(whose, 0);
@@ -396,12 +410,11 @@ contract Core {
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < maxLevel) {
 
-            console.log("<Core.updateUser() 1.1>");
+            console.log("");
+            console.log("<Core.updateUser() 1.1 _userAddress>");
             console.log("");
 
             console.log("==|before matricesRegistration 3");
-            console.log("<updateUser _userAddress 3> update by _userAddress", _userAddress);
-            console.log("");
 
             matricesRegistration(_userAddress, 0);
         }
@@ -414,6 +427,7 @@ contract Core {
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
 
+        console.log("");
         console.log("<Core.sendHalf() 1.0>");
         console.log("");
 
