@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./Core.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -84,6 +85,7 @@ contract MatrixTemplate {
         if (mod == 0) {
             user.isRight = true;
             if (parentIndex > 0) {
+                console.log("<MT register()>");
                 goUp(parentIndex, _wallet);
             }
         }
@@ -140,16 +142,20 @@ contract MatrixTemplate {
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
             if (i <= 3) {
                 if (matrixIndex == 0) {
+                    console.log("<MT goUp()> updateUser 0");
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
                 } else {
                     if (i == 2) {
+                        console.log("<MT goUp()> updateUser 1");
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
                     } else { // i == 3
+                        console.log("<MT goUp()> updateUser 2");
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                         emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
+                console.log("<MT goUp()> updateUser 3");
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
                 emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
                 if (i == 5) {

@@ -498,7 +498,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
             // todo -- id5 до id30 // сразу можно по 0,03 отправить
             const tx1 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.03'),
+              value: ethers.utils.parseEther('0.0312'),
             })
             const receipt1 = await tx1.wait()
             gasUsed = receipt1.gasUsed.toNumber()
@@ -586,16 +586,40 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
             await tx7.wait()
           }
 
-          // TODO: here is error !!!
+          // id5 0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097
+          // claims: 0.02 BNB
+          // gifts: 0.01 BNB
+          // level: 1
+          // whose: 0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f
+          // -------------------------------------------------
+          // total in matrix level[0] (starts with 1): 32
+          // index (starts with 0): 5
+          // parent: 2
+          // isRight: false
+          // plateau: 3
 
+          // ==================After==========================
+
+          // claims: 0.02 BNB
+          // gifts: 0.01 BNB
+          // level: 3
+          // whose: 0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f
+          // -------------------------------------------------
+          // total in matrix level[3] (starts with 1): 6
+          // index (starts with 0): 5
+          // parent: 2
+          // isRight: false
+          // plateau: 3
+
+          // TODO: here is error !!!
           else { // id == 30
 
-            console.info('index == 30')
+            console.info('777 index == 30')
             console.log('когда id30 отправляет 0,04 tbnb id5 должен получить от своего реферала id6 на claim 0,04 tbnb, в это же время должен был произойти автопереход и id5 должен был перейти на матрицу 3, но тут произошла ошибка и id5 перешел на матрицу4 вместо матрицы3')
 
             const tx7 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.04000101'),
+              value: ethers.utils.parseEther('0.0414'),
             })
             await tx7.wait()
 
