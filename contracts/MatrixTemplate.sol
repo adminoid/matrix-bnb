@@ -73,7 +73,7 @@ contract MatrixTemplate {
         methods below is important interactions includes base logic
     */
 
-    function register(address _wallet) external {
+    function register(address _wallet, Core.UserGlobal calldata tmpUser) external {
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
         // calculate base user data
@@ -88,7 +88,7 @@ contract MatrixTemplate {
                 console.log("");
                 console.log("<MT register()>");
                 console.log("");
-                goUp(parentIndex, _wallet);
+                goUp(parentIndex, _wallet, tmpUser);
             }
         }
         Addresses[_wallet] = user;
@@ -134,7 +134,7 @@ contract MatrixTemplate {
         return (parentIndex, plateau, mod);
     }
 
-    function goUp(uint _parentIndex, address registeredWallet) private {
+    function goUp(uint _parentIndex, address registeredWallet, Core.UserGlobal calldata tmpUser) private {
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
         for (uint i = 2; i <= 5; i++) {
@@ -147,18 +147,18 @@ contract MatrixTemplate {
                     console.log("");
                     console.log("<MT goUp()> updateUser 0");
                     console.log("");
-                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0); // gifts
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, tmpUser); // gifts
                 } else {
                     if (i == 2) {
                         console.log("");
                         console.log("<MT goUp()> updateUser 1");
                         console.log("");
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2); // whose (ref bringer) claims
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, tmpUser); // whose (ref bringer) claims
                     } else { // i == 3
                         console.log("");
                         console.log("<MT goUp()> updateUser 2");
                         console.log("");
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, tmpUser); // holder claims
                         emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
@@ -166,7 +166,7 @@ contract MatrixTemplate {
                 console.log("");
                 console.log("<MT goUp()> updateUser 3");
                 console.log("");
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1); // holder claims
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, tmpUser); // holder claims
                 emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
                 if (i == 5) {
                     break;
