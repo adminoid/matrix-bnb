@@ -635,7 +635,7 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
     }
   })
 
-  it('check 31 user registrations with 31 user going to third matrix', async () => {
+  it('check 31 user registrations with 31st user going to third matrix', async () => {
 
     let wallets = await getWallets()
 

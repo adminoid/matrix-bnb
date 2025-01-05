@@ -89,7 +89,7 @@ contract Core {
         console.log("<receive()>", msg.sender, msg.value);
         console.log("");
 
-        matricesRegistration(msg.sender, msg.value, UserGlobal(0, 0, 0, address(0), false));
+        matricesRegistration(msg.sender, msg.value, UserGlobal(0, 0, 0, address(0), false), false);
     }
 
     // stub to hide unrecognized-selector messages
@@ -162,7 +162,7 @@ contract Core {
                 console.log("==|before matricesRegistration 1");
                 console.log("");
 
-                matricesRegistration(msg.sender, change, UserGlobal(0, 0, 0, address(0), false));
+                matricesRegistration(msg.sender, change, UserGlobal(0, 0, 0, address(0), false), false);
             } else {
                 // transfer with change for full price
                 (bool sent,) = payable(msg.sender).call{value: change}("");
@@ -174,7 +174,7 @@ contract Core {
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
-    function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory tmpUser) private {
+    function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory tmpUser, bool isWhose) private {
         uint registerPrice = 0;
         uint balance = 0;
         uint nexLevel = 0;
@@ -189,6 +189,10 @@ contract Core {
         console.log("tmpUser.level", tmpUser.level);
         console.log("tmpUser.whose", tmpUser.whose);
         console.log("tmpUser.isValue", tmpUser.isValue);
+
+        if (tmpUser.isValue) {
+            AddressesGlobal[_wallet] = tmpUser;
+        }
 
         console.log("~_transferredAmount first before", _transferredAmount);
         console.log("~CLAIMS first before", AddressesGlobal[_wallet].claims);
@@ -263,8 +267,6 @@ contract Core {
                 // todo -- not saved there, can be used intermediate variable
                 AddressesGlobal[_wallet].claims = balance;
 
-                UserGlobal memory tmpUserBackup = AddressesGlobal[_wallet];
-
                 console.log("");
                 console.log("<Core.matricesRegistration() 1.3 while after if>");
                 console.log("");
@@ -275,6 +277,11 @@ contract Core {
                 console.log("New claims !! AddressesGlobal[_wallet].gifts", AddressesGlobal[_wallet].gifts);
                 console.log("New claims !! AddressesGlobal[_wallet].level", AddressesGlobal[_wallet].level);
                 console.log("New claims !! AddressesGlobal[_wallet].whose", AddressesGlobal[_wallet].whose);
+
+                UserGlobal memory tmpUserBackup = UserGlobal(0, 0, 0, address(0), false);
+                if (isWhose) {
+                    tmpUserBackup = AddressesGlobal[_wallet];
+                }
 
                 MatrixTemplate(payable(Matrices[nexLevel])).register(_wallet, tmpUserBackup);
 
@@ -412,7 +419,7 @@ contract Core {
             console.log(AddressesGlobal[whose].claims);
 
             // run whose going level up if enough balance
-            matricesRegistration(whose, 0, tmpUser);
+            matricesRegistration(whose, 0, tmpUser, true);
         }
 
         // TODO: what is it???
@@ -425,7 +432,7 @@ contract Core {
 
             console.log("==|before matricesRegistration 3");
 
-            matricesRegistration(_userAddress, 0, tmpUser);
+            matricesRegistration(_userAddress, 0, tmpUser, false);
         }
     }
 
