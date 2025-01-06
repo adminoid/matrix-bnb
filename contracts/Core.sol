@@ -174,7 +174,7 @@ contract Core {
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
-    function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory tmpUser, bool isWhose) private {
+    function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory _tmpUser, bool isWhose) private {
         uint registerPrice = 0;
         uint balance = 0;
         uint nexLevel = 0;
@@ -184,14 +184,14 @@ contract Core {
         console.log("<Core.matricesRegistration() 1.0 before all>");
         console.log("");
 
-        console.log("tmpUser.claims", tmpUser.claims);
-        console.log("tmpUser.gifts", tmpUser.gifts);
-        console.log("tmpUser.level", tmpUser.level);
-        console.log("tmpUser.whose", tmpUser.whose);
-        console.log("tmpUser.isValue", tmpUser.isValue);
+        console.log("_tmpUser.claims", _tmpUser.claims);
+        console.log("_tmpUser.gifts", _tmpUser.gifts);
+        console.log("_tmpUser.level", _tmpUser.level);
+        console.log("_tmpUser.whose", _tmpUser.whose);
+        console.log("_tmpUser.isValue", _tmpUser.isValue);
 
-        if (tmpUser.isValue) {
-            AddressesGlobal[_wallet] = tmpUser;
+        if (_tmpUser.isValue) {
+            AddressesGlobal[_wallet] = _tmpUser;
         }
 
         console.log("~_transferredAmount first before", _transferredAmount);
@@ -358,9 +358,9 @@ contract Core {
         user = AddressesGlobal[_userAddress];
     }
 
-    function getWalletByIndexFromMatrix(uint level, uint index)
+    function getWalletByIndexFromMatrix(uint _level, uint _index)
     public view returns (address userAddress) {
-        userAddress = MatrixTemplate(payable(Matrices[level])).getUserAddressByIndex(index);
+        userAddress = MatrixTemplate(payable(Matrices[_level])).getUserAddressByIndex(_index);
     }
 
     function getUserFromMatrix(uint _matrixIdx, address _userWallet)
@@ -386,7 +386,7 @@ contract Core {
         address _userAddress,
         uint _matrixIndex,
         uint _field,
-        UserGlobal calldata tmpUser
+        UserGlobal calldata _tmpUser
     ) external {
         require(isMatrix(msg.sender), "access denied 1");
 
@@ -419,7 +419,7 @@ contract Core {
             console.log(AddressesGlobal[whose].claims);
 
             // run whose going level up if enough balance
-            matricesRegistration(whose, 0, tmpUser, true);
+            matricesRegistration(whose, 0, _tmpUser, true);
         }
 
         // TODO: what is it???
@@ -432,7 +432,7 @@ contract Core {
 
             console.log("==|before matricesRegistration 3");
 
-            matricesRegistration(_userAddress, 0, tmpUser, false);
+            matricesRegistration(_userAddress, 0, _tmpUser, false);
         }
     }
 

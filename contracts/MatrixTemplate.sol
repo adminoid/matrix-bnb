@@ -73,7 +73,7 @@ contract MatrixTemplate {
         methods below is important interactions includes base logic
     */
 
-    function register(address _wallet, Core.UserGlobal calldata tmpUser) external {
+    function register(address _wallet, Core.UserGlobal calldata _tmpUser) external {
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
         // calculate base user data
@@ -88,7 +88,7 @@ contract MatrixTemplate {
                 console.log("");
                 console.log("<MT register()>");
                 console.log("");
-                goUp(parentIndex, _wallet, tmpUser);
+                goUp(parentIndex, _wallet, _tmpUser);
             }
         }
         Addresses[_wallet] = user;
@@ -134,7 +134,7 @@ contract MatrixTemplate {
         return (parentIndex, plateau, mod);
     }
 
-    function goUp(uint _parentIndex, address registeredWallet, Core.UserGlobal calldata tmpUser) private {
+    function goUp(uint _parentIndex, address _registeredWallet, Core.UserGlobal calldata _tmpUser) private {
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
         for (uint i = 2; i <= 5; i++) {
@@ -147,27 +147,27 @@ contract MatrixTemplate {
                     console.log("");
                     console.log("<MT goUp()> updateUser 0");
                     console.log("");
-                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, tmpUser); // gifts
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, _tmpUser); // gifts
                 } else {
                     if (i == 2) {
                         console.log("");
                         console.log("<MT goUp()> updateUser 1");
                         console.log("");
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, tmpUser); // whose (ref bringer) claims
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, _tmpUser); // whose (ref bringer) claims
                     } else { // i == 3
                         console.log("");
                         console.log("<MT goUp()> updateUser 2");
                         console.log("");
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, tmpUser); // holder claims
-                        emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser); // holder claims
+                        emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
                 console.log("");
                 console.log("<MT goUp()> updateUser 3");
                 console.log("");
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, tmpUser); // holder claims
-                emit SentClaims(registeredWallet, updatedUserAddress, matrixIndex);
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser); // holder claims
+                emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
                 if (i == 5) {
                     break;
                 }
@@ -200,20 +200,20 @@ contract MatrixTemplate {
         }
     }
 
-    function log2(uint x)
+    function log2(uint _x)
     private pure returns(uint y) {
         assembly {
-            let arg := x
-            x := sub(x,1)
-            x := or(x, div(x, 0x02))
-            x := or(x, div(x, 0x04))
-            x := or(x, div(x, 0x10))
-            x := or(x, div(x, 0x100))
-            x := or(x, div(x, 0x10000))
-            x := or(x, div(x, 0x100000000))
-            x := or(x, div(x, 0x10000000000000000))
-            x := or(x, div(x, 0x100000000000000000000000000000000))
-            x := add(x, 1)
+            let arg := _x
+            _x := sub(_x,1)
+            _x := or(_x, div(_x, 0x02))
+            _x := or(_x, div(_x, 0x04))
+            _x := or(_x, div(_x, 0x10))
+            _x := or(_x, div(_x, 0x100))
+            _x := or(_x, div(_x, 0x10000))
+            _x := or(_x, div(_x, 0x100000000))
+            _x := or(_x, div(_x, 0x10000000000000000))
+            _x := or(_x, div(_x, 0x100000000000000000000000000000000))
+            _x := add(_x, 1)
             let m := mload(0x40)
             mstore(m,           0xf8f9cbfae6cc78fbefe7cdc3a1793dfcf4f0e8bbd8cec470b6a28a7a5a3e1efd)
             mstore(add(m,0x20), 0xf5ecf1b3e9debc68e1d9cfabc5997135bfb7a7a3938b7b606b5b4b3f2f1f0ffe)
@@ -226,7 +226,7 @@ contract MatrixTemplate {
             mstore(0x40, add(m, 0x100))
             let magic := 0x818283848586878898a8b8c8d8e8f929395969799a9b9d9e9faaeb6bedeeff
             let shift := 0x100000000000000000000000000000000000000000000000000000000000000
-            let a := div(mul(x, magic), shift)
+            let a := div(mul(_x, magic), shift)
             y := div(mload(add(m,sub(255,a))), shift)
             y := add(y, mul(256, gt(arg, 0x8000000000000000000000000000000000000000000000000000000000000000)))
         }
