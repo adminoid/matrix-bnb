@@ -687,3 +687,118 @@ describe('specific test suit for testing 31 user going to 3 level', async () => 
     // p = await prepare()
   }).timeout(999999)
 })
+
+describe('up to 5 after whose', async () => {
+  let p, runRegistrations
+  before(async () => {
+    p = await prepare()
+    runRegistrations = async (total) => {
+
+      // console.log(p.CoreToken.address)
+
+      let wallets = await getWallets()
+      let users = []
+
+      // loop 1
+      for (let i = 5; i <= 6; i++) {
+
+        const index = Number(i)
+
+        console.info('5..6 by 0.01 refs: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        // todo -- !!! id5 регистрируешь под id4 за 0.01,
+        if (index === 5) {
+          const tx1 = await p.CoreToken
+              .connect(wallets[index]) // todo <-- id5
+              .register('0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', { // todo <-- set wallet id4
+                value: ethers.utils.parseEther('0.01'),
+              })
+          await tx1.wait()
+        }
+        // todo -- !!! id6 регистрируешь под id5 за 0.01
+        else if (index === 6) {
+          const tx2 = await p.CoreToken
+              .connect(wallets[index]) // todo <-- id6
+              .register(wallets[index - 1].address, { // todo <-- set wallet id5
+                value: ethers.utils.parseEther('0.01'),
+              })
+          await tx2.wait()
+        }
+      }
+
+      // todo -- !!! Потом id5 и id6 отправляешь ещё по 0.02
+      for (let i = 5; i <= 6; i++) {
+
+        const index = Number(i)
+
+        console.info('5..6 by 0.02: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        if (index >= 5 && index <= 6 && wallets[index]) {
+          const tx3 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.02'),
+          })
+          await tx3.wait()
+        }
+      }
+
+      console.info('before 7..30 by 0.03')
+
+      // todo -- !!! Потом c id7 по id30 отправляешь на контракт по 0.03 bnb
+      for (let i = 7; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info('7..30 by 0.03: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        const tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.03'),
+        })
+        await tx4.wait()
+
+      }
+
+      // todo -- !!! После этого id5 от id6 должно прийти 0.01 gift и рефоводные 0.02 на Claim
+      console.log('the end.')
+
+      return users
+    }
+  })
+
+  it('testing up to 5', async () => {
+
+    // let wallets = await getWallets()
+
+    // TODO: get info before tx
+    // const userCoreBefore = await p.CoreToken.connect(wallets[31].address).getUserFromCore(wallets[5].address);
+    // console.log('Before:', userCoreBefore)
+
+    await runRegistrations(37) // 31 regs -> 36 real
+
+    // TODO: get info after tx
+    // const userCoreAfter = await p.CoreToken.connect(wallets[31].address).getUserFromCore(wallets[5].address);
+    // console.log('After:', userCoreAfter)
+  }).timeout(999999)
+
+  /**
+   * ТЕСТ:
+   * id1 регистрируешь под id0,
+   * id2 регистрируешь под id1,
+   * id3 регистрируешь под id2,
+   * id4 регистрируешь под id3
+   *
+   * id5 регистрируешь под id4 за 0.01,
+   *
+   * id6 регистрируешь под id5 за 0.01
+   *
+   * Потом id5 и id6 отправляешь ещё по 0.02
+   *
+   * Потом c id7 по id30 отправляешь на контракт по 0.03 bnb
+   *
+   * После этого id5 от id6 должно прийти 0.01 gift и рефоводные 0.02 на Claim
+   */
+})
