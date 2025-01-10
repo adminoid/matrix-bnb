@@ -279,6 +279,7 @@ contract Core {
                 console.log("New claims !! AddressesGlobal[_wallet].whose", AddressesGlobal[_wallet].whose);
 
                 UserGlobal memory tmpUserBackup = UserGlobal(0, 0, 0, address(0), false);
+//                if (isWhose || _tmpUser.isValue) {
                 if (isWhose) {
                     tmpUserBackup = AddressesGlobal[_wallet];
                 }

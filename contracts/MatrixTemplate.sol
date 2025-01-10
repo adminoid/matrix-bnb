@@ -147,18 +147,24 @@ contract MatrixTemplate {
                     console.log("");
                     console.log("<MT goUp()> updateUser 0");
                     console.log("");
-                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, _tmpUser); // gifts
+
+                    // updateUser() for gifts
+                    Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, _tmpUser);
                 } else {
                     if (i == 2) {
                         console.log("");
                         console.log("<MT goUp()> updateUser 1");
                         console.log("");
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, _tmpUser); // whose (ref bringer) claims
+
+                        // updateUser() for whose (ref bringer) claims
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, _tmpUser);
                     } else { // i == 3
                         console.log("");
                         console.log("<MT goUp()> updateUser 2");
                         console.log("");
-                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser); // holder claims
+
+                        // updateUser() for holder claims
+                        Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser);
                         emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
@@ -166,7 +172,9 @@ contract MatrixTemplate {
                 console.log("");
                 console.log("<MT goUp()> updateUser 3");
                 console.log("");
-                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser); // holder claims
+
+                // updateUser() for holder claims
+                Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser);
                 emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
                 if (i == 5) {
                     break;
