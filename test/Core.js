@@ -765,6 +765,77 @@ describe('up to 5 after whose', async () => {
       // todo -- !!! После этого id5 от id6 должно прийти 0.01 gift и рефоводные 0.02 на Claim
       console.log('the end.')
 
+      /**
+       * Надо отправлять с id5 до id30 еще по 0.04 bnb,
+       * Потом 0.08 bnb,
+       * Потом 0.16 bnb
+       */
+
+      /**
+       * Соответственно, когда отправишь c id5 по id30 по
+       * 0.04 bnb посмотришь у id5 должно быть на Claim 0.06,
+       */
+
+      for (let i = 5; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info('5..30 by 0.04: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        const tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.04'),
+        })
+        await tx4.wait()
+
+      }
+
+      /**
+       * Надо отправлять с id5 до id30 еще по 0.04 bnb,
+       * Потом 0.08 bnb, <--
+       * Потом 0.16 bnb
+       */
+
+      for (let i = 5; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info('5..30 by 0.08: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        const tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.08'),
+        })
+        await tx4.wait()
+      }
+
+      // Когда отправишь 0.08 у id5 должно быть 0.14,
+
+
+      /**
+       * Надо отправлять с id5 до id30 еще по 0.04 bnb,
+       * Потом 0.08 bnb,
+       * Потом 0.16 bnb <--
+       */
+
+      for (let i = 5; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info('5..30 by 0.16: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        const tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.16'),
+        })
+        await tx4.wait()
+      }
+
+      // Когда отправишь 0.16 у id5 должно быть 0.30
+
       return users
     }
   })
@@ -801,4 +872,11 @@ describe('up to 5 after whose', async () => {
    *
    * После этого id5 от id6 должно прийти 0.01 gift и рефоводные 0.02 на Claim
    */
+
+  /**
+   * Надо отправлять с id5 до id30 еще по 0.04 bnb,
+   * Потом 0.08 bnb,
+   * Потом 0.16 bnb
+   */
+
 })
