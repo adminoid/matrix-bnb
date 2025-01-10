@@ -61,7 +61,8 @@ module.exports = {
         // count: 600,
         // count: 60,
         // count: 6,
-        accountsBalance: '3000000000000000000000',
+        // accountsBalance: '3000000000000000000000', // 3000 bnb
+        accountsBalance: '30000000000000000000000', // 30_000 bnb
         // accountsBalance: '300000000000000000000011112222222221212',
       },
       // blockGasLimit: 126000000429720, // whatever you want here

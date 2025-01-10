@@ -836,6 +836,21 @@ describe('up to 5 after whose', async () => {
 
       // Когда отправишь 0.16 у id5 должно быть 0.30
 
+      // Нужно отправить с id5 до id30 по 10500 bnb
+      for (let i = 5; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info('5..30 by 10500: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        const tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('10500'),
+        })
+        await tx4.wait()
+      }
+
       return users
     }
   })
