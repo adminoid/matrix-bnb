@@ -177,7 +177,7 @@ contract Core {
     function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory _tmpUser, bool isWhose) private {
         uint registerPrice = 0;
         uint balance = 0;
-        uint nexLevel = 0;
+        uint nextLevel = 0;
         uint8 levelOverflow = 0;
 
         console.log("");
@@ -196,7 +196,8 @@ contract Core {
 
         console.log("~_transferredAmount first before", _transferredAmount);
         console.log("~CLAIMS first before", AddressesGlobal[_wallet].claims);
-        console.log("_wallet", _wallet);
+        console.log("~_wallet", _wallet);
+        console.log("~1balance", balance);
         console.log("~LEVEL first before", AddressesGlobal[_wallet].level);
 
         // set initial registerPrice, balance and level
@@ -204,19 +205,22 @@ contract Core {
             balance = _transferredAmount;
         }
 
+        console.log("~2balance", balance);
+        console.log("~2AddressesGlobal[_wallet].isValue", AddressesGlobal[_wallet].isValue);
+
         if (AddressesGlobal[_wallet].isValue) {
             if (AddressesGlobal[_wallet].claims > 0) {
                 balance = balance.add(AddressesGlobal[_wallet].claims);
             }
             if (AddressesGlobal[_wallet].level < maxLevel) {
-                nexLevel = AddressesGlobal[_wallet].level.add(1);
-                registerPrice = getLevelPrice(nexLevel);
+                nextLevel = AddressesGlobal[_wallet].level.add(1);
+                registerPrice = getLevelPrice(nextLevel);
             } else {
                 levelOverflow = 1;
             }
         } else {
             registerPrice = payUnit;
-            balance = balance.add(_transferredAmount);
+//            balance = balance.add(_transferredAmount); // todo -- repeated here
         }
 
         console.log("");
@@ -225,18 +229,18 @@ contract Core {
 
         console.log("~~balance first before", balance);
         console.log("~~registerPrice first before", registerPrice);
-        console.log("~~nexLevel after prepare", nexLevel);
+        console.log("~~nextLevel after prepare", nextLevel);
         console.log("~~levelOverflow first before", levelOverflow);
 
-        // already have register data: balance, nexLevel, registerPrice
+        // already have register data: balance, nextLevel, registerPrice
         if (levelOverflow == 0 && balance > 0) {
             // make loop for _register and decrement remains
             while (balance >= registerPrice) {
-                // register in, decrease balance and increment nexLevel
+                // register in, decrease balance and increment nextLevel
                 // local Core registration in UserGlobal and matrix registration
                 if (AddressesGlobal[_wallet].isValue) {
                     // set claims, level
-                    AddressesGlobal[_wallet].level = nexLevel;
+                    AddressesGlobal[_wallet].level = nextLevel;
 
                     console.log("");
                     console.log("<Core.matricesRegistration() 1.2 if-while-if is-value>");
@@ -246,13 +250,13 @@ contract Core {
                     console.log("--_wallet", _wallet);
                     console.log("--balance", balance);
                     console.log("--registerPrice", registerPrice);
-                    console.log("--nexLevel", nexLevel);
+                    console.log("--nextLevel", nextLevel);
 
                     // it is the event for claims spending to next level counting
                     emit ClaimsSpent(
                         _wallet,
                         registerPrice,
-                        nexLevel
+                        nextLevel
                     );
 
                 } else {
@@ -284,7 +288,7 @@ contract Core {
                     tmpUserBackup = AddressesGlobal[_wallet];
                 }
 
-                MatrixTemplate(payable(Matrices[nexLevel])).register(_wallet, tmpUserBackup);
+                MatrixTemplate(payable(Matrices[nextLevel])).register(_wallet, tmpUserBackup);
 
                 console.log("");
                 console.log("<Core.matricesRegistration() 1.3> after mt.register()");
@@ -298,10 +302,10 @@ contract Core {
                 console.log("2New2 claims !! AddressesGlobal[_wallet].whose", AddressesGlobal[_wallet].whose);
 
                 registerPrice = registerPrice.mul(2);
-                nexLevel = nexLevel.add(1);
+                nextLevel = nextLevel.add(1);
 
                 console.log("..registerPrice after", registerPrice);
-                console.log("..nexLevel after", nexLevel);
+                console.log("..nextLevel after", nextLevel);
             }
             console.log("______________________ after while ______________________");
             console.log("");

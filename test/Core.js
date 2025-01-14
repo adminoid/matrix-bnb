@@ -895,3 +895,80 @@ describe('up to 5 after whose', async () => {
    */
 
 })
+
+
+describe('5..62 by 0.03, then up to 280', async () => {
+  let p, runRegistrations
+  before(async () => {
+    p = await prepare()
+    runRegistrations = async () => {
+
+      // console.log(p.CoreToken.address)
+
+      let wallets = await getWallets()
+      let users = []
+
+      // Отправить на контракт с id5 по id62 по 0.03 tbnb без рефералов
+
+      // for (let i = 5; i <= 63; i++) { // 0.03
+      // for (let i = 5; i <= 30; i++) { // 0.03
+      // for (let i = 5; i <= 15; i++) { // 0.03
+      // for (let i = 5; i <= 7; i++) { // 0.03
+
+      for (let i = 5; i <= 62; i++) { // 0.03
+      // for (let i = 5; i <= 5; i++) { // 0
+
+        const index = Number(i)
+
+        console.info('5..62 by 0.03: ', index)
+        console.info('wallet: ', wallets[index].address)
+
+        let tx4
+        if (index === 62) {
+          tx4 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.03'),
+          })
+        } else {
+          tx4 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.03'),
+          })
+        }
+        await tx4.wait()
+      }
+
+      return users
+    }
+  })
+
+  it('5..62 by 0.03, then up to 280', async () => {
+
+    let wallets = await getWallets()
+
+    // TODO: get info before tx
+    console.info(wallets[6].address)
+    const userCoreBefore = await p.CoreToken.connect(wallets[31].address).getUserFromCore(wallets[6].address);
+    console.log('Before:', userCoreBefore)
+
+    // todo -- id6 must be a 0 balance, find out where come 0.03 to id6
+    //  getCoreUser(): claims: 0.03 BNB
+    await runRegistrations()
+
+    // TODO: get info after tx
+    console.info(wallets[6].address)
+    const userCoreAfter = await p.CoreToken.connect(wallets[31].address).getUserFromCore(wallets[6].address);
+    console.log('After:', userCoreAfter)
+  }).timeout(999999)
+
+  /**
+   * ТЕСТ 2:
+   * Отправить на контракт с id5 по id62 по 0.03 tbnb без рефералов
+   * Скрин id6 отправь, должно быть на Claim 0.03
+   *
+   * а потом надо будет с id63 до id280 закинуть по 0.03bnb
+   * и у id6 должно упасть на Claim 0.11
+   * Потом произойти автопереход id6 на матрицу3. Итого 0.11-0,04=0.07 claim
+   */
+
+})
