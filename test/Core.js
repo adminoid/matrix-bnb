@@ -897,44 +897,26 @@ describe('up to 5 after whose', async () => {
 })
 
 
-describe('5..62 by 0.03, then up to 280', async () => {
+describe('5..62 by 0.03', async () => {
   let p, runRegistrations
   before(async () => {
     p = await prepare()
     runRegistrations = async () => {
-
-      // console.log(p.CoreToken.address)
-
       let wallets = await getWallets()
       let users = []
 
-      // Отправить на контракт с id5 по id62 по 0.03 tbnb без рефералов
-
-      // for (let i = 5; i <= 63; i++) { // 0.03
-      // for (let i = 5; i <= 30; i++) { // 0.03
-      // for (let i = 5; i <= 15; i++) { // 0.03
-      // for (let i = 5; i <= 7; i++) { // 0.03
-
-      for (let i = 5; i <= 62; i++) { // 0.03
-      // for (let i = 5; i <= 5; i++) { // 0
+      for (let i = 5; i <= 255; i++) {
 
         const index = Number(i)
 
-        console.info('5..62 by 0.03: ', index)
+        console.info('5..255 by 0.03: ', index)
         console.info('wallet: ', wallets[index].address)
 
-        let tx4
-        if (index === 62) {
-          tx4 = await wallets[index].sendTransaction({
-            to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.03'),
-          })
-        } else {
-          tx4 = await wallets[index].sendTransaction({
-            to: p.CoreToken.address,
-            value: ethers.utils.parseEther('0.03'),
-          })
-        }
+        const tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.03'),
+        })
+
         await tx4.wait()
       }
 
@@ -942,7 +924,7 @@ describe('5..62 by 0.03, then up to 280', async () => {
     }
   })
 
-  it('5..62 by 0.03, then up to 280', async () => {
+  it('5..255 by 0.03', async () => {
 
     let wallets = await getWallets()
 

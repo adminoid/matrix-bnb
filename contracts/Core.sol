@@ -175,7 +175,7 @@ contract Core {
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
     function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory _tmpUser, bool isWhose) private {
-        uint registerPrice = 0;
+        uint registerPrice = payUnit;
         uint balance = 0;
         uint nextLevel = 0;
         uint8 levelOverflow = 0;
@@ -218,10 +218,11 @@ contract Core {
             } else {
                 levelOverflow = 1;
             }
-        } else {
-            registerPrice = payUnit;
-//            balance = balance.add(_transferredAmount); // todo -- repeated here
         }
+//        else {
+//            registerPrice = payUnit;
+////            balance = balance.add(_transferredAmount); // todo -- repeated here
+//        }
 
         console.log("");
         console.log("<Core.matricesRegistration() 1.1 after initial values>");
