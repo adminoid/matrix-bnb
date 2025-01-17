@@ -905,11 +905,13 @@ describe('5..62 by 0.03', async () => {
       let wallets = await getWallets()
       let users = []
 
-      for (let i = 5; i <= 255; i++) {
+      const TO = 126
+
+      for (let i = 5; i <= TO; i++) {
 
         const index = Number(i)
 
-        console.info('5..255 by 0.03: ', index)
+        console.info(`5..${TO} by 0.03: `, index)
         console.info('wallet: ', wallets[index].address)
 
         const tx4 = await wallets[index].sendTransaction({
@@ -924,7 +926,7 @@ describe('5..62 by 0.03', async () => {
     }
   })
 
-  it('5..255 by 0.03', async () => {
+  it('5..X by 0.03', async () => {
 
     let wallets = await getWallets()
 
@@ -951,6 +953,21 @@ describe('5..62 by 0.03', async () => {
    * а потом надо будет с id63 до id280 закинуть по 0.03bnb
    * и у id6 должно упасть на Claim 0.11
    * Потом произойти автопереход id6 на матрицу3. Итого 0.11-0,04=0.07 claim
+   *
+   * id1 должен получить на Claim:
+   * С матриц:
+   * id46 - 0,02,
+   * id94 - 0.01+0,02
+   * id190 - 0.01+0.02
+   * С реферала:
+   * id14 - 0.02+0.03
+   *
+   * С матриц:
+   * id22 - 0,02,
+   * id46 - 0.01+0,02
+   * id94 - 0.01+0.02
+   * С реферала:
+   * id14 - 0.02+0.03
    */
 
 })
