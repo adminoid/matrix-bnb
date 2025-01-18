@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "./MatrixTemplate.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -84,11 +83,6 @@ contract Core {
     // proxy for registering wallet by simple payment to contract address
     receive() external payable noReentrancy {
         emit DirectTransfer(msg.sender, msg.value);
-
-        console.log("");
-        console.log("<receive()>", msg.sender, msg.value);
-        console.log("");
-
         matricesRegistration(msg.sender, msg.value, UserGlobal(0, 0, 0, address(0), false), false);
     }
 
@@ -150,18 +144,11 @@ contract Core {
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
         AddressesGlobalTotal = AddressesGlobalTotal.add(1);
 
-        console.log("<Core.register() 1.0>");
         MatrixTemplate(payable(Matrices[0])).register(msg.sender, UserGlobal(0, 0, 0, address(0), false));
 
         // row, here set whose for user
         if (change > 0) {
             if (change >= payUnit) {
-
-                console.log("");
-                console.log("<Core.register() 1.1>", msg.sender, change, payUnit);
-                console.log("==|before matricesRegistration 1");
-                console.log("");
-
                 matricesRegistration(msg.sender, change, UserGlobal(0, 0, 0, address(0), false), false);
             } else {
                 // transfer with change for full price
@@ -180,33 +167,14 @@ contract Core {
         uint nextLevel = 0;
         uint8 levelOverflow = 0;
 
-        console.log("");
-        console.log("<Core.matricesRegistration() 1.0 before all>");
-        console.log("");
-
-        console.log("_tmpUser.claims", _tmpUser.claims);
-        console.log("_tmpUser.gifts", _tmpUser.gifts);
-        console.log("_tmpUser.level", _tmpUser.level);
-        console.log("_tmpUser.whose", _tmpUser.whose);
-        console.log("_tmpUser.isValue", _tmpUser.isValue);
-
         if (_tmpUser.isValue) {
             AddressesGlobal[_wallet] = _tmpUser;
         }
-
-        console.log("~_transferredAmount first before", _transferredAmount);
-        console.log("~CLAIMS first before", AddressesGlobal[_wallet].claims);
-        console.log("~_wallet", _wallet);
-        console.log("~1balance", balance);
-        console.log("~LEVEL first before", AddressesGlobal[_wallet].level);
 
         // set initial registerPrice, balance and level
         if (_transferredAmount > 0) {
             balance = _transferredAmount;
         }
-
-        console.log("~2balance", balance);
-        console.log("~2AddressesGlobal[_wallet].isValue", AddressesGlobal[_wallet].isValue);
 
         if (AddressesGlobal[_wallet].isValue) {
             if (AddressesGlobal[_wallet].claims > 0) {
@@ -219,19 +187,6 @@ contract Core {
                 levelOverflow = 1;
             }
         }
-//        else {
-//            registerPrice = payUnit;
-////            balance = balance.add(_transferredAmount); // todo -- repeated here
-//        }
-
-        console.log("");
-        console.log("<Core.matricesRegistration() 1.1 after initial values>");
-        console.log("");
-
-        console.log("~~balance first before", balance);
-        console.log("~~registerPrice first before", registerPrice);
-        console.log("~~nextLevel after prepare", nextLevel);
-        console.log("~~levelOverflow first before", levelOverflow);
 
         // already have register data: balance, nextLevel, registerPrice
         if (levelOverflow == 0 && balance > 0) {
@@ -242,16 +197,6 @@ contract Core {
                 if (AddressesGlobal[_wallet].isValue) {
                     // set claims, level
                     AddressesGlobal[_wallet].level = nextLevel;
-
-                    console.log("");
-                    console.log("<Core.matricesRegistration() 1.2 if-while-if is-value>");
-                    console.log("");
-
-                    console.log("-------000_ClaimsSpent");
-                    console.log("--_wallet", _wallet);
-                    console.log("--balance", balance);
-                    console.log("--registerPrice", registerPrice);
-                    console.log("--nextLevel", nextLevel);
 
                     // it is the event for claims spending to next level counting
                     emit ClaimsSpent(
@@ -272,17 +217,6 @@ contract Core {
                 // todo -- not saved there, can be used intermediate variable
                 AddressesGlobal[_wallet].claims = balance;
 
-                console.log("");
-                console.log("<Core.matricesRegistration() 1.3 while after if>");
-                console.log("");
-
-                console.log("_wallet", _wallet);
-                console.log("New claims !! AddressesGlobal[_wallet].claims", AddressesGlobal[_wallet].claims);
-                console.log("balance", balance);
-                console.log("New claims !! AddressesGlobal[_wallet].gifts", AddressesGlobal[_wallet].gifts);
-                console.log("New claims !! AddressesGlobal[_wallet].level", AddressesGlobal[_wallet].level);
-                console.log("New claims !! AddressesGlobal[_wallet].whose", AddressesGlobal[_wallet].whose);
-
                 UserGlobal memory tmpUserBackup = UserGlobal(0, 0, 0, address(0), false);
 //                if (isWhose || _tmpUser.isValue) {
                 if (isWhose) {
@@ -291,28 +225,10 @@ contract Core {
 
                 MatrixTemplate(payable(Matrices[nextLevel])).register(_wallet, tmpUserBackup);
 
-                console.log("");
-                console.log("<Core.matricesRegistration() 1.3> after mt.register()");
-                console.log("");
-
-                console.log("2New2 claims !! AddressesGlobal[_wallet].claims", AddressesGlobal[_wallet].claims);
-                console.log("2_wallet", _wallet);
-                console.log("2balance", balance);
-                console.log("2New2 claims !! AddressesGlobal[_wallet].gifts", AddressesGlobal[_wallet].gifts);
-                console.log("2New2 claims !! AddressesGlobal[_wallet].level", AddressesGlobal[_wallet].level);
-                console.log("2New2 claims !! AddressesGlobal[_wallet].whose", AddressesGlobal[_wallet].whose);
-
                 registerPrice = registerPrice.mul(2);
                 nextLevel = nextLevel.add(1);
-
-                console.log("..registerPrice after", registerPrice);
-                console.log("..nextLevel after", nextLevel);
             }
-            console.log("______________________ after while ______________________");
-            console.log("");
         }
-        console.log("______________________ after if up while ______________________");
-        console.log("");
     }
 
     /*
@@ -416,14 +332,6 @@ contract Core {
             AddressesGlobal[whose].claims = newValue;
             emit ReferralEarn(_userAddress, newValue, whose);
 
-            console.log("");
-            console.log("<Core.updateUser() 1.0 whose>");
-            console.log("");
-
-            console.log("==|before matricesRegistration 2 ------->");
-            console.log(whose);
-            console.log(AddressesGlobal[whose].claims);
-
             // run whose going level up if enough balance
             matricesRegistration(whose, 0, _tmpUser, true);
         }
@@ -431,13 +339,6 @@ contract Core {
         // TODO: what is it???
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < maxLevel) {
-
-            console.log("");
-            console.log("<Core.updateUser() 1.1 _userAddress>");
-            console.log("");
-
-            console.log("==|before matricesRegistration 3");
-
             matricesRegistration(_userAddress, 0, _tmpUser, false);
         }
     }
@@ -448,19 +349,7 @@ contract Core {
             return;
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
-
-        console.log("");
-        console.log("<Core.sendHalf() 1.0>");
-        console.log("");
-
-        console.log("_wallet", _wallet);
-        console.log("amount", amount);
-        console.log("_matrixIndex", _matrixIndex);
-        console.log("_-_-_-_-_-_-_-_-_-_-_-_-_-_-");
-
         bool sent = payable(_wallet).send(amount);
-
-        console.log("sent: ", sent);
 
         require(sent, "Sending err 4");
         emit BelowTwoAppear(

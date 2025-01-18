@@ -3,7 +3,6 @@ pragma solidity ^0.8.17;
 
 import "./Core.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -85,9 +84,6 @@ contract MatrixTemplate {
         if (mod == 0) {
             user.isRight = true;
             if (parentIndex > 0) {
-                console.log("");
-                console.log("<MT register()>");
-                console.log("");
                 goUp(parentIndex, _wallet, _tmpUser);
             }
         }
@@ -144,35 +140,19 @@ contract MatrixTemplate {
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
             if (i <= 3) {
                 if (matrixIndex == 0) {
-                    console.log("");
-                    console.log("<MT goUp()> updateUser 0");
-                    console.log("");
-
                     // updateUser() for gifts
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, _tmpUser);
                 } else {
                     if (i == 2) {
-                        console.log("");
-                        console.log("<MT goUp()> updateUser 1");
-                        console.log("");
-
                         // updateUser() for whose (ref bringer) claims
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, _tmpUser);
                     } else { // i == 3
-                        console.log("");
-                        console.log("<MT goUp()> updateUser 2");
-                        console.log("");
-
                         // updateUser() for holder claims
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser);
                         emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
-                console.log("");
-                console.log("<MT goUp()> updateUser 3");
-                console.log("");
-
                 // updateUser() for holder claims
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser);
                 emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
