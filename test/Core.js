@@ -984,7 +984,7 @@ describe('5..62 by 0.03', async () => {
 
         const index = Number(i)
 
-        console.info(`5..31 by 0.07: `, index)
+        console.info(`5..30 by 0.07: `, index)
         console.info('wallet: ', wallets[index].address)
 
         // todo -- !!! id5 регистрируешь под id4 за 0.01,
@@ -1054,6 +1054,124 @@ describe('5..62 by 0.03', async () => {
    * ~ Потом c id7 по id31 отправляешь на контракт по 0.07 bnb
    * -------------------------------------------------------
    * После этого id5 должен перейти на матрицу 3, иметь 0.01 gift и 0 на Claim
+   */
+
+})
+
+
+describe('id7-id30 by 0.07', async () => {
+  let p, runRegistrations
+  before(async () => {
+    p = await prepare()
+    runRegistrations = async () => {
+      let wallets = await getWallets()
+      let users = []
+
+      for (let i = 5; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info(`5..31 by 0.07: `, index)
+        console.info('wallet: ', wallets[index].address)
+
+        // todo -- id5 регистрируешь под id4 за 0.01,
+        if (index === 5) {
+          const tx1 = await p.CoreToken
+              .connect(wallets[index]) // todo <-- id5
+              .register('0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', { // todo <-- set wallet id4
+                value: ethers.utils.parseEther('0.01'),
+              })
+          await tx1.wait()
+
+          // todo -- Потом с id5 отправляешь ещё 0.02,
+          const tx3 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.02'),
+          })
+          await tx3.wait()
+        }
+        else if (index === 6) {
+          // todo -- id6 регистрируешь под id5 за 0.01,
+          const tx2 = await p.CoreToken
+              .connect(wallets[index]) // todo <-- id6
+              .register(wallets[index - 1].address, { // todo <-- set wallet id5
+                value: ethers.utils.parseEther('0.01'),
+              })
+          await tx2.wait()
+
+          // todo -- Потом с id6 отправляешь ещё 0.06
+          const tx3 = await wallets[index].sendTransaction({
+            to: p.CoreToken.address,
+            value: ethers.utils.parseEther('0.06'),
+          })
+          await tx3.wait()
+        }
+
+        // todo -- Потом с id7 по id30 отправляешь на контракт по 0.07 bnb
+        // else if (index >= 7 && index <= 29) {
+        else if (index >= 7 && index <= 30) {
+          let tx4
+          if (index === 30) {
+            tx4 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.0712'),
+            })
+          } else {
+            tx4 = await wallets[index].sendTransaction({
+              to: p.CoreToken.address,
+              value: ethers.utils.parseEther('0.07'),
+            })
+          }
+          await tx4.wait()
+        }
+      }
+
+      return users
+    }
+  })
+
+  it('id7-id30 by 0.07', async () => {
+
+    // 5320 -> 5750 wrapper bef/aft
+    let wallets = await getWallets()
+
+    // TODO: get info before tx
+    console.info('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65')
+    const user0Before = await p.CoreToken.connect('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65').getUserFromCore('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65');
+    console.log('Before:', user0Before)
+
+    // todo -- id6 must be a 0 balance, find out where come 0.03 to id6
+    //  getCoreUser(): claims: 0.03 BNB
+    await runRegistrations()
+
+    // TODO: get info after tx
+    // console.info(wallets[4].address)
+    const user0After = await p.CoreToken.connect('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65').getUserFromCore('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65');
+    console.log('After:', user0After)
+  }).timeout(999999)
+
+  /**
+   * ТЕСТ4:
+   * + регистрируешь id0-id4 друг под друга,
+   * + id5 регистрируешь под id4 за 0.01,
+   * + Потом с id5 отправляешь ещё 0.02,
+   * + id6 регистрируешь под id5 за 0.01,
+   * + Потом с id6 отправляешь ещё 0.06
+   * + Потом с id7 по id30 отправляешь на контракт по 0.07 bnb
+   *
+   * Надо будет провести тебе тест 4 и посмотреть откуда приходят id0 лишние bnb от рефоводов:
+   * Должно только прийти по 0.06 от id6 и id10.
+   * Итого 0.12 bnb должно быть, а сейчас на сайте показывает, что у id0 от рефералов пришло 0,25
+   *
+   * Когда от id29 отправляешь ещё всё правильно показывает, а когда от id30 отправил, откуда-то id0 прилетело лишние от рефералов 0,04 bnb
+   *
+   * Если подробно, то начисления на Claim id0 должны быть такие:
+   * С матриц :
+   * id14 - 0.06
+   * id30 - 0.07
+   * С рефералов:
+   * id6 - 0.06
+   * id10 - 0.06
    */
 
 })

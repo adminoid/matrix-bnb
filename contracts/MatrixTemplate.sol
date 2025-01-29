@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "./Core.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -23,7 +24,7 @@ contract MatrixTemplate {
     // getting address by index
     mapping(uint => address) public Indices;
     // total registered in matrix
-    uint public IndicesTotal;
+    uint public IndicesTotal = 0;
 
     // for logging native send to up one
     event SentHalf(address indexed sender, address indexed receiver, uint indexed matrixIndex);
@@ -75,6 +76,13 @@ contract MatrixTemplate {
     function register(address _wallet, Core.UserGlobal calldata _tmpUser) external {
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
+
+        console.log("--ERR-- mt-register 1");
+        console.log("_wallet", _wallet);
+        console.log("msg.sender", msg.sender);
+        console.log("_tmpUser.claims", _tmpUser.claims);
+        console.log("_tmpUser.level", _tmpUser.level);
+
         // calculate base user data
         uint parentIndex;
         uint plateau;
@@ -84,6 +92,12 @@ contract MatrixTemplate {
         if (mod == 0) {
             user.isRight = true;
             if (parentIndex > 0) {
+                console.log("");
+                console.log("<MT register()>");
+                console.log("");
+
+                // todo -- from 15 to 7 here ???
+
                 goUp(parentIndex, _wallet, _tmpUser);
             }
         }
@@ -95,6 +109,8 @@ contract MatrixTemplate {
 
         // logging for send half to an up one
         emit SentHalf(_wallet, parentWallet, matrixIndex);
+
+        console.log("mt-register aft _wallet", _wallet);
     }
 
     // parentIndex, plateau, mod
@@ -133,26 +149,68 @@ contract MatrixTemplate {
     function goUp(uint _parentIndex, address _registeredWallet, Core.UserGlobal calldata _tmpUser) private {
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
+
+        console.log("--ERR-- mt-register 2");
+        console.log("_registeredWallet:", _registeredWallet);
+        console.log("_parentIndex:", _parentIndex);
+        console.log("+parentWallet:", parentWallet);
+        console.log("--! matrixIndex:", matrixIndex);
+        console.log("-");
+
         for (uint i = 2; i <= 5; i++) {
+
+            console.log("=== before Core.updateUser() DECISION in MT.goUp()");
+            console.log("!-> I:", i);
+
+            // i == 2
+            // todo -- from 15 to 7 here ???
+
+            console.log("nextUser wallet(parentWallet):", parentWallet); // <--- number 1
+            console.log("nextUser.index:", nextUser.index);
+            console.log("nextUser.parent:", nextUser.parent);
+            console.log("nextUser.isRight:", nextUser.isRight);
+            console.log("nextUser.plateau:", nextUser.plateau);
+            console.log("");
+
             if (!nextUser.isRight) {
                 break;
             }
             address updatedUserAddress = Indices[nextUser.parent]; // address of nextUser.parent
             if (i <= 3) {
                 if (matrixIndex == 0) {
+                    console.log("<MT goUp()> updateUser 0");
+                    console.log("updateUser() for gifts (matrixIndex == 0 && i = 2 or 3)");
+                    console.log("--> updatedUserAddress Indices[nextUser.parent]:", updatedUserAddress);
+                    console.log("");
+
                     // updateUser() for gifts
                     Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 0, _tmpUser);
                 } else {
                     if (i == 2) {
+                        console.log("<MT goUp()> updateUser 1");
+                        console.log("updateUser() for whose (ref bringer) claims (i == 2)");
+                        console.log("--> updatedUserAddress Indices[nextUser.parent]:", updatedUserAddress);
+                        console.log("");
+
                         // updateUser() for whose (ref bringer) claims
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 2, _tmpUser);
                     } else { // i == 3
+                        console.log("<MT goUp()> updateUser 2");
+                        console.log("updateUser() for holder claims (i == 3)");
+                        console.log("--> updatedUserAddress Indices[nextUser.parent]:", updatedUserAddress);
+                        console.log("");
+
                         // updateUser() for holder claims
                         Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser);
                         emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
                     }
                 }
             } else { // 4 >= i <= 5 (either 4 or 5)
+                console.log("<MT goUp()> updateUser 3");
+                console.log("updateUser() for holder claims (i == 4 or 5)");
+                console.log("--> updatedUserAddress Indices[nextUser.parent]:", updatedUserAddress);
+                console.log("");
+
                 // updateUser() for holder claims
                 Core(payable(CoreAddress)).updateUser(updatedUserAddress, matrixIndex, 1, _tmpUser);
                 emit SentClaims(_registeredWallet, updatedUserAddress, matrixIndex);
@@ -160,6 +218,12 @@ contract MatrixTemplate {
                     break;
                 }
             }
+            console.log("--ERR-- before nextUser update");
+            console.log("prev nextUser.index", nextUser.index);
+            console.log("prev nextUser.parent", nextUser.parent);
+            console.log("Addresses[ Indices[nextUser.parent]<- ]", Indices[nextUser.parent]);
+            console.log("");
+
             nextUser = Addresses[Indices[nextUser.parent]];
         }
     }
@@ -170,6 +234,9 @@ contract MatrixTemplate {
 
     function addUser(address _userAddress)
     private {
+        console.log("^^^addUser: _userAddress", _userAddress);
+        console.log("matrixIndex", matrixIndex);
+        console.log("Indices[IndicesTotal <-- ]", IndicesTotal);
         Indices[IndicesTotal] = _userAddress;
         IndicesTotal = IndicesTotal.add(1);
     }
