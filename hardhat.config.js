@@ -37,6 +37,7 @@ module.exports = {
       }
     }
   },
+  // todo -- change if network changed
   defaultNetwork: "localhost",
   // defaultNetwork: "testnet",
   // defaultNetwork: "mainnet",
