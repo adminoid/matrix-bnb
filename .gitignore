@@ -7,4 +7,4 @@ artifacts/
 **/.DS_Store
 .idea/
 
-/update-abi.sh
+/scripts/update-abi.sh

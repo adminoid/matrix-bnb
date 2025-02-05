@@ -11,7 +11,7 @@ contract Core {
     uint public constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
     uint public constant maxLevel = 19; // 0..19 (total 20)
     uint public lastUpdated; // timestamp
-    uint private locked = 1; // reentrancy prevention
+    bool private locked; // reentrancy prevention
 
     // array of matrices (addresses)
     address[20] private Matrices;
@@ -31,11 +31,14 @@ contract Core {
     // total users value property, increment in all places where new element adds
     uint public AddressesGlobalTotal = 0;
 
+    // todo: look for using:
+    //  https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/ReentrancyGuard.sol
+    // todo: add modifier to another methods
     modifier noReentrancy() {
-        require(locked == 1, "No reentrancy");
-        locked = 2;
+        require(locked, "No reentrancy");
+        locked = true;
         _;
-        locked = 1;
+        locked = false;
     }
 
     // for count all referrals of the user
@@ -94,7 +97,7 @@ contract Core {
     */
 
     // withdrawing claims from balance in BNB
-    function withdrawClaim(uint _amount) external {
+    function withdrawClaim(uint _amount) external noReentrancy {
         if (AddressesGlobal[msg.sender].claims > _amount) {
             AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(_amount);
             (bool sent,) = payable(msg.sender).call{value: _amount}("");
@@ -158,6 +161,11 @@ contract Core {
         }
 
         emit WhoseRegistered(msg.sender, whoseAddr, change);
+        emit ClaimsSpent(
+            msg.sender,
+            payUnit,
+            0
+        );
     }
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
@@ -210,6 +218,11 @@ contract Core {
                     AddressesGlobal[_wallet] = UserGlobal(balance, 0, 0, zeroWallet, true);
                     AddressesGlobalTotal = AddressesGlobalTotal.add(1);
                     emit WhoseRegistered(_wallet, zeroWallet, balance);
+                    emit ClaimsSpent(
+                        _wallet,
+                        payUnit,
+                        0
+                    );
                 }
 
                 balance = balance.sub(registerPrice);
@@ -369,15 +382,15 @@ contract Core {
     */
 
     // withdraw 10% of the bank for once in a year
-    function getTenPercentOnceYear() external {
+    function getTenPercentOnceYear() external noReentrancy {
         require(msg.sender == zeroWallet, "access denied 3");
         uint balance = address(this).balance;
         require(balance > 0, "balance is empty");
         uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
         require(daysDiff >= 365, "year not passed");
         uint tenPart = balance.div(10);
+        lastUpdated = block.timestamp;
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");
         require(sent, "Sending err 5");
-        lastUpdated = block.timestamp;
     }
 }
