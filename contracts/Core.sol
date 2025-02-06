@@ -44,7 +44,7 @@ contract Core {
     // for count all referrals of the user
     event WhoseRegistered(address indexed user, address indexed whose, uint change);
     // for count earn money due referrals (claims)
-    event ReferralEarn(address indexed user, uint newValue, address indexed whose);
+    event ReferralEarn(address indexed user, uint value, address indexed whose);
     // for check the user has gifts
     event GiftAppear(address indexed user, uint indexed matrixIndex, uint amount);
     // for logging gift spending
@@ -343,7 +343,7 @@ contract Core {
             newValue = AddressesGlobal[whose].claims.add(levelPayUnit);
             // here updates balance of whose by referral descendant
             AddressesGlobal[whose].claims = newValue;
-            emit ReferralEarn(_userAddress, newValue, whose);
+            emit ReferralEarn(_userAddress, levelPayUnit, whose);
 
             // run whose going level up if enough balance
             matricesRegistration(whose, 0, _tmpUser, true);
