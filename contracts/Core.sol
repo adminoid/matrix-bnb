@@ -11,7 +11,7 @@ contract Core {
     uint public constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
     uint public constant maxLevel = 19; // 0..19 (total 20)
     uint public lastUpdated; // timestamp
-    bool private locked; // reentrancy prevention
+    bool private locked = false; // reentrancy prevention
 
     // array of matrices (addresses)
     address[20] private Matrices;

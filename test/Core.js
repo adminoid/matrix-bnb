@@ -55,7 +55,7 @@ const prepare = async () => {
   // Transaction gasPrice (992079520) is too low for the next block, which has a baseFeePerGas of 1015131892
   // Transaction gasPrice (1015131892) is too low for the next block, which has a baseFeePerGas of 1015131892
 
-  // getting contract instance through main contract
+  // getting contract instance through the main contract
   const FirstLevelContractAddress = await CoreToken.getLevelContract(1)
   const FirstLevelContractTemplate = await ethers.getContractFactory('MatrixTemplate')
   const FirstLevelContract = await FirstLevelContractTemplate.attach(
@@ -1108,13 +1108,13 @@ describe('id7-id30 by 0.07', async () => {
         }
 
         // todo -- Потом с id7 по id30 отправляешь на контракт по 0.07 bnb
-        // else if (index >= 7 && index <= 29) {
-        else if (index >= 7 && index <= 30) {
+        else if (index >= 7 && index <= 29) {
+        // else if (index >= 7 && index <= 30) {
           let tx4
           if (index === 30) {
             tx4 = await wallets[index].sendTransaction({
               to: p.CoreToken.address,
-              value: ethers.utils.parseEther('0.0712'),
+              value: ethers.utils.parseEther('0.07'),
             })
           } else {
             tx4 = await wallets[index].sendTransaction({
@@ -1157,7 +1157,7 @@ describe('id7-id30 by 0.07', async () => {
    * + Потом с id5 отправляешь ещё 0.02,
    * + id6 регистрируешь под id5 за 0.01,
    * + Потом с id6 отправляешь ещё 0.06
-   * + Потом с id7 по id30 отправляешь на контракт по 0.07 bnb
+   * + Потом с id7 по id29 (было 30) отправляешь на контракт по 0.07 bnb
    *
    * Надо будет провести тебе тест 4 и посмотреть откуда приходят id0 лишние bnb от рефоводов:
    * Должно только прийти по 0.06 от id6 и id10.
@@ -1174,4 +1174,20 @@ describe('id7-id30 by 0.07', async () => {
    * id10 - 0.06
    */
 
+  /**
+   * ТЕСТ 1:
+   * + При деплое контракта, регистрируешь id0-id4 друг под друга
+   * + id5 регистрируешь под id4 за 0.01 tbnb,
+   * + Потом c id5 отправляешь на контракт ещё 0.02,
+   * + id6 регистрируешь под id5 за 0.01,
+   * + Потом c id6 отправляешь ещё 0.06
+   * +? Потом c id7 по id29 отправляешь на контракт по 0.07
+   *
+   * Потом фиксируем результат на Вывод (Claim) у id5
+   *
+   * Потом id30 отправляешь на контракт 0.07
+   *
+   * И также фиксируем результат
+   * и смотрим правильно ли распределяются tbnb
+   */
 })
