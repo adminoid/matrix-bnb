@@ -11,7 +11,7 @@ contract Core {
     uint public constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
     uint public constant maxLevel = 19; // 0..19 (total 20)
     uint public lastUpdated; // timestamp
-    bool private locked = false; // reentrancy prevention
+    bool internal locked; // reentrancy prevention
 
     // array of matrices (addresses)
     address[20] private Matrices;
@@ -35,7 +35,7 @@ contract Core {
     //  https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/ReentrancyGuard.sol
     // todo: add modifier to another methods
     modifier noReentrancy() {
-        require(locked, "No reentrancy");
+        require(!locked, "No reentrancy");
         locked = true;
         _;
         locked = false;
