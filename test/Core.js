@@ -1268,11 +1268,31 @@ describe('id7-id30 by 0.03', async () => {
         }
       }
 
+      for (let i = 7; i <= 27; i++) {
+
+        const index = Number(i)
+
+        console.info(`7..27 by 0.04: `, index)
+        console.info('wallet: ', wallets[index].address)
+
+        // todo -- Потом c id7 по id27 отправляешь на контракт по 0.04
+
+        let tx5
+
+        tx5 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.04'),
+        })
+
+        await tx5.wait()
+      }
+
+
       return users
     }
   })
 
-  it('id7-id29 by 0.03', async () => {
+  it('id7-id29 by 0.03, then id7-id27 by 0.04', async () => {
 
     // 5320 -> 5750 wrapper bef/aft
     await getWallets()
