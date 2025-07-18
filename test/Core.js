@@ -1337,3 +1337,84 @@ describe('id7-id30 by 0.03', async () => {
    * Потом фиксируем результат на Вывод (Claim) - id5 должно прийти 0.04 от реферала id6 и он переходит на 3ю матрицу
    */
 })
+
+
+// TEST 2
+describe('10500', async () => {
+  let p, runRegistrations
+  before(async () => {
+    // todo -- Нужно зарегистрировать, как обычно, id0-id4
+    p = await prepare()
+
+
+    runRegistrations = async () => {
+      let wallets = await getWallets()
+      let users = []
+
+
+      // todo -- Id5 зарегистрировать за 0.01 под id4
+      const tx1 = await p.CoreToken
+          .connect(wallets[5]) // todo <-- id5
+          .register('0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', { // todo <-- set wallet id4
+            value: ethers.utils.parseEther('0.01'),
+          })
+      await tx1.wait()
+
+      // todo -- id6 зарегистрировать за 0.01 под id5
+      const tx2 = await p.CoreToken
+          .connect(wallets[6]) // todo <-- id6
+          .register(wallets[5].address, { // todo <-- set wallet id5
+            value: ethers.utils.parseEther('0.01'),
+          })
+      await tx2.wait()
+
+      // todo -- потом отправить с id5 до id30 по 10500 bnb
+      for (let i = 5; i <= 30; i++) {
+
+        const index = Number(i)
+
+        console.info(`5..30 by 10500: `, index)
+        console.info('wallet: ', wallets[index].address)
+
+        // todo -- Потом c id7 по id27 отправляешь на контракт по 0.04
+        let tx4
+        tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('10500'),
+        })
+        await tx4.wait()
+      }
+
+      return users
+    }
+  })
+
+  it('10500 bnb', async () => {
+
+    // 5320 -> 5750 wrapper bef/aft
+    await getWallets()
+
+    // TODO: get info before tx
+    console.info('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65')
+    const user0Before = await p.CoreToken.connect('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65').getUserFromCore('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65');
+    console.log('Before:', user0Before)
+
+    // todo -- id6 must be a 0 balance, find out where come 0.03 to id6
+    //  getCoreUser(): claims: 0.03 BNB
+    await runRegistrations()
+
+    // TODO: get info after tx
+    // console.info(wallets[4].address)
+    const user0After = await p.CoreToken.connect('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65').getUserFromCore('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65');
+    console.log('After:', user0After)
+  }).timeout(999999)
+
+  /**
+   * Тест 2:
+   * + Нужно зарегистрировать, как обычно, id0-id4,
+   * + Id5 зарегистрировать за 0.01 под id4,
+   * + id6 зарегистрировать за 0.01 под id5,
+   * + потом отправить с id5 до id30 по 10500 bnb
+   */
+})
+
