@@ -1418,3 +1418,69 @@ describe('10500', async () => {
    */
 })
 
+// TEST 3
+describe('id 5-255', async () => {
+  let p, runRegistrations
+  before(async () => {
+    // todo -- Нужно зарегистрировать, как обычно, id0-id4
+    p = await prepare()
+
+
+    runRegistrations = async () => {
+      let wallets = await getWallets()
+      let users = []
+
+      // todo -- отправить на контракт с id5 по id255 по 0.03
+      for (let i = 5; i <= 255; i++) {
+
+        const index = Number(i)
+
+        console.info(`id 5-255:`, index)
+        console.info('wallet: ', wallets[index].address)
+
+        let tx4
+        tx4 = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.03'),
+        })
+        await tx4.wait()
+      }
+
+      return users
+    }
+  })
+
+  it('id 5-255', async () => {
+
+    // 5320 -> 5750 wrapper bef/aft
+    await getWallets()
+
+    // TODO: get info before tx
+    console.info('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65')
+    const user0Before = await p.CoreToken.connect('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65').getUserFromCore('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65');
+    console.log('Before:', user0Before)
+
+    // todo -- id6 must be a 0 balance, find out where come 0.03 to id6
+    //  getCoreUser(): claims: 0.03 BNB
+    await runRegistrations()
+
+    // TODO: get info after tx
+    // console.info(wallets[4].address)
+    const user0After = await p.CoreToken.connect('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65').getUserFromCore('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65');
+    console.log('After:', user0After)
+  }).timeout(999999)
+
+  /**
+   * Нужно зарегистрировать, как обычно, id0-id4,
+   * и потом нужно
+   * отправить на контракт с id5 по id255 по 0.03
+   * tbnb без рефералов
+   * ----------------------------------------------
+   * В результате Теста 3 должно получиться на Claim:
+   * id0 - 1,37 tbnb
+   * id1 - 0,13
+   * id5 - 0,04 (должен перейти на матрицу 3)
+   * id13 - 0,01 (должен перейти на матрицу 3)
+   * id29 - 0.02
+   */
+})

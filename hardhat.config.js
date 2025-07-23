@@ -46,7 +46,7 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545",
       // gas: 600_000_000,
-      gas: "auto",
+      gas: "auto"
       // blockGasLimit: 999000000,
     },
     hardhat: {
@@ -54,9 +54,9 @@ module.exports = {
       accounts: {
         // count: 1350,
         // count: 41,
-        // count: 300,
+        count: 300,
         // count: 77,
-        count: 45,
+        // count: 45,
         // count: 160,
         // count: 20,
         // count: 290,
