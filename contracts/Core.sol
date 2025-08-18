@@ -35,7 +35,7 @@ contract Core {
     //  https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/ReentrancyGuard.sol
     // todo: add modifier to another methods
     modifier noReentrancy() {
-        require(!locked, "No reentrancy");
+        require(!locked, "No reentr");
         locked = true;
         _;
         locked = false;
@@ -101,13 +101,13 @@ contract Core {
         if (AddressesGlobal[msg.sender].claims > _amount) {
             AddressesGlobal[msg.sender].claims = AddressesGlobal[msg.sender].claims.sub(_amount);
             (bool sent,) = payable(msg.sender).call{value: _amount}("");
-            require(sent, "Sending err 1");
+            require(sent, "S err 1");
             emit ClaimsWithdraw(msg.sender, _amount);
         } else {
             uint value = AddressesGlobal[msg.sender].claims;
             AddressesGlobal[msg.sender].claims = 0;
             (bool sent,) = payable(msg.sender).call{value: value}("");
-            require(sent, "Sending err 2");
+            require(sent, "S err 2");
             emit ClaimsWithdraw(msg.sender, value);
         }
     }
@@ -115,10 +115,10 @@ contract Core {
     // register referral of _whose
     function register(address _whose) external payable noReentrancy {
         // check user is not registered
-        require(!AddressesGlobal[msg.sender].isValue, "user already registered");
+        require(!AddressesGlobal[msg.sender].isValue, "already registered");
 
         // add checking for whose user existed
-        require(AddressesGlobal[_whose].isValue, "whose user is not registered");
+        require(AddressesGlobal[_whose].isValue, "whose not reg");
 
         // add check for _whose exist, if not - set up default
         address whoseAddr;
@@ -131,7 +131,7 @@ contract Core {
         uint change = 0;
         if (AddressesGlobal[whoseAddr].gifts < payUnit) {
             // if payment less than register price (payUnit)
-            require(msg.value >= payUnit, "not enough funds");
+            require(msg.value >= payUnit, "not enough bal");
             // there registration is paid
             if (msg.value > payUnit) {
                 change = msg.value.sub(payUnit);
@@ -156,7 +156,7 @@ contract Core {
             } else {
                 // transfer with change for full price
                 (bool sent,) = payable(msg.sender).call{value: change}("");
-                require(sent, "Sending err 3");
+                require(sent, "S err 3");
             }
         }
 
@@ -227,11 +227,9 @@ contract Core {
 
                 balance = balance.sub(registerPrice);
 
-                // todo -- not saved there, can be used intermediate variable
                 AddressesGlobal[_wallet].claims = balance;
 
                 UserGlobal memory tmpUserBackup = UserGlobal(0, 0, 0, address(0), false);
-//                if (isWhose || _tmpUser.isValue) {
                 if (isWhose) {
                     tmpUserBackup = AddressesGlobal[_wallet];
                 }
@@ -251,7 +249,7 @@ contract Core {
     // service method for getting MatrixTemplate contract address of specific level
     function getLevelContract(uint _level) // level is 0..19
     external view returns(address){
-        require(_level <= maxLevel, "_level exceeds maximum (0)");
+        require(_level <= maxLevel, "_l more max (0)");
         return Matrices[_level];
     }
 
@@ -259,7 +257,7 @@ contract Core {
     function getLevelPrice(uint _level)
     private pure returns(uint) {
         // protect from big _level value
-        require(_level <= maxLevel, "_level exceeds maximum (1)");
+        require(_level <= maxLevel, "_l more max (1)");
         uint registerPrice = payUnit;
         if (_level > 0) {
             for (uint i = 0; i < _level; i++) {
@@ -323,7 +321,7 @@ contract Core {
         uint _field,
         UserGlobal calldata _tmpUser
     ) external {
-        require(isMatrix(msg.sender), "access denied 1");
+        require(isMatrix(msg.sender), "acc den 1");
 
         uint levelPayUnit = getLevelPrice(_matrixIndex);
         uint newValue = 0;
@@ -357,14 +355,14 @@ contract Core {
     }
 
     function sendHalf(address _wallet, uint _matrixIndex) external {
-        require(isMatrix(msg.sender), "access denied 2");
+        require(isMatrix(msg.sender), "acc den 2");
         if (_matrixIndex >= maxLevel) {
             return;
         }
         uint amount = getLevelPrice(_matrixIndex).div(2);
         bool sent = payable(_wallet).send(amount);
 
-        require(sent, "Sending err 4");
+        require(sent, "s err 4");
         emit BelowTwoAppear(
             _wallet,
             amount,
@@ -383,14 +381,14 @@ contract Core {
 
     // withdraw 10% of the bank for once in a year
     function getTenPercentOnceYear() external noReentrancy {
-        require(msg.sender == zeroWallet, "access denied 3");
+        require(msg.sender == zeroWallet, "acc den 3");
         uint balance = address(this).balance;
-        require(balance > 0, "balance is empty");
+        require(balance > 0, "bal is 0");
         uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
-        require(daysDiff >= 365, "year not passed");
+        require(daysDiff >= 365, "year not");
         uint tenPart = balance.div(10);
         lastUpdated = block.timestamp;
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");
-        require(sent, "Sending err 5");
+        require(sent, "S err 5");
     }
 }

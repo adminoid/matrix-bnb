@@ -38,8 +38,8 @@ module.exports = {
     }
   },
   // todo -- change if network changed
-  defaultNetwork: "localhost",
-  // defaultNetwork: "testnet",
+  // defaultNetwork: "localhost",
+  defaultNetwork: "testnet",
   // defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
@@ -83,7 +83,7 @@ module.exports = {
       // gasPrice: 200_000_000,
       // gasPrice: 'auto',
       gas: "auto",
-      accounts: { mnemonic },
+      accounts: { mnemonic }
     },
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",

@@ -43,14 +43,15 @@ main()
   })
 
 
-// Core deployed to: 0xbBC648EE34C756bb32F98870f0C60C15EeCE56B9
+// Core deployed to: 0xd5F100Cd726ab2f00fe3b5BF640BFFBaFeC37437
+// (Was: 0xbBC648EE34C756bb32F98870f0C60C15EeCE56B9)
 // latest contract:
-// https://testnet.bscscan.com/address/0xbBC648EE34C756bb32F98870f0C60C15EeCE56B9
+// https://testnet.bscscan.com/address/0xd5F100Cd726ab2f00fe3b5BF640BFFBaFeC37437
 
 // hh run --network testnet scripts/deploy.js (logs)
 
 // Current gas price: 339477658
-// Estimated gas: 31940482
-// Deployer balance:  3.395178717241264483
+// Estimated gas: 32239444
+// Deployer balance:  3.094938085641264483
 // Deployment price:  0.000000003
-// Core deployed to:  0xbBC648EE34C756bb32F98870f0C60C15EeCE56B9
+// Core deployed to:  0xd5F100Cd726ab2f00fe3b5BF640BFFBaFeC37437
