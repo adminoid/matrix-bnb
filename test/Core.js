@@ -1484,3 +1484,64 @@ describe('id 5-255', async () => {
    * id29 - 0.02
    */
 })
+
+
+// TEST 5
+describe('test 5', async () => {
+  let p, runRegistrations
+  before(async () => {
+    // todo -- зарегать свои кошельки id0-id4
+    p = await prepare()
+
+
+    runRegistrations = async () => {
+      let wallets = await getWallets()
+      let users = []
+
+      // todo -- потом с id5 и id6 отправить по 0.01 tbnb на контракт
+      for (let i = 5; i <= 6; i++) {
+
+        const index = Number(i)
+
+        console.info(`id 5-6 by 0.01:`, index)
+        console.info('wallet: ', wallets[index].address)
+
+        const tx = await wallets[index].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.01'),
+        })
+        await tx.wait()
+        // todo -- у id0 появится подарок
+      }
+
+      // todo -- И надо будет за 0.01 tbnb через сайт зарегать id7 под id0,
+      // const tx1 = await p.CoreToken
+      //     .connect(wallets[7]) // todo <-- id7
+      //     .register('0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65', { // todo <-- set wallet id0
+      //       value: ethers.utils.parseEther('0.01'),
+      //     })
+      // await tx1.wait()
+
+      console.log('wallets[7]', wallets[7].address)
+
+      // todo -- В итоге Id7 должен получить от id0 подарок 0.01 tbnb
+
+      return users
+    }
+  })
+
+  it('test 5', async () => {
+    await getWallets()
+    await runRegistrations()
+  }).timeout(999999)
+
+  /**
+   * ТЕСТ4
+   * 1) зарегать свои кошельки id0-id4,
+   * 2) потом с id5 и id6 отправить по 0.01 tbnb на контракт,
+   * 3) у id0 появится подарок,
+   * 4) И надо будет за 0.01 tbnb через сайт зарегать id7 под id0,
+   * 5) В итоге Id7 должен получить от id0 подарок 0.01 tbnb
+   */
+})
+

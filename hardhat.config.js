@@ -38,8 +38,8 @@ module.exports = {
     }
   },
   // todo -- change if network changed
-  // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  defaultNetwork: "localhost",
+  // defaultNetwork: "testnet",
   // defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
