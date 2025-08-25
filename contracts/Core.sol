@@ -151,7 +151,7 @@ contract Core {
 
         // row, here set whose for user
         if (change > 0) {
-            if (change >= payUnit) {
+            if (change >= payUnit * 2) {
                 matricesRegistration(msg.sender, change, UserGlobal(0, 0, 0, address(0), false), false);
             } else {
                 // transfer with change for full price
