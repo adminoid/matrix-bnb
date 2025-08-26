@@ -385,7 +385,7 @@ contract Core {
         uint balance = address(this).balance;
         require(balance > 0, "bal is 0");
         uint daysDiff = (block.timestamp.sub(lastUpdated)).div(60).div(60).div(24); // days
-        require(daysDiff >= 365, "year not");
+        require(daysDiff >= 1, "not year"); // todo -- 365 later
         uint tenPart = balance.div(10);
         lastUpdated = block.timestamp;
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");
