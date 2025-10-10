@@ -62,6 +62,10 @@ const prepare = async () => {
     FirstLevelContractAddress
   )
 
+  /**
+   * There is firstFive is not intercepts with getWallets() wallets
+   * fourth from firstFive not equal to getWallets()[4]
+   */
   return {
     coreWallet,
     CoreToken,
@@ -1493,7 +1497,6 @@ describe('test 5', async () => {
     // todo -- зарегать свои кошельки id0-id4
     p = await prepare()
 
-
     runRegistrations = async () => {
       let wallets = await getWallets()
       let users = []
@@ -1536,12 +1539,103 @@ describe('test 5', async () => {
   }).timeout(999999)
 
   /**
-   * ТЕСТ4
+   * ТЕСТ5
    * 1) зарегать свои кошельки id0-id4,
    * 2) потом с id5 и id6 отправить по 0.01 tbnb на контракт,
    * 3) у id0 появится подарок,
    * 4) И надо будет за 0.01 tbnb через сайт зарегать id7 под id0,
    * 5) В итоге Id7 должен получить от id0 подарок 0.01 tbnb
+   */
+})
+
+// TEST 6
+describe('test 6', async () => {
+  let p, runRegistrations
+  before(async () => {
+    // todo -- регистрируешь id0-id4 друг под друга
+    p = await prepare()
+
+    runRegistrations = async () => {
+      let wallets = await getWallets()
+      let users = []
+
+      console.log('wallets[13]:', wallets[13].address)
+
+      const walletsForChecking = [
+          '0x2f4f06d218e426344cfe1a83d53dad806994d325',
+          '0x1003ff39d25f2ab16dbcc18ece05a9b6154f65f4',
+          '0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097',
+          '0x9eaf5590f2c84912a08de97fa28d0529361deb9e',
+          '0xcd3b766ccdd6ae721141f452c550ca635964ce71',
+      ]
+      for (let i = 0; i <= wallets.length; i++) {
+        if (wallets[i]) {
+          if (walletsForChecking.includes(wallets[i].address.toLowerCase())) {
+            console.log(`${i}) ${wallets[i].address}`)
+          }
+        }
+      }
+
+      // todo -- id5 регистрируешь под id4 за 0.01 tbnb
+      const tx1 = await p.CoreToken
+          .connect(wallets[5]) // todo <-- id5
+          .register('0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', { // todo <-- set wallet id4
+            value: ethers.utils.parseEther('0.01'),
+          })
+      await tx1.wait()
+
+      // todo -- Потом c id5 отправляешь на контракт ещё 0.02
+      const tx2 = await wallets[5].sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('0.02'),
+      })
+      await tx2.wait()
+
+      // todo -- id6 регистрируешь под id5 за 0.01
+      const tx3 = await p.CoreToken
+          .connect(wallets[6]) // todo <-- id6
+          .register(wallets[5].address, { // todo <-- set wallet id5
+            value: ethers.utils.parseEther('0.01'),
+          })
+      await tx3.wait()
+
+      // todo -- Потом c id6 отправляешь ещё 0.06
+      const tx4 = await wallets[6].sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('0.06'),
+      })
+      await tx4.wait()
+
+      // todo -- Потом c id7 по id29 отправляешь на контракт по 0.07
+      for (let i = 7; i <= 29; i++) {
+        const idx = Number(i)
+        const tx5 = await wallets[idx].sendTransaction({
+          to: p.CoreToken.address,
+          value: ethers.utils.parseEther('0.07'),
+        })
+        await tx5.wait()
+      }
+
+      return users
+    }
+  })
+
+  it('test 6', async () => {
+    await getWallets()
+    await runRegistrations()
+  }).timeout(999999)
+
+  /**
+   * ТЕСТ6
+   * При деплое контракта, регистрируешь id0-id4 друг под друга
+   * id5 регистрируешь под id4 за 0.01 tbnb,
+   * Потом c id5 отправляешь на контракт ещё 0.02,
+   * id6 регистрируешь под id5 за 0.01,
+   * Потом c id6 отправляешь ещё 0.06
+   * Потом c id7 по id29 отправляешь на контракт по 0.07
+   *
+   * Должно поступить на кошелёк 0.01+0.02+0.04=0.07, а у id13 почему-то 0.09 упало на кошелек?
+   * wallets[13]: 0x08135Da0A343E492FA2d4282F2AE34c6c5CC1BbE
    */
 })
 

@@ -29,7 +29,7 @@ task("accounts", "Prints the list of accounts", async () => {
  */
 module.exports = {
   solidity: {
-    version: "0.8.17",
+    version: "0.8.30",
     settings: {
       optimizer: {
         enabled: true,
@@ -54,7 +54,7 @@ module.exports = {
       accounts: {
         // count: 1350,
         // count: 41,
-        count: 300,
+        count: 50,
         // count: 77,
         // count: 45,
         // count: 160,
