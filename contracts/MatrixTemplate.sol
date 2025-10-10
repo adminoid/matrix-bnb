@@ -99,14 +99,10 @@ contract MatrixTemplate {
         User memory user = User(IndicesTotal, parentIndex, false, plateau, true);
         if (mod == 0) {
             user.isRight = true;
-            if (parentIndex > 0) {
-
-                console.log("");
-                console.log("MT::register() before goUp()");
-
-                goUp(parentIndex, _wallet, _tmpUser);
-            }
         }
+
+        // Store user and increment IndicesTotal BEFORE calling goUp()
+        // This ensures nested registrations see the correct IndicesTotal value
         Addresses[_wallet] = user;
         console.log("");
         console.log("addUser(_wallet);");
@@ -116,6 +112,15 @@ contract MatrixTemplate {
         addUser(_wallet);
         console.log("IndicesTotal after", IndicesTotal);
         console.log("");
+
+        // Call goUp() AFTER incrementing IndicesTotal
+        if (mod == 0 && parentIndex > 0) {
+
+            console.log("");
+            console.log("MT::register() before goUp()");
+
+            goUp(parentIndex, _wallet, _tmpUser);
+        }
 
         address parentWallet = Indices[parentIndex];
 

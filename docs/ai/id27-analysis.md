@@ -276,11 +276,96 @@ The issue is a **reentrancy vulnerability** where:
 
 **Your Thought #2 was closest to the truth** - the storage variable IS updated, but the timing of when it's read vs. when it's written creates a race condition when nested calls occur.
 
-**Recommended Fix:** Use a reentrancy guard on the `register()` function in MatrixTemplate.sol to prevent nested registrations.
+---
+
+## IMPLEMENTED FIX (2025-10-11)
+
+### Solution Chosen: Increment IndicesTotal BEFORE goUp()
+
+After testing Solution 2 (ReentrancyGuard), we discovered it blocks legitimate nested calls that are required for the contract logic. Instead, we implemented a **Check-Effects-Interactions** pattern by moving the state changes before external calls.
+
+### Implementation in contracts/MatrixTemplate.sol:87-124
+
+```solidity
+function register(address _wallet, Core.UserGlobal calldata _tmpUser) external {
+    // make it protected (available calls only from Core contract)
+    require(msg.sender == CoreAddress, "access denied 02");
+
+    // Calculate position based on current IndicesTotal
+    (parentIndex, plateau, mod) = calcUserData();
+    User memory user = User(IndicesTotal, parentIndex, false, plateau, true);
+
+    if (mod == 0) {
+        user.isRight = true;
+    }
+
+    // CRITICAL FIX: Store user and increment IndicesTotal BEFORE calling goUp()
+    // This ensures nested registrations see the updated IndicesTotal value
+    Addresses[_wallet] = user;
+    addUser(_wallet);  // Increments IndicesTotal
+
+    // Call goUp() AFTER incrementing IndicesTotal
+    // Now nested calls will see the correct value and won't cause conflicts
+    if (mod == 0 && parentIndex > 0) {
+        goUp(parentIndex, _wallet, _tmpUser);
+    }
+
+    // Rest of function...
+}
+```
+
+### How This Fix Solves the Problem
+
+**Before Fix:**
+```
+Outer Call:                    Nested Call:
+├─ Read IndicesTotal (26)
+├─ Calculate position
+├─ Call goUp() ────────────────┐
+│                              ├─ Read IndicesTotal (26) ← STALE!
+│                              ├─ Calculate same position
+│                              ├─ Modify IndicesTotal → 27
+│                              └─ Return
+├─ Use stale position! ←──────┘
+└─ Modify IndicesTotal → 28
+```
+
+**After Fix:**
+```
+Outer Call:                    Nested Call:
+├─ Read IndicesTotal (26)
+├─ Calculate position
+├─ Store user
+├─ Modify IndicesTotal → 27  ← UPDATED BEFORE EXTERNAL CALL
+├─ Call goUp() ────────────────┐
+│                              ├─ Read IndicesTotal (27) ← CORRECT!
+│                              ├─ Calculate different position
+│                              ├─ Modify IndicesTotal → 28
+│                              └─ Return
+└─ Continue normally ←─────────┘
+```
+
+### Benefits of This Solution
+
+1. **Follows Check-Effects-Interactions Pattern**: State changes happen before external calls
+2. **Preserves Business Logic**: Doesn't block legitimate nested registrations
+3. **Simple & Clean**: Minimal code changes, easy to understand
+4. **No Additional Dependencies**: Doesn't require ReentrancyGuard
+5. **Gas Efficient**: No extra storage variables or checks
+
+### Verification
+
+Run test 6 to verify the fix:
+```bash
+npx hardhat test --grep "test 6" --network hardhat
+```
+
+The test should now pass without any IndicesTotal conflicts.
 
 ---
 
 **Analysis Date:** 2025-10-11
+**Fix Implemented:** 2025-10-11
 **Analyzed Files:**
 - `contracts/Core.sol`
 - `contracts/MatrixTemplate.sol`
