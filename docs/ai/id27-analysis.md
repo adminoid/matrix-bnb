@@ -353,14 +353,38 @@ Outer Call:                    Nested Call:
 4. **No Additional Dependencies**: Doesn't require ReentrancyGuard
 5. **Gas Efficient**: No extra storage variables or checks
 
+### How This Works with Core's Reentrancy Protection
+
+**Important:** Core.sol has its own reentrancy guard on external entry points (`receive()` and `register()`), but this **does not conflict** with our fix because:
+
+1. The `noReentrancy` modifier in Core.sol only protects external entry points
+2. Internal functions like `matricesRegistration()` and `updateUser()` are NOT protected
+3. This allows legitimate nested calls within the same transaction:
+   - User → receive() [sets locked=true]
+   - → matricesRegistration() [internal, no guard]
+   - → MatrixTemplate.register() [external but to different contract]
+   - → goUp() [internal]
+   - → Core.updateUser() [external but NOT protected by noReentrancy]
+   - → matricesRegistration() [internal, no guard]
+   - → MatrixTemplate.register() [works because IndicesTotal was incremented]
+
+4. The guard is released when receive() completes [sets locked=false]
+
+**Why We Don't Use ReentrancyGuard on MatrixTemplate:**
+- It would block legitimate nested registrations that are required for the business logic
+- The real protection comes from Core.sol's guard on entry points
+- Our fix (incrementing IndicesTotal before goUp) prevents the data race without blocking calls
+
 ### Verification
 
-Run test 6 to verify the fix:
+After cleaning and recompiling:
 ```bash
+npx hardhat clean
+npx hardhat compile
 npx hardhat test --grep "test 6" --network hardhat
 ```
 
-The test should now pass without any IndicesTotal conflicts.
+The test should now pass without any IndicesTotal conflicts and without reentrancy errors.
 
 ---
 

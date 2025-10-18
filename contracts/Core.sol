@@ -3,7 +3,6 @@ pragma solidity ^0.8.30;
 
 import "./MatrixTemplate.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract Core {
     using SafeMath for uint256;
@@ -87,10 +86,6 @@ contract Core {
     // proxy for registering wallet by simple payment to contract address
     receive() external payable noReentrancy {
         emit DirectTransfer(msg.sender, msg.value);
-
-        console.log("");
-        console.log("matricesRegistration before in receive", msg.sender);
-
         matricesRegistration(msg.sender, msg.value, UserGlobal(0, 0, 0, address(0), false), false);
     }
 
@@ -151,19 +146,11 @@ contract Core {
         // run register logic
         AddressesGlobal[msg.sender] = UserGlobal(0, 0, 0, whoseAddr, true);
         AddressesGlobalTotal = AddressesGlobalTotal.add(1);
-
-        console.log("Core::register()");
-
-        // todo: POINT 1
         MatrixTemplate(payable(Matrices[0])).register(msg.sender, UserGlobal(0, 0, 0, address(0), false));
 
         // row, here set whose for user
         if (change > 0) {
             if (change >= payUnit * 2) {
-
-                console.log("");
-                console.log("matricesRegistration before in C::register()", msg.sender);
-
                 matricesRegistration(msg.sender, change, UserGlobal(0, 0, 0, address(0), false), false);
             } else {
                 // transfer with change for full price
@@ -182,10 +169,6 @@ contract Core {
 
     // check for enough to _register in multiple matrices, change of amount add to wallet claim
     function matricesRegistration(address _wallet, uint _transferredAmount, UserGlobal memory _tmpUser, bool isWhose) private {
-
-        console.log("");
-        console.log("matricesRegistration begin", _wallet);
-
         uint registerPrice = payUnit;
         uint balance = 0;
         uint nextLevel = 0;
@@ -211,12 +194,6 @@ contract Core {
                 levelOverflow = 1;
             }
         }
-
-        console.log("");
-        console.log("Before CHeck");
-        console.log("BCH balance", balance);
-        console.log("BCH registerPrice", registerPrice);
-        console.log("BCH nextLevel", nextLevel);
 
         // already have register data: balance, nextLevel, registerPrice
         if (levelOverflow == 0 && balance > 0) {
@@ -256,17 +233,11 @@ contract Core {
                     tmpUserBackup = AddressesGlobal[_wallet];
                 }
 
-                console.log("C::matricesRegistration() --> right before MT::register(_wallet)");
-
                 // todo POINT 2
                 MatrixTemplate(payable(Matrices[nextLevel])).register(_wallet, tmpUserBackup);
 
                 registerPrice = registerPrice.mul(2);
                 nextLevel = nextLevel.add(1);
-
-                console.log("balance after", balance);
-                console.log("registerPrice after", registerPrice);
-                console.log("nextLevel after", nextLevel);
             }
         }
     }
@@ -352,9 +323,6 @@ contract Core {
     ) external {
         require(isMatrix(msg.sender), "acc den 1");
 
-        console.log("");
-        console.log("updateUser() begin, _userAddress is ", _userAddress);
-
         uint levelPayUnit = getLevelPrice(_matrixIndex);
         uint newValue = 0;
         // calculate newValue
@@ -375,9 +343,6 @@ contract Core {
             AddressesGlobal[whose].claims = newValue;
             emit ReferralEarn(_userAddress, levelPayUnit, whose);
 
-            console.log("");
-            console.log("matricesRegistration before in update whose claims", whose);
-
             // run whose going level up if enough balance
             matricesRegistration(whose, 0, _tmpUser, true);
         }
@@ -385,10 +350,6 @@ contract Core {
         // TODO: what is it???
         uint needValue = levelPayUnit.mul(2);
         if (newValue >= needValue && _userAddress != zeroWallet && _matrixIndex < maxLevel) {
-
-            console.log("");
-            console.log("matricesRegistration before in WIT?", _userAddress);
-
             matricesRegistration(_userAddress, 0, _tmpUser, false);
         }
     }
@@ -402,14 +363,6 @@ contract Core {
         bool sent = payable(_wallet).send(amount);
 
         require(sent, "s err 4");
-
-        if (_wallet == 0x08135Da0A343E492FA2d4282F2AE34c6c5CC1BbE) {
-            console.log("..sendHalf for 0x08135Da0A343E492FA2d4282F2AE34c6c5CC1BbE..");
-            console.log("receiver: ", _wallet);
-            console.log("sender: ", sender);
-            console.log("amount: ", amount);
-            console.log("_matrixIndex: ", _matrixIndex);
-        }
 
         emit BelowTwoAppear(
             _wallet,

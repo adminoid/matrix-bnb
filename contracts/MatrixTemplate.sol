@@ -3,7 +3,6 @@ pragma solidity ^0.8.30;
 
 import "./Core.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract MatrixTemplate {
     using SafeMath for uint256;
@@ -35,21 +34,11 @@ contract MatrixTemplate {
     constructor(uint _index, address _coreAddress, address[5] memory _fiveFounders) {
         // registration of first top five investors/maintainers without balances
         // _fiveFounders.length must be equal to 5
-        console.log("");
-        console.log("MT::constructor()");
-        console.log("matrix index (starts with 0):", matrixIndex);
-
         for (uint8 i = 0; i < 5; i++) {
             // calculate base user data
             uint parentIndex;
             uint plateau;
             uint mod;
-
-            console.log("");
-            console.log("THE TROUBLE: constructor() before calcUserData()");
-            console.log("_index", _index);
-            console.log("_coreAddress", _coreAddress);
-
             (parentIndex, plateau, mod) = calcUserData();
             User memory user = User(IndicesTotal, parentIndex, false, plateau, true);
             if (mod == 0) {
@@ -84,11 +73,6 @@ contract MatrixTemplate {
     */
 
     function register(address _wallet, Core.UserGlobal calldata _tmpUser) external {
-
-        console.log("");
-        console.log("MT::register() begin", _wallet);
-        console.log("matrix index (starts with 0):", matrixIndex);
-
         // make it protected (available calls only from Core contract)
         require(msg.sender == CoreAddress, "access denied 02");
         // calculate base user data
@@ -104,41 +88,14 @@ contract MatrixTemplate {
         // Store user and increment IndicesTotal BEFORE calling goUp()
         // This ensures nested registrations see the correct IndicesTotal value
         Addresses[_wallet] = user;
-        console.log("");
-        console.log("addUser(_wallet);");
-        console.log("matrix index (starts with 0):", matrixIndex);
-        console.log("IndicesTotal before", IndicesTotal);
-        console.log("_wallet", _wallet);
         addUser(_wallet);
-        console.log("IndicesTotal after", IndicesTotal);
-        console.log("");
 
         // Call goUp() AFTER incrementing IndicesTotal
         if (mod == 0 && parentIndex > 0) {
-
-            console.log("");
-            console.log("MT::register() before goUp()");
-
             goUp(parentIndex, _wallet, _tmpUser);
         }
 
         address parentWallet = Indices[parentIndex];
-
-        // check is sender
-        if (_wallet == 0xdF3e18d64BC6A983f673Ab319CCaE4f1a57C7097) {
-
-            console.log("");
-
-            console.log("THE ISSUE (find third): register method checkpoint 237.!");
-
-            console.log("matrix index (starts with 0):", matrixIndex);
-            console.log("_wallet", _wallet);
-            console.log("parentIndex", parentIndex);
-            console.log("plateau", plateau);
-            console.log("mod", mod);
-            console.log("parentWallet", parentWallet);
-            console.log("");
-        }
 
         Core(payable(CoreAddress)).sendHalf(parentWallet, matrixIndex, _wallet);
 
@@ -149,12 +106,6 @@ contract MatrixTemplate {
     // parentIndex, plateau, mod
     function calcUserData()
     private view returns (uint, uint, uint) {
-
-        console.log("");
-        console.log("calcUserData()");
-        console.log("IndicesTotal --> ", IndicesTotal);
-        console.log("matrix index (starts with 0):", matrixIndex);
-
         // plateau number calculation (for current registration)
         uint plateau = log2(IndicesTotal.add(2));
 
@@ -183,18 +134,10 @@ contract MatrixTemplate {
         }
         uint parentIndex = subPreviousTotal.add(parentNum.sub(1));
 
-        console.log("at the end of calcUserData()");
-        console.log(parentIndex, plateau, mod);
-
         return (parentIndex, plateau, mod);
     }
 
     function goUp(uint _parentIndex, address _registeredWallet, Core.UserGlobal calldata _tmpUser) private {
-
-        console.log("");
-        console.log("MT::goUp()");
-        console.log("matrix index (starts with 0):", matrixIndex);
-
         address parentWallet = Indices[_parentIndex];
         User memory nextUser = Addresses[parentWallet];
         for (uint i = 2; i <= 5; i++) {
