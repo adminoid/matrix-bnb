@@ -1080,6 +1080,9 @@ describe('id7-id30 by 0.07', async () => {
 
         // todo -- id5 регистрируешь под id4 за 0.01,
         if (index === 5) {
+
+          console.log('wallets[5] - check claim: ', wallets[5].address)
+
           const tx1 = await p.CoreToken
               .connect(wallets[index]) // todo <-- id5
               .register('0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f', { // todo <-- set wallet id4
@@ -1112,8 +1115,8 @@ describe('id7-id30 by 0.07', async () => {
         }
 
         // todo -- Потом с id7 по id30 отправляешь на контракт по 0.07 bnb
-        else if (index >= 7 && index <= 29) {
-        // else if (index >= 7 && index <= 30) {
+        // else if (index >= 7 && index <= 29) {
+        else if (index >= 7 && index <= 30) {
           let tx4
           if (index === 30) {
             tx4 = await wallets[index].sendTransaction({
