@@ -1256,7 +1256,7 @@ describe('id7-id30 by 0.03', async () => {
         // todo -- Потом c id7 по id29 отправляешь на контракт по 0.03
         // todo -- phase 2: Потом id30 отправляешь на контракт 0.03
         else if (index >= 7 && index <= 30) {
-          // else if (index >= 7 && index <= 29) {
+        // else if (index >= 7 && index <= 29) {
           let tx4
           // if (index === 30) {
           //   tx4 = await wallets[index].sendTransaction({
@@ -1293,7 +1293,6 @@ describe('id7-id30 by 0.03', async () => {
 
         await tx5.wait()
       }
-
 
       return users
     }
@@ -1519,6 +1518,8 @@ describe('test 5', async () => {
         await tx.wait()
         // todo -- у id0 появится подарок
       }
+
+      console.log('before wallets[7] reg', wallets[7].address)
 
       // todo -- И надо будет за 0.01 tbnb через сайт зарегать id7 под id0,
       const tx1 = await p.CoreToken
