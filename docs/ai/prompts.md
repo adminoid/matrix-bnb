@@ -18,3 +18,12 @@ My thoughts:
 2) maybe storage variable `IndicesTotal` saved only after whole transaction and because of it throughout transaction `IndicesTotal` value is not updates.
 
 Write whole analysis and your conclusions in file `docs/ai/id27-analysis.md` very detailed. We should save all information between your sessions in that file.
+
+# Splitting `Core.sol` contract (finally not needed)
+
+Now there is an error `ProviderError: tx size is too large` for deploying contract to testnet. 
+I think so code of Core.sol contract is overflow max contract size limit.
+Can you split Core.sol to two contracts to bypass the restriction?
+What do you think? Can you propose a solutions, some ways how we can split Core contract to two?
+It can help, there discussed the same problem:
+https://forum.soliditylang.org/t/mechanism-to-split-large-contracts/91
