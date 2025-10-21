@@ -8,7 +8,7 @@ contract Core {
     using SafeMath for uint256;
 
     // settings
-    uint public constant payUnit = 0.01 * (10 ** 18); // first number is bnb amount
+    uint public constant payUnit = 0.001 * (10 ** 18); // first number is bnb amount
     uint public constant maxLevel = 19; // 0..19 (total 20)
     uint public lastUpdated; // timestamp
     bool internal locked; // reentrancy prevention
