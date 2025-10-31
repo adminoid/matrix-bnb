@@ -1643,3 +1643,44 @@ describe('test 6', async () => {
    */
 })
 
+
+// TEST 7
+describe('test 7', async () => {
+  let p, runRegistrations
+  before(async () => {
+    // todo -- регистрируешь id0-id4 друг под друга
+    p = await prepare()
+
+    runRegistrations = async () => {
+      let wallets = await getWallets()
+      let users = []
+
+      console.log('wallets[5]:', wallets[5].address)
+
+      // todo -- id5 отправляешь на контракт 1050 bnb
+      const tx = await wallets[5].sendTransaction({
+        to: p.CoreToken.address,
+        value: ethers.utils.parseEther('1050'),
+      })
+      await tx.wait()
+
+      return users
+    }
+  })
+
+  it('test 7', async () => {
+    await getWallets()
+    await runRegistrations()
+  })
+
+  /**
+   * ТЕСТ 7
+   *
+   * При деплое контракта, регистрируешь id0-id4 друг под друга
+   *
+   * id5 отправляешь на контракт 1050 bnb.
+   *
+   * В результате этот id5 должен появиться во всех 20ти матрицах
+   * и на Claim ему должно прийти 1,425 bnb
+   */
+})
