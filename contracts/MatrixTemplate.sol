@@ -16,6 +16,9 @@ contract MatrixTemplate {
         bool isValue;
     }
 
+    // Custom errors
+    error CoreAccessDenied();
+
     // getting user by address
     mapping(address => User) public Addresses;
     // getting address by index
@@ -72,7 +75,7 @@ contract MatrixTemplate {
 
     function register(address _wallet, Core.UserGlobal calldata _tmpUser) external {
         // make it protected (available calls only from Core contract)
-        require(msg.sender == CoreAddress, "MT::register() access denied");
+        if (msg.sender != CoreAddress) revert CoreAccessDenied();
         // calculate base user data
         uint parentIndex;
         uint plateau;
