@@ -38,8 +38,8 @@ module.exports = {
     }
   },
   // todo -- change if network changed
-  // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
+  defaultNetwork: "localhost",
+  // defaultNetwork: "testnet",
   // defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
@@ -52,31 +52,13 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: true,
       accounts: {
-        // count: 1350,
-        // count: 41,
+        mnemonic: "test test test test test test test test test test test junk",
         count: 50,
-        // count: 350,
-        // count: 77,
-        // count: 45,
-        // count: 160,
-        // count: 20,
-        // count: 290,
-        // count: 1100,
-        // count: 600,
-        // count: 60,
-        // count: 6,
-        // accountsBalance: '3000000000000000000000', // 3000 bnb
         accountsBalance: '30000000000000000000000', // 30_000 bnb
-        // accountsBalance: '300000000000000000000011112222222221212',
       },
-      // blockGasLimit: 126000000429720, // whatever you want here
-      // blockGasLimit: 600_000_000, // whatever you want here
-      // If there have got out of gas, increase gasLimit value
-      // gasLimit: 55_000_000,
-      // gasPrice: 2_000_000,
-      // gas: 300_000_000
       gas: "auto",
       blockGasLimit: 999000000,
+      // gasPrice: 2_000_000,
     },
     testnet: {
       url: "https://data-seed-prebsc-1-s2.binance.org:8545/",
