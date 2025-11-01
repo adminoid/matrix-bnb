@@ -2,10 +2,8 @@
 pragma solidity ^0.8.30;
 
 import "./Core.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract MatrixTemplate {
-    using SafeMath for uint256;
 
     uint public immutable matrixIndex;
     address public immutable CoreAddress;
@@ -46,7 +44,7 @@ contract MatrixTemplate {
             }
             Addresses[_fiveFounders[i]] = user;
             Indices[i] = _fiveFounders[i];
-            IndicesTotal = IndicesTotal.add(1);
+            IndicesTotal = IndicesTotal + 1;
         }
         // initiations
         matrixIndex = _index;
@@ -107,32 +105,32 @@ contract MatrixTemplate {
     function calcUserData()
     private view returns (uint, uint, uint) {
         // plateau number calculation (for current registration)
-        uint plateau = log2(IndicesTotal.add(2));
+        uint plateau = log2(IndicesTotal + 2);
 
         uint subPreviousTotal;
         if (plateau < 2) {
             subPreviousTotal = 0;
         } else {
-            subPreviousTotal = getSumOfPlateau(0, plateau.sub(2));
+            subPreviousTotal = getSumOfPlateau(0, plateau - 2);
         }
 
         // get total in current plateau
         // uint totalPlateau = 2 ** (plateau - 1);
 
         // get total in start to sub previous plateau
-        uint previousTotal = getSumOfPlateau(0, plateau.sub(1));
+        uint previousTotal = getSumOfPlateau(0, plateau - 1);
         // get current number in current plateau
         uint currentNum = IndicesTotal - previousTotal + 1;
         // and check mod for detect left or right on parent
-        uint mod = currentNum.mod(2);
+        uint mod = currentNum % 2;
         // detect parentNum
-        uint parentNum = currentNum.div(2);
+        uint parentNum = currentNum / 2;
         if (parentNum < 1) {
             parentNum = 1;
         } else {
-            parentNum = parentNum.add(mod);
+            parentNum = parentNum + mod;
         }
-        uint parentIndex = subPreviousTotal.add(parentNum.sub(1));
+        uint parentIndex = subPreviousTotal + (parentNum - 1);
 
         return (parentIndex, plateau, mod);
     }
@@ -178,7 +176,7 @@ contract MatrixTemplate {
     function addUser(address _userAddress)
     private {
         Indices[IndicesTotal] = _userAddress;
-        IndicesTotal = IndicesTotal.add(1);
+        IndicesTotal = IndicesTotal + 1;
     }
 
     function getUser(address _wallet)

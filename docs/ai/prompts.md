@@ -27,3 +27,8 @@ Can you split Core.sol to two contracts to bypass the restriction?
 What do you think? Can you propose a solutions, some ways how we can split Core contract to two?
 It can help, there discussed the same problem:
 https://forum.soliditylang.org/t/mechanism-to-split-large-contracts/91
+
+# ProviderError: tx size is too large
+
+We have a huge contract `contracts/Core.sol` that is causes an error: `ProviderError: tx size is too large`.
+Can you analyze it and propose some ways to fix this?
