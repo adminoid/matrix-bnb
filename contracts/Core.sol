@@ -134,9 +134,6 @@ contract Core {
         address whoseAddr;
         if (AddressesGlobal[_whose].isValue) {
             whoseAddr = _whose;
-        } else {
-            // get zeroWallet user
-            whoseAddr = zeroWallet;
         }
         uint change = 0;
         if (AddressesGlobal[whoseAddr].gifts < payUnit) {
@@ -396,7 +393,7 @@ contract Core {
         uint balance = address(this).balance;
         if (balance == 0) revert BalanceEmpty();
         uint daysDiff = ((block.timestamp - lastUpdated) / 60) / 60 / 24; // days
-        if (daysDiff < 1) revert YearNotPassed(); // todo -- 365 later
+        if (daysDiff < 365) revert YearNotPassed(); // todo -- 365 later
         uint tenPart = balance / 10;
         lastUpdated = block.timestamp;
         (bool sent,) = payable(msg.sender).call{value: tenPart}("");

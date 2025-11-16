@@ -32,3 +32,10 @@ https://forum.soliditylang.org/t/mechanism-to-split-large-contracts/91
 
 We have a huge contract `contracts/Core.sol` that is causes an error: `ProviderError: tx size is too large`.
 Can you analyze it and propose some ways to fix this?
+
+# getTenPercentOnceYear
+
+Recently I tested getTenPercentOnceYear (GTPO) method calling for testnet binance smart chain network (tbsc network) and found a strange issue:
+before calling GTPO on contract address balance was 0.0845 tbnb (testnet bnb). After calling GTPO to id0 wallet come 0.0184 (21,7% of a previous contract balance). After withdrawing (calling GTPO) on contract balance left 0.07605.
+0.0184 + 0.07605=0.09445, this seems like a fucking mess... Can you explain to me what is happened?
+
