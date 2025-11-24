@@ -33,13 +33,13 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
+        runs: 1000
       }
     }
   },
   // todo -- change if network changed
-  defaultNetwork: "localhost",
-  // defaultNetwork: "testnet",
+  // defaultNetwork: "localhost",
+  defaultNetwork: "testnet",
   // defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
