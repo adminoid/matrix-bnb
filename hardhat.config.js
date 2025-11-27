@@ -4,7 +4,8 @@ require("@nomiclabs/hardhat-web3");
 require("hardhat-gas-reporter");
 // const { task } = require("hardhat/config");
 // const { ethers } = require('hardhat')
-const { mnemonic } = require('./secret/secret.json'); // 0xE2496514F6a3B1aCC3BB903EC2458810F2B48076
+// const { mnemonic } = require('./secret/secret.json'); // 0xE2496514F6a3B1aCC3BB903EC2458810F2B48076
+const { mnemonic } = require('./secret/secret-main.json'); // 0xE2496514F6a3B1aCC3BB903EC2458810F2B48076
 // const { mnemonic } = require('./secret/secret-igor.json'); // 0x3019145a5c3B3e1871e4Ac12A5f21b6A1b0968AD
 // const { mnemonic } = require('./secret/workchain.json');
 // const mnemonic = '';
@@ -39,8 +40,8 @@ module.exports = {
   },
   // todo -- change if network changed
   // defaultNetwork: "localhost",
-  defaultNetwork: "testnet",
-  // defaultNetwork: "mainnet",
+  // defaultNetwork: "testnet",
+  defaultNetwork: "mainnet",
   allowUnlimitedContractSize: true,
   networks: {
     localhost: {
@@ -71,7 +72,7 @@ module.exports = {
     mainnet: {
       url: "https://bsc-dataseed.binance.org/",
       chainId: 56,
-      gasPrice: 'auto',
+      gas: 'auto',
       accounts: { mnemonic }
     }
   },
