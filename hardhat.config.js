@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require('@nomiclabs/hardhat-ethers');
 require("@nomiclabs/hardhat-web3");
 require("hardhat-gas-reporter");
+require("@nomiclabs/hardhat-etherscan");
 // const { task } = require("hardhat/config");
 // const { ethers } = require('hardhat')
 // const { mnemonic } = require('./secret/secret.json'); // 0xE2496514F6a3B1aCC3BB903EC2458810F2B48076
@@ -29,6 +30,27 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY || "",
+    customChains: [
+      {
+        network: "mainnet",
+        chainId: 56,
+        urls: {
+          apiURL: "https://api.bscscan.com/api",
+          browserURL: "https://bscscan.com"
+        }
+      },
+      {
+        network: "testnet",
+        chainId: 97,
+        urls: {
+          apiURL: "https://api-testnet.bscscan.com/api",
+          browserURL: "https://testnet.bscscan.com"
+        }
+      }
+    ]
+  },
   solidity: {
     version: "0.8.30",
     settings: {

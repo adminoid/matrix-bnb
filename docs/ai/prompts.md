@@ -39,3 +39,10 @@ Recently I tested getTenPercentOnceYear (GTPO) method calling for testnet binanc
 before calling GTPO on contract address balance was 0.0845 tbnb (testnet bnb). After calling GTPO to id0 wallet come 0.0184 (21,7% of a previous contract balance). After withdrawing (calling GTPO) on contract balance left 0.07605.
 0.0184 + 0.07605=0.09445, this seems like a fucking mess... Can you explain to me what is happened?
 
+# verifying
+
+My last deal was deploying contract to mainnet of binance smart chain network, you can see a deploy.js and hardhat.config.js. 
+Command was used is `npx hardhat run --network testnet scripts/deploy.js`. Now I need to verify deployed contract with hardhat as described there: https://hardhat.org/docs/guides/smart-contract-verification
+I need your help to do this.
+
+On bscscan I see this: `BscScan APIs have been deprecated and replaced by Etherscan API V2. Learn more about migrating your endpoints and API keys.` I went to etherscan https://etherscan.io/apidashboard and there is this api key: Z8FEE97ZJ5CYFGS6VUNX8Q88IZDQ39FY5T
